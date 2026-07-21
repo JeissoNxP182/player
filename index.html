@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reproductor</title>
   
-  <!-- Estilos del Reproductor Plyr (Estilo YouTube) -->
+  <!-- Estilos de Plyr (Diseño tipo YouTube) -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   
   <!-- Librerías de reproducción HLS y Plyr -->
@@ -39,28 +39,26 @@
       position: relative;
     }
 
-    /* Personalización visual estilo YouTube */
+    /* Personalización del reproductor estilo YouTube */
     :root {
-      --plyr-color-main: #ff0000; /* Red YouTube */
+      --plyr-color-main: #ff0000; /* Rojo YouTube */
       --plyr-video-background: #000;
-      --plyr-menu-background: rgba(28, 28, 28, 0.9);
+      --plyr-menu-background: rgba(28, 28, 28, 0.95);
       --plyr-menu-color: #f1f1f1;
       --plyr-menu-radius: 12px;
       --plyr-control-radius: 4px;
       --plyr-range-track-height: 3px;
     }
 
-    /* Ajuste de barra de progreso al pasar el cursor */
     .plyr--full-ui input[type=range] {
       color: #ff0000;
     }
 
     .plyr__controls {
-      background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.8)) !important;
+      background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.85)) !important;
       padding: 10px 15px !important;
     }
 
-    /* Poster / Miniatura sin bordes */
     .plyr__poster {
       background-size: cover;
     }
@@ -69,37 +67,40 @@
 <body>
 
   <div class="video-container">
-    <!-- LÍNEA 60: PEGA AQUÍ LA MINIATURA / PÓSTER -->
-    <video id="player" controls playsinline poster="AQUÍ_PEGA_EL_ENLACE_DE_LA_IMAGEN"></video>
+    <video id="player" controls playsinline></video>
   </div>
 
   <script>
-    // ==========================================
-    // LÍNEA 66: PEGA AQUÍ EL ENLACE DEL VIDEO
-    // ==========================================
-    const videoUrl = "AQUÍ_PEGA_EL_ENLACE_LARGO_DEL_VIDEO";
-
+    // Captura los parámetros enviados desde tus otros archivos (?v=video & ?p=poster)
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoUrl = urlParams.get('v') || urlParams.get('url');
+    const posterUrl = urlParams.get('p') || urlParams.get('poster');
     const videoElement = document.getElementById('player');
 
-    // Lista de controles exactos de YouTube
+    // Configuración de la barra de controles idéntica a YouTube
     const youtubeControls = [
-      'play-large',    // Botón gigante de play al centro
+      'play-large',    // Botón rojo gigante de Play al centro
       'play',          // Play / Pausa
-      'fast-forward',  // Siguiente / Adelantar
-      'mute',          // Botón de silenciar
-      'volume',        // Barra de volumen
-      'current-time',  // Tiempo actual
+      'fast-forward',  // Adelantar
+      'mute',          // Silenciar / Volumen
+      'volume',        // Barra deslizante de volumen
+      'current-time',  // Tiempo transcurrido
       'duration',      // Duración total
       'captions',      // Subtítulos (CC)
-      'settings',      // Menú Tuerca (Calidad / Velocidad)
+      'settings',      // Menú Tuerca (Calidad y Velocidad)
       'pip',           // Mini-reproductor (Picture-in-Picture)
-      'airplay',       // Transmitir a TV
-      'fullscreen'     // Pantalla completa
+      'airplay',       // Transmitir a Smart TV / Apple TV
+      'fullscreen'     // Pantalla Completa
     ];
 
     let playerInstance = null;
 
-    // Lógica de Doble Clic / Doble Tap para saltar 10s (Izquierda/Derecha)
+    // Asignar miniatura si viene en la URL (?p=)
+    if (posterUrl) {
+      videoElement.setAttribute('poster', posterUrl);
+    }
+
+    // Doble clic / doble toque para adelantar/atrasar 10s (Izquierda/Derecha)
     videoElement.addEventListener('dblclick', function (e) {
       if (!playerInstance) return;
       
@@ -114,8 +115,8 @@
       }
     });
 
-    if (videoUrl && videoUrl !== "AQUÍ_PEGA_EL_ENLACE_LARGO_DEL_VIDEO") {
-      // Transmisión HLS (.m3u8)
+    if (videoUrl) {
+      // 1. Transmisión HLS (.m3u8) con menú de calidades
       if (videoUrl.includes('.m3u8') && Hls.isSupported()) {
         const hls = new Hls();
         hls.loadSource(videoUrl);
@@ -127,7 +128,7 @@
 
           playerInstance = new Plyr(videoElement, {
             controls: youtubeControls,
-            autoplay: false,
+            autoplay: false, // SIN REPRODUCCIÓN AUTOMÁTICA
             clickToPlay: true,
             tooltips: { controls: true, seek: true },
             quality: {
@@ -148,13 +149,13 @@
           });
         });
       } 
-      // Archivo Directo (MP4 / Streamtape / etc.)
+      // 2. Archivo Directo (MP4 / Streamtape / etc.)
       else {
         videoElement.src = videoUrl;
 
         playerInstance = new Plyr(videoElement, {
           controls: youtubeControls,
-          autoplay: false,
+          autoplay: false, // SIN REPRODUCCIÓN AUTOMÁTICA
           clickToPlay: true,
           tooltips: { controls: true, seek: true },
           speed: { selected: 1, options: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] },
