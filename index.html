@@ -3,46 +3,181 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mi Cine Privado</title>
-  <!-- Cargamos la librería HLS.js directamente desde CDN gratuito -->
+  <title>Reproductor Makia</title>
+  <!-- Cargamos HLS.js para la reproducción y calidad -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background-color: #0d0d0d; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
-    .container { width: 100%; max-width: 1080px; padding: 10px; }
-    video { width: 100%; height: auto; aspect-ratio: 16/9; background: #000; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-    .status { margin-top: 15px; font-size: 14px; color: #aaa; text-align: center; }
+    body { 
+      background-color: #0d0d0d; 
+      color: #fff; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      min-height: 100vh; 
+      padding: 15px;
+    }
+    .container { 
+      width: 100%; 
+      max-width: 1000px; 
+      background: #181818;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+    video { 
+      width: 100%; 
+      height: auto; 
+      aspect-ratio: 16/9; 
+      background: #000; 
+      display: block;
+    }
+    
+    /* Panel de Controles Inferiores */
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: #141414;
+      gap: 10px;
+      border-top: 1px solid #282828;
+    }
+    .status { 
+      font-size: 14px; 
+      color: #aaa; 
+    }
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    /* Selector de Calidad (Tuerca) */
+    .quality-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #252525;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .quality-wrapper select {
+      background: transparent;
+      color: #fff;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .quality-wrapper option {
+      background: #252525;
+      color: #fff;
+    }
+
+    /* Botón de Descarga */
+    .download-btn {
+      background: #e50914;
+      color: #fff;
+      text-decoration: none;
+      padding: 7px 15px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s ease;
+    }
+    .download-btn:hover {
+      background: #b80710;
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
     <video id="videoPlayer" controls autoplay playsinline></video>
-    <div class="status" id="statusText">Cargando película...</div>
+    
+    <div class="controls-bar">
+      <div class="status" id="statusText">Cargando video...</div>
+      
+      <div class="actions">
+        <!-- Selector de Calidad (Oculto por defecto hasta que se detecten capas .m3u8) -->
+        <div class="quality-wrapper" id="qualityContainer" style="display: none;">
+          ⚙️ <select id="qualitySelect"></select>
+        </div>
+
+        <!-- Botón de Descarga Directa -->
+        <a href="#" id="downloadBtn" class="download-btn" target="_blank" style="display: none;">
+          ⬇️ Descargar
+        </a>
+      </div>
+    </div>
   </div>
 
   <script>
-    // Obtener la URL del parámetro ?v= o ?url= en la barra de direcciones
     const urlParams = new URLSearchParams(window.location.search);
     const videoUrl = urlParams.get('v') || urlParams.get('url');
     const videoElement = document.getElementById('videoPlayer');
     const statusText = document.getElementById('statusText');
+    const qualityContainer = document.getElementById('qualityContainer');
+    const qualitySelect = document.getElementById('qualitySelect');
+    const downloadBtn = document.getElementById('downloadBtn');
 
     if (videoUrl) {
-      if (Hls.isSupported()) {
+      // Configurar Botón de Descarga
+      downloadBtn.href = videoUrl;
+      downloadBtn.style.display = 'inline-flex';
+
+      // 1. Transmisión HLS (.m3u8) con selector de calidad
+      if (videoUrl.includes('.m3u8') && Hls.isSupported()) {
         const hls = new Hls();
         hls.loadSource(videoUrl);
         hls.attachMedia(videoElement);
-        hls.on(Hls.Events.MANIFEST_PARSED, function () {
-          statusText.innerText = "Reproduciendo en máxima calidad";
+
+        hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+          statusText.innerText = "Reproduciendo HLS";
+          
+          // Si el archivo .m3u8 trae varios niveles de calidad (720p, 1080p, etc.)
+          if (data.levels.length > 1) {
+            qualityContainer.style.display = 'flex';
+            qualitySelect.innerHTML = '<option value="-1">Auto (Calidad adaptativa)</option>';
+
+            data.levels.forEach((level, index) => {
+              const height = level.height || 'SD';
+              const option = document.createElement('option');
+              option.value = index;
+              option.text = height + 'p';
+              qualitySelect.appendChild(option);
+            });
+
+            qualitySelect.addEventListener('change', function () {
+              hls.currentLevel = parseInt(this.value);
+              if (this.value == "-1") {
+                statusText.innerText = "Calidad: Automática";
+              } else {
+                statusText.innerText = "Calidad forzada: " + qualitySelect.options[qualitySelect.selectedIndex].text;
+              }
+            });
+          }
         });
-      } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-        // Soporte nativo para Safari/iOS
+      } 
+      // 2. Archivos directos (TapeContent, MP4, etc.)
+      else {
         videoElement.src = videoUrl;
-        statusText.innerText = "Reproduciendo en máxima calidad";
+        statusText.innerText = "Reproduciendo archivo directo";
+        // Si el navegador soporta el selector nativo en video
+        if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+          videoElement.src = videoUrl;
+        }
       }
     } else {
-      statusText.innerText = "Error: Por favor ingresa un enlace válido al final de la URL.";
+      statusText.innerText = "Error: No se ha ingresado ningún enlace de video.";
     }
   </script>
 </body>
