@@ -1,210 +1,218 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Reproductor Streaming</title>
-  
-  <!-- HLS.js para enlaces .m3u8 -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  
-  <!-- SDK oficial de Google Cast (para transmitir a la TV) -->
-  <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Player</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
+<!-- Plyr CSS -->
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css"/>
 
-    body {
-      background-color: #0d0e12;
-      color: #e1e1e6;
-      padding: 20px 15px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-    }
+<style>
+:root{
+    --plyr-color-main:#e50914;
+}
 
-    .app-header {
-      width: 100%;
-      max-width: 650px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-    .app-header h1 {
-      font-size: 20px;
-      font-weight: 700;
-      color: #ffffff;
-      letter-spacing: 0.5px;
-    }
+html,body{
+    width:100%;
+    height:100%;
+    background:#0b0b0c;
+    overflow:hidden;
+    font-family:Arial,sans-serif;
+}
 
-    /* Botón de Transmitir a la TV */
-    google-cast-launcher {
-      width: 32px;
-      height: 32px;
-      cursor: pointer;
-      --connected-color: #3b82f6;
-      --disconnected-color: #ffffff;
-    }
+body{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
 
-    .container {
-      width: 100%;
-      max-width: 650px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
+.player-container{
+    width:100%;
+    max-width:100vw;
+    aspect-ratio:16/9;
+    background:#000;
+}
 
-    /* Panel de entrada neutro */
-    .stream-input-card {
-      background: #161822;
-      border: 1px solid #282a38;
-      border-radius: 12px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    }
-
-    .input-wrapper {
-      position: relative;
-      width: 100%;
-    }
-
-    input[type="url"] {
-      width: 100%;
-      padding: 14px;
-      border-radius: 8px;
-      border: 1px solid #2d3042;
-      background-color: #0d0e12;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input[type="url"]:focus {
-      border-color: #3b82f6;
-    }
-
-    .btn-play {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 8px;
-      background: #2563eb;
-      color: #ffffff;
-      font-weight: 600;
-      font-size: 15px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: background 0.2s, transform 0.1s;
-    }
-
-    .btn-play:active {
-      background: #1d4ed8;
-      transform: scale(0.98);
-    }
-
-    /* Marco del Reproductor */
-    .player-card {
-      width: 100%;
-      background: #000000;
-      border-radius: 14px;
-      overflow: hidden;
-      border: 1px solid #282a38;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
-      aspect-ratio: 16 / 9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-  </style>
+video{
+    width:100%;
+    height:100%;
+    display:block;
+    background:#000;
+}
+</style>
 </head>
 <body>
 
-  <div class="app-header">
-    <h1>REPRODUCTOR STREAM</h1>
-    <!-- Ícono nativo para transmitir a la Smart TV / Chromecast -->
-    <google-cast-launcher title="Transmitir a la TV"></google-cast-launcher>
-  </div>
+<div class="player-container">
+    <video id="player" playsinline controls></video>
+</div>
 
-  <div class="container">
-    <!-- Entrada de URL -->
-    <div class="stream-input-card">
-      <div class="input-wrapper">
-        <input type="url" id="streamUrl" placeholder="Pega la URL de tu transmisión (.m3u8 o .mp4)" autocomplete="off">
-      </div>
-      <button class="btn-play" id="loadBtn">
-        <span>▶</span> Cargar video
-      </button>
-    </div>
+<!-- Hls.js -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
-    <!-- Pantalla de video -->
-    <div class="player-card">
-      <video id="video" controls playsinline preload="metadata"></video>
-    </div>
-  </div>
+<!-- Plyr -->
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
-  <script>
-    const video = document.getElementById('video');
-    const loadBtn = document.getElementById('loadBtn');
-    const streamUrlInput = document.getElementById('streamUrl');
+<script>
+const params = new URLSearchParams(location.search);
 
-    let hls = null;
+const videoUrl =
+    params.get("v") ||
+    params.get("url") ||
+    "";
 
-    // Inicializar Google Cast
-    window.__onGCastApiAvailable = function(isAvailable) {
-      if (isAvailable) {
-        cast.framework.CastContext.getInstance().setOptions({
-          receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
-          autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-        });
-      }
-    };
+const poster =
+    params.get("p") ||
+    params.get("poster") ||
+    "";
 
-    function reproducirStream() {
-      const url = streamUrlInput.value.trim();
-      if (!url) return;
+const video = document.getElementById("player");
 
-      if (hls) {
-        hls.destroy();
-      }
+if (poster) {
+    video.poster = poster;
+}
 
-      // Reproducción M3U8
-      if (url.includes('.m3u8') && Hls.isSupported()) {
-        hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-      } 
-      // Reproducción MP4 directa
-      else {
-        video.src = url;
-      }
+let hls;
+let player;
 
-      // No se auto-reproduce
-      video.pause();
+function initPlayer(qualityOptions = []){
+
+    player = new Plyr(video,{
+        autoplay:false,
+        clickToPlay:true,
+        resetOnEnd:false,
+
+        controls:[
+            "play-large",
+            "restart",
+            "play",
+            "progress",
+            "current-time",
+            "duration",
+            "mute",
+            "volume",
+            "settings",
+            "pip",
+            "airplay",
+            "fullscreen"
+        ],
+
+        settings:["quality","speed"],
+
+        speed:{
+            selected:1,
+            options:[0.5,0.75,1,1.25,1.5,1.75,2]
+        },
+
+        quality: qualityOptions.length ? {
+            default: qualityOptions[0],
+            options: qualityOptions,
+            forced:true,
+            onChange:updateQuality
+        } : undefined
+    });
+
+    // Nunca iniciar automáticamente
+    player.pause();
+
+    setupDoubleTap();
+}
+
+function updateQuality(newQuality){
+    if(!hls) return;
+
+    hls.levels.forEach((level,index)=>{
+        if(level.height===newQuality){
+            hls.currentLevel=index;
+        }
+    });
+}
+
+function setupDoubleTap(){
+
+    let lastTap=0;
+
+    video.addEventListener("dblclick",seek);
+
+    video.addEventListener("touchend",function(e){
+
+        const now=Date.now();
+
+        if(now-lastTap<300){
+            seek(e.changedTouches[0]);
+        }
+
+        lastTap=now;
+
+    },{passive:true});
+
+    function seek(ev){
+
+        const rect=video.getBoundingClientRect();
+
+        const x=ev.clientX-rect.left;
+
+        const left=rect.width*0.35;
+        const right=rect.width*0.65;
+
+        if(x<=left){
+            video.currentTime=Math.max(0,video.currentTime-10);
+        }else if(x>=right){
+            video.currentTime=Math.min(video.duration||Infinity,video.currentTime+10);
+        }
+    }
+}
+
+if(!videoUrl){
+
+    document.body.innerHTML="";
+
+}else{
+
+    if(videoUrl.toLowerCase().includes(".m3u8")){
+
+        if(Hls.isSupported()){
+
+            hls=new Hls();
+
+            hls.loadSource(videoUrl);
+
+            hls.attachMedia(video);
+
+            hls.on(Hls.Events.MANIFEST_PARSED,function(){
+
+                const qualities=hls.levels
+                    .map(level=>level.height)
+                    .filter((v,i,a)=>a.indexOf(v)===i)
+                    .sort((a,b)=>b-a);
+
+                initPlayer(qualities);
+
+            });
+
+        }else if(video.canPlayType("application/vnd.apple.mpegurl")){
+
+            video.src=videoUrl;
+            initPlayer();
+
+        }
+
+    }else{
+
+        video.src=videoUrl;
+        initPlayer();
+
     }
 
-    loadBtn.addEventListener('click', reproducirStream);
-  </script>
+}
+</script>
 
 </body>
 </html>
