@@ -3,14 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reproductor</title>
+  <title>Reproductor Makia</title>
   
-  <!-- Estilos de Plyr (Diseño tipo YouTube) -->
+  <!-- Estilos de Plyr -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   
-  <!-- Soporte para Chromecast (Transmisión a TV) -->
-  <script type="text/javascript" src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
-
   <!-- Librerías de reproducción HLS y Plyr -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
@@ -25,15 +22,15 @@
     html, body {
       width: 100%;
       height: 100%;
-      background-color: #0f0f0f;
+      background-color: #0b0b0c;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      font-family: "YouTube Sans", "Roboto", sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    .video-container {
+    .video-wrapper {
       width: 100%;
       max-width: 100vw;
       max-height: 100vh;
@@ -42,34 +39,18 @@
       position: relative;
     }
 
-    /* Personalización del reproductor estilo YouTube */
     :root {
-      --plyr-color-main: #ff0000;
+      --plyr-color-main: #e50914;
       --plyr-video-background: #000;
-      --plyr-menu-background: rgba(28, 28, 28, 0.95);
-      --plyr-menu-color: #f1f1f1;
-      --plyr-menu-radius: 12px;
-      --plyr-control-radius: 4px;
-      --plyr-range-track-height: 3px;
-    }
-
-    .plyr--full-ui input[type=range] {
-      color: #ff0000;
-    }
-
-    .plyr__controls {
-      background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.85)) !important;
-      padding: 10px 15px !important;
-    }
-
-    .plyr__poster {
-      background-size: cover;
+      --plyr-menu-background: rgba(20, 20, 22, 0.95);
+      --plyr-menu-color: #fff;
     }
   </style>
 </head>
 <body>
 
-  <div class="video-container">
+  <div class="video-wrapper">
+    <!-- SIN AUTOPLAY Y SIN TARJETA -->
     <video id="player" controls playsinline></video>
   </div>
 
@@ -77,22 +58,13 @@
     const urlParams = new URLSearchParams(window.location.search);
     const videoUrl = urlParams.get('v') || urlParams.get('url');
     const posterUrl = urlParams.get('p') || urlParams.get('poster');
+
     const videoElement = document.getElementById('player');
 
-    // Lista de controles incluyendo Transmisión (airplay / chromecast)
-    const youtubeControls = [
-      'play-large',    // Botón rojo de Play al centro
-      'play',          // Play / Pausa
-      'fast-forward',  // Adelantar
-      'mute',          // Silenciar / Volumen
-      'volume',        // Barra de volumen
-      'current-time',  // Tiempo transcurrido
-      'duration',      // Duración total
-      'captions',      // Subtítulos
-      'settings',      // Menú Tuerca (Calidad / Velocidad)
-      'pip',           // Mini-reproductor
-      'airplay',       // Transmitir (AirPlay / Chromecast)
-      'fullscreen'     // Pantalla Completa
+    const defaultControls = [
+      'play-large', 'restart', 'play', 
+      'progress', 'current-time', 'duration', 'mute', 'volume', 
+      'settings', 'pip', 'airplay', 'fullscreen'
     ];
 
     let playerInstance = null;
@@ -101,7 +73,7 @@
       videoElement.setAttribute('poster', posterUrl);
     }
 
-    // Doble clic / doble toque para adelantar/atrasar 10s
+    // Doble clic / doble toque (10s adelante / atrás)
     videoElement.addEventListener('dblclick', function (e) {
       if (!playerInstance) return;
       
@@ -128,10 +100,9 @@
           availableQualities.unshift(0);
 
           playerInstance = new Plyr(videoElement, {
-            controls: youtubeControls,
-            autoplay: false,
+            controls: defaultControls,
+            autoplay: false, // SIN REPRODUCCIÓN AUTOMÁTICA
             clickToPlay: true,
-            tooltips: { controls: true, seek: true },
             quality: {
               default: 0,
               options: availableQualities,
@@ -141,12 +112,8 @@
                 else hls.levels.forEach((l, i) => { if (l.height === e) hls.currentLevel = i; });
               }
             },
-            i18n: { 
-              qualityLabel: 'Calidad', 
-              speed: 'Velocidad de reproducción', 
-              qualityBadge: { 0: 'Automática' } 
-            },
-            speed: { selected: 1, options: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] }
+            i18n: { qualityLabel: 'Calidad', speed: 'Velocidad', qualityBadge: { 0: 'Auto' } },
+            speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] }
           });
         });
       } 
@@ -155,12 +122,11 @@
         videoElement.src = videoUrl;
 
         playerInstance = new Plyr(videoElement, {
-          controls: youtubeControls,
-          autoplay: false,
+          controls: defaultControls,
+          autoplay: false, // SIN REPRODUCCIÓN AUTOMÁTICA
           clickToPlay: true,
-          tooltips: { controls: true, seek: true },
-          speed: { selected: 1, options: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] },
-          i18n: { speed: 'Velocidad de reproducción' }
+          speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] },
+          i18n: { speed: 'Velocidad' }
         });
       }
     }
