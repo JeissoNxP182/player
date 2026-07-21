@@ -8,6 +8,9 @@
   <!-- Estilos de Plyr (Diseño tipo YouTube) -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   
+  <!-- Soporte para Chromecast (Transmisión a TV) -->
+  <script type="text/javascript" src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+
   <!-- Librerías de reproducción HLS y Plyr -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
@@ -22,7 +25,7 @@
     html, body {
       width: 100%;
       height: 100%;
-      background-color: #0f0f0f; /* Fondo oscuro oficial YouTube */
+      background-color: #0f0f0f;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -41,7 +44,7 @@
 
     /* Personalización del reproductor estilo YouTube */
     :root {
-      --plyr-color-main: #ff0000; /* Rojo YouTube */
+      --plyr-color-main: #ff0000;
       --plyr-video-background: #000;
       --plyr-menu-background: rgba(28, 28, 28, 0.95);
       --plyr-menu-color: #f1f1f1;
@@ -71,36 +74,34 @@
   </div>
 
   <script>
-    // Captura los parámetros enviados desde tus otros archivos (?v=video & ?p=poster)
     const urlParams = new URLSearchParams(window.location.search);
     const videoUrl = urlParams.get('v') || urlParams.get('url');
     const posterUrl = urlParams.get('p') || urlParams.get('poster');
     const videoElement = document.getElementById('player');
 
-    // Configuración de la barra de controles idéntica a YouTube
+    // Lista de controles incluyendo Transmisión (airplay / chromecast)
     const youtubeControls = [
-      'play-large',    // Botón rojo gigante de Play al centro
+      'play-large',    // Botón rojo de Play al centro
       'play',          // Play / Pausa
       'fast-forward',  // Adelantar
       'mute',          // Silenciar / Volumen
-      'volume',        // Barra deslizante de volumen
+      'volume',        // Barra de volumen
       'current-time',  // Tiempo transcurrido
       'duration',      // Duración total
-      'captions',      // Subtítulos (CC)
-      'settings',      // Menú Tuerca (Calidad y Velocidad)
-      'pip',           // Mini-reproductor (Picture-in-Picture)
-      'airplay',       // Transmitir a Smart TV / Apple TV
+      'captions',      // Subtítulos
+      'settings',      // Menú Tuerca (Calidad / Velocidad)
+      'pip',           // Mini-reproductor
+      'airplay',       // Transmitir (AirPlay / Chromecast)
       'fullscreen'     // Pantalla Completa
     ];
 
     let playerInstance = null;
 
-    // Asignar miniatura si viene en la URL (?p=)
     if (posterUrl) {
       videoElement.setAttribute('poster', posterUrl);
     }
 
-    // Doble clic / doble toque para adelantar/atrasar 10s (Izquierda/Derecha)
+    // Doble clic / doble toque para adelantar/atrasar 10s
     videoElement.addEventListener('dblclick', function (e) {
       if (!playerInstance) return;
       
@@ -116,7 +117,7 @@
     });
 
     if (videoUrl) {
-      // 1. Transmisión HLS (.m3u8) con menú de calidades
+      // 1. Transmisión HLS (.m3u8)
       if (videoUrl.includes('.m3u8') && Hls.isSupported()) {
         const hls = new Hls();
         hls.loadSource(videoUrl);
@@ -128,7 +129,7 @@
 
           playerInstance = new Plyr(videoElement, {
             controls: youtubeControls,
-            autoplay: false, // SIN REPRODUCCIÓN AUTOMÁTICA
+            autoplay: false,
             clickToPlay: true,
             tooltips: { controls: true, seek: true },
             quality: {
@@ -155,7 +156,7 @@
 
         playerInstance = new Plyr(videoElement, {
           controls: youtubeControls,
-          autoplay: false, // SIN REPRODUCCIÓN AUTOMÁTICA
+          autoplay: false,
           clickToPlay: true,
           tooltips: { controls: true, seek: true },
           speed: { selected: 1, options: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] },
