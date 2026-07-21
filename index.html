@@ -1,135 +1,26 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reproductor Makia</title>
-  
-  <!-- Estilos de Plyr -->
-  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-  
-  <!-- Librerías de reproducción HLS y Plyr -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
-
-  <style>
-    * { 
-      margin: 0; 
-      padding: 0; 
-      box-sizing: border-box; 
-    }
-    
-    html, body {
-      width: 100%;
-      height: 100%;
-      background-color: #0b0b0c;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    .video-wrapper {
-      width: 100%;
-      max-width: 100vw;
-      max-height: 100vh;
-      aspect-ratio: 16/9;
-      background: #000;
-      position: relative;
-    }
-
-    :root {
-      --plyr-color-main: #e50914;
-      --plyr-video-background: #000;
-      --plyr-menu-background: rgba(20, 20, 22, 0.95);
-      --plyr-menu-color: #fff;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="video-wrapper">
-    <!-- SIN AUTOPLAY Y SIN TARJETA -->
-    <video id="player" controls playsinline></video>
-  </div>
-
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const videoUrl = urlParams.get('v') || urlParams.get('url');
-    const posterUrl = urlParams.get('p') || urlParams.get('poster');
-
-    const videoElement = document.getElementById('player');
-
-    const defaultControls = [
-      'play-large', 'restart', 'play', 
-      'progress', 'current-time', 'duration', 'mute', 'volume', 
-      'settings', 'pip', 'airplay', 'fullscreen'
-    ];
-
-    let playerInstance = null;
-
-    if (posterUrl) {
-      videoElement.setAttribute('poster', posterUrl);
-    }
-
-    // Doble clic / doble toque (10s adelante / atrás)
-    videoElement.addEventListener('dblclick', function (e) {
-      if (!playerInstance) return;
-      
-      const rect = videoElement.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const width = rect.width;
-
-      if (clickX < width * 0.35) {
-        playerInstance.rewind(10);
-      } else if (clickX > width * 0.65) {
-        playerInstance.forward(10);
-      }
-    });
-
-    if (videoUrl) {
-      // 1. Transmisión HLS (.m3u8)
-      if (videoUrl.includes('.m3u8') && Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(videoUrl);
-        hls.attachMedia(videoElement);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, function () {
-          const availableQualities = hls.levels.map((l) => l.height);
-          availableQualities.unshift(0);
-
-          playerInstance = new Plyr(videoElement, {
-            controls: defaultControls,
-            autoplay: false, // SIN REPRODUCCIÓN AUTOMÁTICA
-            clickToPlay: true,
-            quality: {
-              default: 0,
-              options: availableQualities,
-              forced: true,
-              onChange: (e) => {
-                if (e === 0) hls.currentLevel = -1;
-                else hls.levels.forEach((l, i) => { if (l.height === e) hls.currentLevel = i; });
-              }
-            },
-            i18n: { qualityLabel: 'Calidad', speed: 'Velocidad', qualityBadge: { 0: 'Auto' } },
-            speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] }
-          });
-        });
-      } 
-      // 2. Archivo Directo (MP4 / Streamtape / etc.)
-      else {
-        videoElement.src = videoUrl;
-
-        playerInstance = new Plyr(videoElement, {
-          controls: defaultControls,
-          autoplay: false, // SIN REPRODUCCIÓN AUTOMÁTICA
-          clickToPlay: true,
-          speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] },
-          i18n: { speed: 'Velocidad' }
-        });
-      }
-    }
-  </script>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom HTML5 Video Player</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Video Player</h1>
+    <div class="video-player">
+      <video class="video" controls>
+        <source
+          src="https://res.cloudinary.com/ifeomaimoh/video/upload/v1650567487/speech_ofvfzq.mp4"
+          type="video/mp4"
+        />
+        <source
+          src="https://res.cloudinary.com/ifeomaimoh/video/upload/v1650567487/speech_ofvfzq.mp4"
+          type="video/webm"
+        />
+        <p>Your browser doesn't support HTML5 video.</p>
+      </video>
+    </div>
+    <script src="script.js"></script>
+  </body>
 </html>
