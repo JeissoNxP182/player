@@ -2,19 +2,171 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Cargando Película...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reproductor Makia - Película</title>
+  
+  <!-- Estilos de Plyr -->
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+  
+  <!-- Librerías de reproducción -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      background-color: #0b0b0c; 
+      color: #fff; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      min-height: 100vh; 
+      padding: 15px;
+    }
+    .player-card { 
+      width: 100%; 
+      max-width: 1000px; 
+      background: #141416;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+      border: 1px solid #232328;
+    }
+    .player-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      background: #1a1a1e;
+      border-bottom: 1px solid #282830;
+    }
+    .brand-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #e50914;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .download-link {
+      background: #282830;
+      color: #fff;
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      border: 1px solid #3a3a45;
+    }
+    .download-link:hover {
+      background: #e50914;
+      border-color: #e50914;
+    }
+    :root {
+      --plyr-color-main: #e50914;
+      --plyr-video-background: #000;
+      --plyr-menu-background: rgba(20, 20, 22, 0.95);
+      --plyr-menu-color: #fff;
+    }
+    .video-wrapper {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #000;
+    }
+    .player-footer {
+      padding: 10px 20px;
+      background: #121214;
+      font-size: 13px;
+      color: #888;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="player-card">
+    <div class="player-header">
+      <div class="brand-title">🎬 <span>Reproductor Makia</span></div>
+      <a href="#" id="downloadBtn" class="download-link" target="_blank">⬇️ Descargar Película</a>
+    </div>
+
+    <div class="video-wrapper">
+      <!-- AQUÍ PEGATEMOS EL ENLACE DE LA MINIATURA EN EL POSTER -->
+      <video id="player" controls playsinline poster="https://m.media-amazon.com/images/S/pv-target-images/2b1354e4eb010e86e07d4536dfa06322d07dfe41e38e51427b16a0387732467f.png"></video>
+    </div>
+
+    <div class="player-footer">
+      <span id="statusText">Listo para reproducir...</span>
+      <span>Makia HD</span>
+    </div>
+  </div>
+
   <script>
-    // 1. Pega tu enlace de Streamtape/1DM aquí:
+    // ==========================================
+    // PEGA TU ENLACE LARGO DE STREAMTAPE / 1DM AQUÍ:
+    // ==========================================
     const videoUrl = "https://2475163186.tapecontent.net/radosgw/ZJqVe14JA9CKq9/PfPPYJ3EZCMWR9I6YrUCxHUIn-XKF7p8sq7Ngcs53dg4X-GgWqA_eQyFaCVWZC41rITBJTr18H_IiLN6nR2AkYePui5Y8Vz1Y_plilLuM0laXD0U-m-2ynLcpFf5JdC86DCQnLpMRH5IJo3EMHy3TV4LLrXKuB8xZJ2GzeDpdoh_aMMSabiDOldQrI10NIslPCwD3QFGSfFeP6Id6PEodqtsJE-LFq6x8WccPts9SXTPpJi65k5D6oxeHKDc-gb1WcurSzaiwwmuiNGCfgilaaXIsDrQx-LXtO-N8gO8WgHLaPgLP883Jb3z3-s/2012+-+V%2FH%2FS%3A+Las+cr%C3%B3nicas+del+miedo?stream=1";
 
-    // 2. Pega tu enlace de la foto/carátula aquí:
-    const posterUrl = "https://m.media-amazon.com/images/S/pv-target-images/2b1354e4eb010e86e07d4536dfa06322d07dfe41e38e51427b16a0387732467f.png";
+    const videoElement = document.getElementById('player');
+    const statusText = document.getElementById('statusText');
+    const downloadBtn = document.getElementById('downloadBtn');
 
-    // Envía la película y la foto directamente a tu reproductor de YouTube (index.html)
-    window.location.href = "https://jeissonxp182.github.io/Reproductor-Makia-/?v=" + encodeURIComponent(videoUrl) + "&p=" + encodeURIComponent(posterUrl);
+    const defaultControls = [
+      'play-large', 'restart', 'rewind', 'play', 'fast-forward', 
+      'progress', 'current-time', 'duration', 'mute', 'volume', 
+      'settings', 'pip', 'airplay', 'fullscreen'
+    ];
+
+    if (videoUrl) {
+      downloadBtn.href = videoUrl;
+
+      // Detectar HLS (.m3u8) o Reproducción Directa
+      if (videoUrl.includes('.m3u8') && Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(videoUrl);
+        hls.attachMedia(videoElement);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+          statusText.innerText = "Listo (HLS Adaptativo)";
+          const availableQualities = hls.levels.map((l) => l.height);
+          availableQualities.unshift(0);
+
+          new Plyr(videoElement, {
+            controls: defaultControls,
+            quality: {
+              default: 0,
+              options: availableQualities,
+              forced: true,
+              onChange: (e) => {
+                if (e === 0) hls.currentLevel = -1;
+                else hls.levels.forEach((l, i) => { if (l.height === e) hls.currentLevel = i; });
+              }
+            },
+            i18n: { qualityLabel: 'Calidad', speed: 'Velocidad', qualityBadge: { 0: 'Auto' } },
+            speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] }
+          });
+        });
+      } else {
+        videoElement.src = videoUrl;
+        statusText.innerText = "Listo (Archivo Directo)";
+
+        new Plyr(videoElement, {
+          controls: defaultControls,
+          speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] },
+          i18n: { speed: 'Velocidad' }
+        });
+      }
+    } else {
+      statusText.innerText = "Error: Falta configurar el enlace del video.";
+    }
   </script>
-</head>
-<body style="background:#0f0f0f; color:#fff; font-family:sans-serif; text-align:center; padding-top:20%;">
-  <p>Cargando película...</p>
 </body>
 </html>
