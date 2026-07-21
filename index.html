@@ -1,29 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reproductor de Streaming Pro</title>
-  <!-- HLS.js CDN para enlaces .m3u8 -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reproductor de Video HD</title>
+  <!-- HLS.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <!-- Iconos Lucide -->
-  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    :root {
-      --primary: #e50914;
-      --bg-dark: #0f0f11;
-      --panel-bg: rgba(20, 20, 25, 0.85);
-    }
-
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: Arial, sans-serif;
     }
 
     body {
-      background-color: var(--bg-dark);
+      background-color: #0f0f0f;
       color: #fff;
       display: flex;
       flex-direction: column;
@@ -33,35 +25,32 @@
       padding: 20px;
     }
 
-    /* Barra para ingresar enlace */
-    .url-input-container {
+    .container {
       width: 100%;
       max-width: 900px;
-      margin-bottom: 15px;
+    }
+
+    .url-input-container {
       display: flex;
       gap: 10px;
+      margin-bottom: 15px;
     }
 
     .url-input-container input {
       flex: 1;
-      padding: 12px 16px;
-      border-radius: 8px;
+      padding: 10px 15px;
+      border-radius: 6px;
       border: 1px solid #333;
-      background: #1a1a20;
+      background: #1e1e1e;
       color: #fff;
-      font-size: 14px;
       outline: none;
     }
 
-    .url-input-container input:focus {
-      border-color: var(--primary);
-    }
-
     .url-input-container button {
-      padding: 12px 24px;
+      padding: 10px 20px;
       border: none;
-      border-radius: 8px;
-      background: var(--primary);
+      border-radius: 6px;
+      background: #e50914;
       color: #fff;
       font-weight: bold;
       cursor: pointer;
@@ -69,122 +58,79 @@
     }
 
     .url-input-container button:hover {
-      background: #b80710;
+      background: #b20710;
     }
 
-    /* Contenedor del reproductor */
     .player-wrapper {
       position: relative;
       width: 100%;
-      max-width: 900px;
-      aspect-ratio: 16 / 9;
       background: #000;
-      border-radius: 12px;
+      border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-      user-select: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     }
 
     video {
       width: 100%;
-      height: 100%;
-      object-fit: contain;
+      height: auto;
+      display: block;
     }
 
-    /* Zonas para doble clic (Retroceder / Adelantar) */
-    .click-zone {
+    /* Gestos de doble clic */
+    .touch-overlay {
       position: absolute;
       top: 0;
-      bottom: 60px;
-      width: 40%;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 50px);
+      display: flex;
       z-index: 2;
     }
 
-    .click-zone.left { left: 0; }
-    .click-zone.right { right: 0; }
+    .touch-zone {
+      flex: 1;
+      height: 100%;
+      position: relative;
+    }
 
-    /* Animación de aviso de +5s / -5s */
     .seek-feedback {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
       background: rgba(0, 0, 0, 0.7);
-      border-radius: 50%;
-      width: 80px;
-      height: 80px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.2s, transform 0.2s;
-      z-index: 10;
-    }
-
-    .seek-feedback.left { left: 15%; }
-    .seek-feedback.right { right: 15%; }
-
-    .seek-feedback.active {
-      opacity: 1;
-      transform: translateY(-50%) scale(1.1);
-    }
-
-    .seek-feedback span {
-      font-size: 12px;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 50px;
+      font-size: 14px;
       font-weight: bold;
-      margin-top: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
     }
+
+    .seek-feedback.left { left: 20px; }
+    .seek-feedback.right { right: 20px; }
+    .seek-feedback.show { opacity: 1; }
 
     /* Barra de controles */
-    .controls-overlay {
+    .controls {
       position: absolute;
       bottom: 0;
       left: 0;
       right: 0;
-      background: linear-gradient(transparent, rgba(0,0,0,0.9));
-      display: flex;
-      flex-direction: column;
-      padding: 10px 15px;
-      gap: 8px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: 5;
-    }
-
-    .player-wrapper:hover .controls-overlay {
-      opacity: 1;
-    }
-
-    /* Barra de progreso */
-    .progress-bar-container {
-      width: 100%;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 3px;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .progress-bar-fill {
-      height: 100%;
-      width: 0%;
-      background: var(--primary);
-      border-radius: 3px;
-      position: relative;
-    }
-
-    /* Fila de botones principales */
-    .controls-row {
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 10px 15px;
+      z-index: 10;
+      gap: 10px;
     }
 
     .controls-left, .controls-right {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
     }
 
     .btn {
@@ -192,384 +138,230 @@
       border: none;
       color: #fff;
       cursor: pointer;
+      font-size: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
       opacity: 0.85;
-      transition: opacity 0.2s, transform 0.1s;
+      transition: opacity 0.2s;
     }
 
-    .btn:hover {
-      opacity: 1;
-      transform: scale(1.1);
-    }
+    .btn:hover { opacity: 1; }
 
-    /* Control de Volumen */
-    .volume-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .volume-slider {
-      width: 70px;
-      accent-color: var(--primary);
-      cursor: pointer;
-    }
-
-    .time-display {
-      font-size: 13px;
-      color: #ccc;
-    }
-
-    /* Menú Ajustes (Tuerca) */
-    .settings-container {
-      position: relative;
-    }
-
-    .settings-menu {
-      position: absolute;
-      bottom: 40px;
-      right: 0;
-      background: var(--panel-bg);
-      backdrop-filter: blur(8px);
-      border-radius: 8px;
-      padding: 10px;
-      min-width: 160px;
-      display: none;
-      flex-direction: column;
-      gap: 8px;
-      border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-      z-index: 20;
-      font-size: 13px;
-    }
-
-    .settings-menu.active {
-      display: flex;
-    }
-
-    .settings-menu label {
-      font-size: 11px;
-      text-transform: uppercase;
-      color: #888;
-      margin-top: 4px;
-    }
-
-    .settings-menu select {
-      background: #25252e;
+    select {
+      background: #1f1f1f;
       color: #fff;
       border: 1px solid #444;
-      padding: 6px 8px;
       border-radius: 4px;
-      outline: none;
+      padding: 4px 8px;
+      font-size: 12px;
       cursor: pointer;
-      width: 100%;
+      outline: none;
+    }
+
+    input[type="range"] {
+      width: 70px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <!-- Entrada para probar cualquier enlace -->
-  <div class="url-input-container">
-    <input type="text" id="streamUrl" placeholder="Pega aquí tu enlace (.m3u8 o .mp4)" value="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" />
-    <button id="loadBtn">Cargar</button>
-  </div>
-
-  <!-- Contenedor principal -->
-  <div class="player-wrapper" id="playerWrapper">
-    
-    <!-- Video Element sin autoplay -->
-    <video id="videoPlayer" preload="metadata" playsinline></video>
-
-    <!-- Zonas invisibles para doble clic -->
-    <div class="click-zone left" id="zoneLeft"></div>
-    <div class="click-zone right" id="zoneRight"></div>
-
-    <!-- Feedback visual de avance/retroceso (+5s / -5s) -->
-    <div class="seek-feedback left" id="feedbackLeft">
-      <i data-lucide="rotate-ccw"></i>
-      <span>-5s</span>
-    </div>
-    <div class="seek-feedback right" id="feedbackRight">
-      <i data-lucide="rotate-cw"></i>
-      <span>+5s</span>
+  <div class="container">
+    <!-- Entrada manual para probar enlaces -->
+    <div class="url-input-container">
+      <input type="text" id="streamUrl" placeholder="Pega tu enlace MP4 o M3U8 aquí...">
+      <button id="loadBtn">Cargar Video</button>
     </div>
 
-    <!-- Overlay de Controles -->
-    <div class="controls-overlay">
-      <!-- Barra de tiempo/progreso -->
-      <div class="progress-bar-container" id="progressContainer">
-        <div class="progress-bar-fill" id="progressBar"></div>
+    <!-- Contenedor del Reproductor -->
+    <div class="player-wrapper" id="playerContainer">
+      
+      <!-- Video (autoplay deshabilitado por defecto) -->
+      <video id="video" preload="metadata"></video>
+
+      <!-- Capa invisible para detectar el doble clic derecho e izquierdo -->
+      <div class="touch-overlay">
+        <div class="touch-zone" id="zoneLeft">
+          <div class="seek-feedback left" id="feedbackLeft">⏮ -5s</div>
+        </div>
+        <div class="touch-zone" id="zoneRight">
+          <div class="seek-feedback right" id="feedbackRight">+5s ⏭</div>
+        </div>
       </div>
 
-      <div class="controls-row">
+      <!-- Controles personalizables -->
+      <div class="controls">
         <div class="controls-left">
-          <!-- Botón Play/Pausa -->
-          <button class="btn" id="playBtn">
-            <i data-lucide="play" id="playIcon"></i>
-          </button>
-
+          <button class="btn" id="playBtn">▶</button>
+          
           <!-- Control de Volumen -->
-          <div class="volume-container">
-            <button class="btn" id="muteBtn">
-              <i data-lucide="volume-2" id="volumeIcon"></i>
-            </button>
-            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1" />
-          </div>
-
-          <!-- Tiempo Transcurrido -->
-          <div class="time-display" id="timeDisplay">0:00 / 0:00</div>
+          <button class="btn" id="muteBtn">🔊</button>
+          <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1">
         </div>
 
         <div class="controls-right">
-          <!-- Menú de Ajustes (Tuerca) -->
-          <div class="settings-container">
-            <button class="btn" id="settingsBtn" title="Configuración">
-              <i data-lucide="settings"></i>
-            </button>
-            <div class="settings-menu" id="settingsMenu">
-              <label>Calidad</label>
-              <select id="qualitySelect">
-                <option value="-1">Automática</option>
-              </select>
+          <!-- Tuerca / Selección de Calidad (para HLS .m3u8) -->
+          <span title="Calidad">⚙️</span>
+          <select id="qualitySelect">
+            <option value="-1">Auto</option>
+          </select>
 
-              <label>Velocidad</label>
-              <select id="speedSelect">
-                <option value="0.5">0.5x</option>
-                <option value="1" selected>Normal</option>
-                <option value="1.25">1.25x</option>
-                <option value="1.5">1.5x</option>
-                <option value="2">2x</option>
-              </select>
-            </div>
-          </div>
+          <!-- Control de Velocidad -->
+          <select id="speedSelect" title="Velocidad">
+            <option value="0.5">0.5x</option>
+            <option value="1" selected>1.0x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="2">2.0x</option>
+          </select>
 
-          <!-- Picture in Picture -->
-          <button class="btn" id="pipBtn" title="Pantalla en Pantalla">
-            <i data-lucide="picture-in-picture-2"></i>
-          </button>
+          <!-- Picture in Picture (PiP) -->
+          <button class="btn" id="pipBtn" title="Pantalla en pantalla">🖼️</button>
 
-          <!-- Pantalla Completa -->
-          <button class="btn" id="fullscreenBtn" title="Pantalla Completa">
-            <i data-lucide="maximize"></i>
-          </button>
+          <!-- Pantalla completa -->
+          <button class="btn" id="fullscreenBtn" title="Pantalla completa">⛶</button>
         </div>
       </div>
+
     </div>
   </div>
 
   <script>
-    // Inicializar Iconos Lucide
-    lucide.createIcons();
-
-    const video = document.getElementById('videoPlayer');
-    const playerWrapper = document.getElementById('playerWrapper');
+    const video = document.getElementById('video');
     const playBtn = document.getElementById('playBtn');
-    const playIcon = document.getElementById('playIcon');
     const muteBtn = document.getElementById('muteBtn');
-    const volumeIcon = document.getElementById('volumeIcon');
     const volumeSlider = document.getElementById('volumeSlider');
-    const progressContainer = document.getElementById('progressContainer');
-    const progressBar = document.getElementById('progressBar');
-    const timeDisplay = document.getElementById('timeDisplay');
-    const settingsBtn = document.getElementById('settingsBtn');
-    const settingsMenu = document.getElementById('settingsMenu');
     const qualitySelect = document.getElementById('qualitySelect');
     const speedSelect = document.getElementById('speedSelect');
     const pipBtn = document.getElementById('pipBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const streamUrlInput = document.getElementById('streamUrl');
+    const playerContainer = document.getElementById('playerContainer');
     const loadBtn = document.getElementById('loadBtn');
+    const streamUrlInput = document.getElementById('streamUrl');
+
+    const zoneLeft = document.getElementById('zoneLeft');
+    const zoneRight = document.getElementById('zoneRight');
+    const feedbackLeft = document.getElementById('feedbackLeft');
+    const feedbackRight = document.getElementById('feedbackRight');
 
     let hls = null;
-    let singleClickTimer = null;
 
-    // Cargar Video (.m3u8 o .mp4)
-    function loadStream(url) {
+    // --- Cargar Fuentes (MP4 o M3U8) ---
+    function loadSource(url) {
+      if (!url) return;
+
       if (hls) {
         hls.destroy();
       }
 
-      // Limpiar opciones de calidad
-      qualitySelect.innerHTML = '<option value="-1">Automática</option>';
+      // Resetear opciones de calidad
+      qualitySelect.innerHTML = '<option value="-1">Auto</option>';
 
+      // Si es un stream M3U8
       if (url.includes('.m3u8') && Hls.isSupported()) {
         hls = new Hls();
         hls.loadSource(url);
         hls.attachMedia(video);
 
-        hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
-          // Llenar selector de calidad con los niveles de HLS
-          data.levels.forEach((level, index) => {
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+          // Detectar calidades disponibles
+          hls.levels.forEach((level, index) => {
             const option = document.createElement('option');
             option.value = index;
-            option.text = level.height ? `${level.height}p` : `Nivel ${index + 1}`;
+            option.text = level.height ? `${level.height}p` : `Nivel ${index}`;
             qualitySelect.appendChild(option);
           });
         });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        // Soporte nativo de HLS para Safari
-        video.src = url;
-      } else {
-        // MP4 / Enlaces de Streamtape o Tapecontent directos
+      } 
+      // Si el navegador soporta M3U8 de forma nativa (Ej: Safari) o si es MP4 directo
+      else {
         video.src = url;
       }
-      // Asegurar que NO se reproduzca automáticamente al cargar
+
+      // Asegurar que NO se reproduzca automáticamente
       video.pause();
-      updatePlayIcon();
+      playBtn.textContent = '▶';
     }
 
-    // Inicializar primer enlace
-    loadStream(streamUrlInput.value);
+    loadBtn.addEventListener('click', () => loadSource(streamUrlInput.value.trim()));
 
-    loadBtn.addEventListener('click', () => {
-      if (streamUrlInput.value.trim() !== '') {
-        loadStream(streamUrlInput.value.trim());
-      }
-    });
-
-    // Play / Pausa
-    function togglePlay() {
+    // --- Reproducción / Pausa ---
+    playBtn.addEventListener('click', () => {
       if (video.paused) {
         video.play();
+        playBtn.textContent = '⏸';
       } else {
         video.pause();
+        playBtn.textContent = '▶';
       }
-      updatePlayIcon();
-    }
-
-    function updatePlayIcon() {
-      if (video.paused) {
-        playIcon.setAttribute('data-lucide', 'play');
-      } else {
-        playIcon.setAttribute('data-lucide', 'pause');
-      }
-      lucide.createIcons();
-    }
-
-    playBtn.addEventListener('click', togglePlay);
-
-    // Actualizar barra de progreso y tiempo
-    video.addEventListener('timeupdate', () => {
-      const percent = (video.currentTime / video.duration) * 100;
-      progressBar.style.width = `${percent}%`;
-
-      const currentMin = Math.floor(video.currentTime / 60) || 0;
-      const currentSec = Math.floor(video.currentTime % 60) || 0;
-      const totalMin = Math.floor(video.duration / 60) || 0;
-      const totalSec = Math.floor(video.duration % 60) || 0;
-
-      const formattedCurrent = `${currentMin}:${currentSec < 10 ? '0' : ''}${currentSec}`;
-      const formattedTotal = `${totalMin}:${totalSec < 10 ? '0' : ''}${totalSec}`;
-
-      timeDisplay.textContent = `${formattedCurrent} / ${formattedTotal}`;
     });
 
-    // Adelantar / Retroceder con click en la barra
-    progressContainer.addEventListener('click', (e) => {
-      const rect = progressContainer.getBoundingClientRect();
-      const pos = (e.clientX - rect.left) / rect.width;
-      video.currentTime = pos * video.duration;
-    });
-
-    // Control de volumen
+    // --- Control de Volumen ---
     volumeSlider.addEventListener('input', (e) => {
       video.volume = e.target.value;
-      video.muted = (e.target.value == 0);
-      updateVolumeIcon();
+      video.muted = e.target.value === '0';
+      muteBtn.textContent = video.muted ? '🔇' : '🔊';
     });
 
     muteBtn.addEventListener('click', () => {
       video.muted = !video.muted;
-      updateVolumeIcon();
-    });
-
-    function updateVolumeIcon() {
-      if (video.muted || video.volume === 0) {
-        volumeIcon.setAttribute('data-lucide', 'volume-x');
-      } else if (video.volume < 0.5) {
-        volumeIcon.setAttribute('data-lucide', 'volume-1');
-      } else {
-        volumeIcon.setAttribute('data-lucide', 'volume-2');
+      muteBtn.textContent = video.muted ? '🔇' : '🔊';
+      if (!video.muted && video.volume === 0) {
+        video.volume = 0.5;
+        volumeSlider.value = 0.5;
       }
-      lucide.createIcons();
-    }
-
-    // Menú de Ajustes (Tuerca)
-    settingsBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      settingsMenu.classList.toggle('active');
     });
 
-    document.addEventListener('click', () => {
-      settingsMenu.classList.remove('active');
-    });
-
-    // Cambiar Calidad (HLS)
+    // --- Cambiar Calidad ---
     qualitySelect.addEventListener('change', (e) => {
       if (hls) {
         hls.currentLevel = parseInt(e.target.value);
       }
     });
 
-    // Cambiar Velocidad de reproducción
+    // --- Cambiar Velocidad ---
     speedSelect.addEventListener('change', (e) => {
       video.playbackRate = parseFloat(e.target.value);
     });
 
-    // Pantalla en Pantalla (PiP)
+    // --- Doble Clic para Adelantar / Atrasar 5 Segundos ---
+    function triggerFeedback(element) {
+      element.classList.add('show');
+      setTimeout(() => element.classList.remove('show'), 600);
+    }
+
+    zoneLeft.addEventListener('dblclick', () => {
+      video.currentTime = Math.max(0, video.currentTime - 5);
+      triggerFeedback(feedbackLeft);
+    });
+
+    zoneRight.addEventListener('dblclick', () => {
+      video.currentTime = Math.min(video.duration, video.currentTime + 5);
+      triggerFeedback(feedbackRight);
+    });
+
+    // --- Pantalla en Pantalla (PiP) ---
     pipBtn.addEventListener('click', async () => {
       try {
         if (document.pictureInPictureElement) {
           await document.exitPictureInPicture();
-        } else {
+        } else if (document.pictureInPictureEnabled) {
           await video.requestPictureInPicture();
         }
-      } catch (err) {
-        console.error('Error al activar PiP:', err);
+      } catch (error) {
+        console.error("Error al activar PiP:", error);
       }
     });
 
-    // Pantalla Completa
+    // --- Pantalla Completa ---
     fullscreenBtn.addEventListener('click', () => {
       if (!document.fullscreenElement) {
-        playerWrapper.requestFullscreen().catch(err => console.error(err));
+        playerContainer.requestFullscreen().catch(err => console.error(err));
       } else {
         document.exitFullscreen();
       }
     });
-
-    // Doble Clic para adelantar/atrasar 5s (Evitando conflicto con clic único)
-    function handleZoneClick(seconds, feedbackId) {
-      if (singleClickTimer) clearTimeout(singleClickTimer);
-
-      singleClickTimer = setTimeout(() => {
-        // Clic simple: Pausa/Play
-        togglePlay();
-      }, 250);
-    }
-
-    function handleZoneDoubleClick(seconds, feedbackId) {
-      if (singleClickTimer) clearTimeout(singleClickTimer);
-      
-      video.currentTime = Math.max(0, Math.min(video.duration, video.currentTime + seconds));
-      
-      // Animación de feedback (+5s / -5s)
-      const feedbackEl = document.getElementById(feedbackId);
-      feedbackEl.classList.add('active');
-      setTimeout(() => feedbackEl.classList.remove('active'), 500);
-    }
-
-    // Eventos Zona Izquierda (-5s)
-    const zoneLeft = document.getElementById('zoneLeft');
-    zoneLeft.addEventListener('click', () => handleZoneClick(-5, 'feedbackLeft'));
-    zoneLeft.addEventListener('dblclick', () => handleZoneDoubleClick(-5, 'feedbackLeft'));
-
-    // Eventos Zona Derecha (+5s)
-    const zoneRight = document.getElementById('zoneRight');
-    zoneRight.addEventListener('click', () => handleZoneClick(5, 'feedbackRight'));
-    zoneRight.addEventListener('dblclick', () => handleZoneDoubleClick(5, 'feedbackRight'));
   </script>
 </body>
 </html>
