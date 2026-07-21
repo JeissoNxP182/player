@@ -78,24 +78,6 @@
       background: #252525;
       color: #fff;
     }
-
-    /* Botón de Descarga */
-    .download-btn {
-      background: #e50914;
-      color: #fff;
-      text-decoration: none;
-      padding: 7px 15px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: bold;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.2s ease;
-    }
-    .download-btn:hover {
-      background: #b80710;
-    }
   </style>
 </head>
 <body>
@@ -111,11 +93,6 @@
         <div class="quality-wrapper" id="qualityContainer" style="display: none;">
           ⚙️ <select id="qualitySelect"></select>
         </div>
-
-        <!-- Botón de Descarga Directa -->
-        <a href="#" id="downloadBtn" class="download-btn" target="_blank" style="display: none;">
-          ⬇️ Descargar
-        </a>
       </div>
     </div>
   </div>
@@ -127,13 +104,8 @@
     const statusText = document.getElementById('statusText');
     const qualityContainer = document.getElementById('qualityContainer');
     const qualitySelect = document.getElementById('qualitySelect');
-    const downloadBtn = document.getElementById('downloadBtn');
 
     if (videoUrl) {
-      // Configurar Botón de Descarga
-      downloadBtn.href = videoUrl;
-      downloadBtn.style.display = 'inline-flex';
-
       // 1. Transmisión HLS (.m3u8) con selector de calidad
       if (videoUrl.includes('.m3u8') && Hls.isSupported()) {
         const hls = new Hls();
@@ -143,7 +115,6 @@
         hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
           statusText.innerText = "Reproduciendo HLS";
           
-          // Si el archivo .m3u8 trae varios niveles de calidad (720p, 1080p, etc.)
           if (data.levels.length > 1) {
             qualityContainer.style.display = 'flex';
             qualitySelect.innerHTML = '<option value="-1">Auto (Calidad adaptativa)</option>';
@@ -171,7 +142,6 @@
       else {
         videoElement.src = videoUrl;
         statusText.innerText = "Reproduciendo archivo directo";
-        // Si el navegador soporta el selector nativo en video
         if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
           videoElement.src = videoUrl;
         }
