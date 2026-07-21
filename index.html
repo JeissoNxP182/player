@@ -115,14 +115,14 @@
       </a>
     </div>
 
-    <!-- REPRODUCTOR DE VIDEO -->
+    <!-- REPRODUCTOR DE VIDEO (SIN AUTOPLAY) -->
     <div class="video-wrapper">
       <video id="player" controls playsinline></video>
     </div>
 
     <!-- BARRA DE ESTADO INFERIOR -->
     <div class="player-footer">
-      <span id="statusText">Cargando transmisión...</span>
+      <span id="statusText">Listo para reproducir...</span>
       <span>Makia HD</span>
     </div>
   </div>
@@ -164,13 +164,11 @@
         hls.attachMedia(videoElement);
 
         hls.on(Hls.Events.MANIFEST_PARSED, function () {
-          statusText.innerText = "Modo: Transmisión HLS Adaptativa";
+          statusText.innerText = "Listo (HLS Adaptativo)";
           
-          // Detectar resoluciones disponibles
           const availableQualities = hls.levels.map((l) => l.height);
-          availableQualities.unshift(0); // 0 representa "Auto"
+          availableQualities.unshift(0);
 
-          // Inicializar el reproductor con las calidades del archivo
           const player = new Plyr(videoElement, {
             controls: defaultControls,
             quality: {
@@ -189,7 +187,7 @@
 
           function updateQuality(newQuality) {
             if (newQuality === 0) {
-              hls.currentLevel = -1; // Auto
+              hls.currentLevel = -1;
             } else {
               hls.levels.forEach((level, levelIndex) => {
                 if (level.height === newQuality) {
@@ -203,7 +201,7 @@
       // 2. ARCHIVOS DIRECTOS (MP4, Streamtape, etc.)
       else {
         videoElement.src = videoUrl;
-        statusText.innerText = "Modo: Reproducción Directa";
+        statusText.innerText = "Listo (Archivo Directo)";
 
         const player = new Plyr(videoElement, {
           controls: defaultControls,
