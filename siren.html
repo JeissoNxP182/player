@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ver Película</title>
+  
+  <!-- HLS.js para enlaces .m3u8 si los usas -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  
+  <!-- Transmitir a Smart TV / Chromecast -->
+  <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #0d0e12;
+      color: #e1e1e6;
+      padding: 20px 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app-header {
+      width: 100%;
+      max-width: 650px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .app-header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* Botón de Transmitir a la TV */
+    google-cast-launcher {
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      --connected-color: #3b82f6;
+      --disconnected-color: #ffffff;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 650px;
+    }
+
+    /* Marco del Reproductor */
+    .player-card {
+      width: 100%;
+      background: #000000;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #282a38;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="app-header">
+      <!-- Puedes cambiar el nombre del título aquí -->
+      <h1 id="movieTitle">Cargando película...</h1>
+      <google-cast-launcher title="Transmitir a la TV"></google-cast-launcher>
+    </div>
+
+    <!-- Pantalla del Reproductor -->
+    <div class="player-card">
+      <video id="video" controls playsinline preload="metadata"></video>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================
+    // ⚙️ CONFIGURACIÓN DE LA PELÍCULA (EDITA SOLO ESTAS LÍNEAS)
+    // =========================================================
+    
+    const TITULO_PELICULA = "Siren"; 
+    
+    // Pega aquí el link largo de Tapecontent, Streamtape o M3U8:
+    const LINK_VIDEO = "https://3242621552.tapecontent.net/radosgw/zkXDp2wmBWIYMDA/06THBAO96gCTWS_ahflrYm07npP7gX8oGSFCONynfh9A7HSK2oA5gY_tQzvBs-9Ey6BUoungT86RvKbo0wpFDJ48fRQEXdBvSVhk4fpLfNYjsTYzCB_6BgGzQ4g7KB-DcFcd4Elxs7OtbwaE3oB3K7HVN2CdinRVVHufBMCUFeCd6PiRyRLaOk-B0x87U11ytE23m9fWzrPtVB2ZwzdYvcCR_9OF-spjVUwo-k19QTv9QXp5gwhSgfyHm7Gb4dOP3CI5roJCkizVZwAYUnyXUSZ6co9FXP3A3e9ipQ/2016+-+Siren+%28Spin+Off%29?stream=1"; 
+    
+    // Pega aquí el link de la imagen de miniatura (poster):
+    const LINK_MINIATURA = "https://m.media-amazon.com/images/S/pv-target-images/fdc125dc54e903a1d8234925ca8f79b8b9827ee16ab055c3dead31d6185652e1._UR1920,1080_CLs%7C1920,1080%7C/G/bundle/BottomRightCardGradient16x9.png,/G/01/digital/video/merch/subs/benefit-id/g-l/indiepix/logos/channels-logo-white.png%7C0,0,1920,1080+0,0,1920,1080+1480,847,361,156_kv9c279b81550f279da5fb87206676553e_SX624_FMjpg_.jpg"; 
+
+    // =========================================================
+    // CÓDIGO DEL REPRODUCTOR (NO NECESITAS MODIFICAR ABAJO)
+    // =========================================================
+    
+    const video = document.getElementById('video');
+    const movieTitle = document.getElementById('movieTitle');
+
+    // Asignar Título y Miniatura
+    movieTitle.textContent = TITULO_PELICULA;
+    if (LINK_MINIATURA) {
+      video.poster = LINK_MINIATURA;
+    }
+
+    // Inicializar Google Cast
+    window.__onGCastApiAvailable = function(isAvailable) {
+      if (isAvailable) {
+        cast.framework.CastContext.getInstance().setOptions({
+          receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+          autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+        });
+      }
+    };
+
+    // Cargar el video en el reproductor
+    let hls = null;
+    if (LINK_VIDEO.includes('.m3u8') && Hls.isSupported()) {
+      hls = new Hls();
+      hls.loadSource(LINK_VIDEO);
+      hls.attachMedia(video);
+    } else {
+      video.src = LINK_VIDEO;
+    }
+
+    // Mantiene en pausa hasta que le den Play
+    video.pause();
+  </script>
+
+</body>
+</html>
