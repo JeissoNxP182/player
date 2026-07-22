@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ver Película</title>
+  
+  <!-- HLS.js para enlaces .m3u8 si los usas -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  
+  <!-- Transmitir a Smart TV / Chromecast -->
+  <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #0d0e12;
+      color: #e1e1e6;
+      padding: 20px 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app-header {
+      width: 100%;
+      max-width: 650px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .app-header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* Botón de Transmitir a la TV */
+    google-cast-launcher {
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      --connected-color: #3b82f6;
+      --disconnected-color: #ffffff;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 650px;
+    }
+
+    /* Marco del Reproductor */
+    .player-card {
+      width: 100%;
+      background: #000000;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #282a38;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="app-header">
+      <!-- Puedes cambiar el nombre del título aquí -->
+      <h1 id="movieTitle">Cargando película...</h1>
+      <google-cast-launcher title="Transmitir a la TV"></google-cast-launcher>
+    </div>
+
+    <!-- Pantalla del Reproductor -->
+    <div class="player-card">
+      <video id="video" controls playsinline preload="metadata"></video>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================
+    // ⚙️ CONFIGURACIÓN DE LA PELÍCULA (EDITA SOLO ESTAS LÍNEAS)
+    // =========================================================
+    
+    const TITULO_PELICULA = "V/H/S/2: Las crónicas del miedo 2"; 
+    
+    // Pega aquí el link largo de Tapecontent, Streamtape o M3U8:
+    const LINK_VIDEO = "https://872373798.tapecontent.net/radosgw/DW2RdKmwKMS3Yv/ZSF1fh9ZOTkbIoxUXY9oJcQo0kiynm561700Wrq-XVM4ffCik-8vNahJfM_0OvnAESyVto20Z3ZUyjimXwQaWBcnXaFUua70ZTHL7YwEJJ_z6_LZHFIaRSEXMcqqLAxqXAZ9xs4QUcY52Quj1FhZrCaK4YXbIehhIEK7loKW-myrj6ay7HhKK4oh4TAmJa0OOXa8az_3nuhmydSGOfAKfw_YMOED0BQsECYXAzvqg3U2VlGxIbjzms5FSQHTFfWMEfOJXGxsG34JYVcJBMZMUaWIkmoQsU_vwhzfDxDatPIx0VS8QEHD56qP1mk/2013+-+V%2FH%2FS%2F2%3A+Las+cr%C3%B3nicas+del+miedo+2?stream=1"; 
+    
+    // Pega aquí el link de la imagen de miniatura (poster):
+    const LINK_MINIATURA = "https://m.media-amazon.com/images/S/pv-target-images/ae005f4cb1bd8f3942953d204b36a8c03bec056cf53cfbb57b465fc9184988c0.jpg"; 
+
+    // =========================================================
+    // CÓDIGO DEL REPRODUCTOR (NO NECESITAS MODIFICAR ABAJO)
+    // =========================================================
+    
+    const video = document.getElementById('video');
+    const movieTitle = document.getElementById('movieTitle');
+
+    // Asignar Título y Miniatura
+    movieTitle.textContent = TITULO_PELICULA;
+    if (LINK_MINIATURA) {
+      video.poster = LINK_MINIATURA;
+    }
+
+    // Inicializar Google Cast
+    window.__onGCastApiAvailable = function(isAvailable) {
+      if (isAvailable) {
+        cast.framework.CastContext.getInstance().setOptions({
+          receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+          autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+        });
+      }
+    };
+
+    // Cargar el video en el reproductor
+    let hls = null;
+    if (LINK_VIDEO.includes('.m3u8') && Hls.isSupported()) {
+      hls = new Hls();
+      hls.loadSource(LINK_VIDEO);
+      hls.attachMedia(video);
+    } else {
+      video.src = LINK_VIDEO;
+    }
+
+    // Mantiene en pausa hasta que le den Play
+    video.pause();
+  </script>
+
+</body>
+</html>
