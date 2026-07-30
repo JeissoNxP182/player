@@ -156,23 +156,33 @@
       }
 
       async function consultarApiStreamtape(fileId) {
-        try {
-          const apiUrl = `https://api.streamtape.com/file/dnl?file=${fileId}&login=${API_LOGIN}&key=${API_KEY}`;
-          const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(apiUrl)}`;
-          
-          const response = await fetch(proxyUrl);
-          const data = await response.json();
+  const apiUrl = `https://api.streamtape.com/file/dnl?file=${fileId}&login=${API_LOGIN}&key=${API_KEY}`;
+  
+  // Lista de proxies de respaldo para saltar la restricción CORS de la API
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(apiUrl)}`
+  ];
 
-          if (data && data.status === 200 && data.result && data.result.url) {
-            return data.result.url; // Retorna la URL directa de mp4/tapecontent fresca
-          } else {
-            console.error("Error en respuesta de API:", data);
-            return null;
-          }
-        } catch (e) {
-          console.error("Error al conectar con la API:", e);
-          return null;
-        }
+  for (const proxy of proxies) {
+    try {
+      const response = await fetch(proxy);
+      if (!response.ok) continue;
+
+      const data = await response.json();
+
+      // Si Streamtape responde con éxito y trae la URL del MP4
+      if (data && data.status === 200 && data.result && data.result.url) {
+        return data.result.url;
+      }
+    } catch (e) {
+      console.warn("Error con un proxy, intentando el siguiente...", e);
+    }
+  }
+
+  return null;
+      }
+      
       }
 
       let freshUrl = await consultarApiStreamtape(STREAMTAPE_ID);
