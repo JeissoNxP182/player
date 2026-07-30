@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ver Película</title>
   
-  <!-- Plyr.js (Estilos y reproductor) -->
+  <!-- Plyr.js -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
@@ -105,7 +105,7 @@
   <div class="player-container" id="playerWrapper">
     <div class="loading-overlay" id="loadingOverlay">
       <div class="spinner" id="spinner"></div>
-      <p id="loadingText">Conectando con el servidor de video...</p>
+      <p id="loadingText">Obteniendo enlace directo con la API...</p>
     </div>
 
     <div class="seek-feedback left" id="feedbackLeft">⏮ -10s</div>
@@ -116,15 +116,16 @@
 
   <script>
     // =========================================================
-    // ⚙️ CONFIGURACIÓN DE LA PELÍCULA
+    // ⚙️ CONFIGURACIÓN DE TU CUENTA Y PELÍCULA
     // =========================================================
     
-    // ID de Streamtape o enlace alternativo
+    const API_LOGIN = "e321bcab62b1cf179cf7"; // Tu usuario de API de Streamtape
+    const API_KEY = "AAjvzj6wypuX3Mq";     // Tu contraseña/Key de API de Streamtape
     const STREAMTAPE_ID = "ZJqVe14JA9CKq9"; 
-    const LINK_POSTER = "https://m.media-amazon.com/images/S/pv-target-images/2b1354e4eb010e86e07d4536dfa06322d07dfe41e38e51427b16a0387732467f.png"; // Opcional: pega el link de tu imagen
+    const LINK_POSTER = "https://m.media-amazon.com/images/S/pv-target-images/2b1354e4eb010e86e07d4536dfa06322d07dfe41e38e51427b16a0387732467f.png";
 
     // =========================================================
-    // LÓGICA DE EXTRACCIÓN Y REPRODUCTOR
+    // LÓGICA CON API OFICIAL
     // =========================================================
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -154,48 +155,36 @@
         });
       }
 
-      // Método de extracción mejorado usando múltiples patrones
-      async function obtenerStreamtapeDirecto(id) {
-        const proxies = [
-          `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent('https://streamtape.com/v/' + id + '/')}`,
-          `https://corsproxy.io/?${encodeURIComponent('https://streamtape.com/v/' + id + '/')}`
-        ];
+      async function consultarApiStreamtape(fileId) {
+        try {
+          const apiUrl = `https://api.streamtape.com/file/dnl?file=${fileId}&login=${API_LOGIN}&key=${API_KEY}`;
+          const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(apiUrl)}`;
+          
+          const response = await fetch(proxyUrl);
+          const data = await response.json();
 
-        for (const proxy of proxies) {
-          try {
-            const res = await fetch(proxy);
-            if (!res.ok) continue;
-            const html = await res.text();
-
-            // Buscar patron de enlace de Streamtape
-            const matchNorobot = html.match(/id="norobotlink"[^>]*>([^<]+)/);
-            const matchScript = html.match(/document\.getElementById\('norobotlink'\)\.innerHTML\s*=\s*['"]([^'"]+)['"]\s*\+\s*\(['"]([^'"]+)['"]/);
-
-            if (matchScript) {
-              const part1 = matchScript[1];
-              const part2 = matchScript[2].substring(1);
-              return `https:${part1}${part2}&stream=1`;
-            } else if (matchNorobot && matchNorobot[1]) {
-              return `https:${matchNorobot[1]}&stream=1`;
-            }
-          } catch (e) {
-            console.warn("Fallo un proxy, probando el siguiente...", e);
+          if (data && data.status === 200 && data.result && data.result.url) {
+            return data.result.url; // Retorna la URL directa de mp4/tapecontent fresca
+          } else {
+            console.error("Error en respuesta de API:", data);
+            return null;
           }
+        } catch (e) {
+          console.error("Error al conectar con la API:", e);
+          return null;
         }
-        return null;
       }
 
-      // Proceso de obtención
-      let finalUrl = await obtenerStreamtapeDirecto(STREAMTAPE_ID);
+      let freshUrl = await consultarApiStreamtape(STREAMTAPE_ID);
 
-      if (finalUrl) {
-        videoElement.src = finalUrl;
+      if (freshUrl) {
+        videoElement.src = freshUrl;
         initPlyr();
         loadingOverlay.style.opacity = "0";
         setTimeout(() => loadingOverlay.style.display = "none", 300);
       } else {
         spinner.style.display = "none";
-        loadingText.innerHTML = "Streamtape ha bloqueado la extracción automática temporalmente.<br><br>Para ver esta película, debes pegar el enlace fresco de <code>tapecontent</code> manualmente.";
+        loadingText.innerHTML = "No se pudo obtener el enlace vía API.<br>Verifica tu API Login, API Key y la ID del video.";
       }
 
       // Doble Clic / Doble Toque (-10s / +10s)
