@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Reproductor JeissoNxP182</title>
 
-  <!-- Librería HLS.js para reproducción de transmisiones .m3u8 -->
+  <!-- HLS.js para listas .m3u8 -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
   <style>
@@ -56,12 +56,12 @@
       object-fit: contain;
     }
 
-    /* MARCA PERSONAL */
+    /* MARCA PERSONAL Y TITULO */
     .brand-watermark {
       position: absolute;
       top: 12px;
       left: 14px;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 800;
       letter-spacing: 1px;
       background: var(--silver-gradient);
@@ -76,7 +76,7 @@
     .controls-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(10, 2, 20, 0.65);
+      background: rgba(10, 2, 20, 0.55);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -101,7 +101,7 @@
       width: 100%;
     }
 
-    /* CONTROLES CENTRALES (-10s, PLAY, +10s) */
+    /* CONTROLES CENTRALES (ATRASAR - PLAY - ADELANTAR) */
     .center-controls {
       position: absolute;
       top: 50%;
@@ -114,7 +114,7 @@
     }
 
     .btn-center {
-      background: rgba(20, 3, 38, 0.8);
+      background: rgba(20, 3, 38, 0.75);
       border: 1px solid rgba(168, 85, 247, 0.5);
       width: 52px;
       height: 52px;
@@ -135,7 +135,7 @@
       border-color: #cbd5e1;
     }
 
-    /* BARRA DE DESLAZAMIENTO CON BOLITA (SCRUBBER) */
+    /* FILA INFERIOR CONTROLES */
     .bottom-controls-wrapper {
       display: flex;
       flex-direction: column;
@@ -143,6 +143,7 @@
       width: 100%;
     }
 
+    /* BARRA DESLIZANTE CON BOLITA */
     .scrubber-container {
       width: 100%;
       display: flex;
@@ -164,6 +165,7 @@
 
     .video-scrubber::-webkit-slider-thumb {
       -webkit-appearance: none;
+      appearance: none;
       width: 14px;
       height: 14px;
       border-radius: 50%;
@@ -182,10 +184,10 @@
     .bottom-left, .bottom-right {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
-    /* TIEMPOS SEPARADOS EN FORMATO PEQUEÑO (0:00:00) */
+    /* CONTADORES PEQUEÑOS (HORAS-MINUTOS-SEGUNDOS) */
     .time-counter {
       font-size: 10px;
       font-weight: 600;
@@ -194,7 +196,7 @@
       font-family: monospace;
     }
 
-    /* ESTILO GENERAL DE BOTONES / ICONOS DE 24px */
+    /* ESTILO GENERAL DE BOTONES / ICONOS */
     .icon-btn {
       background: none;
       border: none;
@@ -206,6 +208,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      transition: background 0.2s;
     }
 
     .icon-btn:active {
@@ -218,17 +221,17 @@
       fill: currentColor;
     }
 
-    /* SLIDER DE VOLUMEN CON BOLITA DESLIZANTE */
+    /* SLIDER DE VOLUMEN */
     .volume-group {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
     }
 
     .volume-slider {
       -webkit-appearance: none;
       appearance: none;
-      width: 55px;
+      width: 60px;
       height: 4px;
       background: rgba(255, 255, 255, 0.3);
       border-radius: 2px;
@@ -237,15 +240,16 @@
 
     .volume-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 11px;
-      height: 11px;
+      appearance: none;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       background: #e2e8f0;
-      box-shadow: 0 0 5px var(--purple-main);
+      box-shadow: 0 0 6px var(--purple-main);
       cursor: pointer;
     }
 
-    /* MENÚ DESPLEGABLE DE LA TUERCA */
+    /* MENU DESPLEGABLE DE OPCIONES (TUERCA) */
     .settings-panel {
       position: absolute;
       bottom: 0;
@@ -261,9 +265,7 @@
       backdrop-filter: blur(10px);
     }
 
-    .settings-panel.active { 
-      display: flex; 
-    }
+    .settings-panel.active { display: flex; }
 
     .settings-item {
       display: flex;
@@ -295,11 +297,9 @@
       padding: 12px;
     }
 
-    .lock-overlay.active { 
-      display: flex; 
-    }
+    .lock-overlay.active { display: flex; }
 
-    /* CAJA DE TEXTO PARA ENLACES DEBAJO DEL REPRODUCTOR */
+    /* CONTENEDOR DE ENLACE DEBAJO DEL REPRODUCTOR */
     .url-section {
       padding: 16px;
       display: flex;
@@ -310,7 +310,7 @@
     }
 
     .url-title {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
       color: #94a3b8;
       text-transform: uppercase;
@@ -336,6 +336,11 @@
       -webkit-user-select: text;
     }
 
+    .url-input:focus {
+      border-color: var(--purple-main);
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+    }
+
     .btn-load {
       height: 42px;
       padding: 0 18px;
@@ -353,8 +358,8 @@
       top: 50px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(20, 3, 38, 0.95);
-      border: 1px solid var(--purple-main);
+      background: rgba(20, 3, 38, 0.9);
+      border: 1px solid #e2e8f0;
       color: #fff;
       padding: 6px 16px;
       border-radius: 20px;
@@ -365,20 +370,18 @@
       transition: opacity 0.3s;
     }
 
-    .toast-msg.show { 
-      opacity: 1; 
-    }
+    .toast-msg.show { opacity: 1; }
   </style>
 </head>
 <body>
 
-  <!-- REPRODUCTOR DE VÍDEO -->
+  <!-- MARCA DE AGUA -->
   <div class="player-wrapper" id="playerWrapper">
     <div class="brand-watermark">JeissoNxP182</div>
 
     <video id="mainVideo" preload="metadata" playsinline webkit-playsinline></video>
 
-    <!-- CAPA DE CONTROLES SOBREPUESTA -->
+    <!-- CAPA DE CONTROLES GENERALES -->
     <div class="controls-overlay" id="controlsOverlay">
       
       <!-- ARRIBA A LA DERECHA -->
@@ -396,7 +399,7 @@
         </button>
       </div>
 
-      <!-- BOTONES CENTRALES DE REPRODUCCIÓN -->
+      <!-- TRES OPCIONES CENTRALES -->
       <div class="center-controls">
         <button class="btn-center" id="btnRewind" title="-10 Segundos">
           <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
@@ -412,9 +415,9 @@
         </button>
       </div>
 
-      <!-- SECCIÓN INFERIOR -->
+      <!-- ABAJO -->
       <div class="bottom-controls-wrapper">
-        <!-- BARRA DESLIZANTE DE POSICIÓN -->
+        <!-- BARRA DESLIZANTE CON BOLITA DE POSICIÓN -->
         <div class="scrubber-container">
           <input type="range" class="video-scrubber" id="videoScrubber" min="0" max="100" value="0" step="0.1">
         </div>
@@ -459,7 +462,7 @@
       </div>
     </div>
 
-    <!-- PANEL DE LA TUERCA -->
+    <!-- PANELS / MODALES -->
     <div class="settings-panel" id="settingsPanel">
       <div class="settings-item">
         <span>Calidad</span>
@@ -486,21 +489,21 @@
       </div>
     </div>
 
-    <!-- PANTALLA BLOQUEADA -->
+    <!-- CAPA DE DESBLOQUEO -->
     <div class="lock-overlay" id="lockOverlay">
-      <button class="icon-btn" id="btnUnlock" style="background:rgba(20,3,38,0.9); border:1px solid var(--purple-main);">
+      <button class="icon-btn" id="btnUnlock" style="background:rgba(20,3,38,0.8); border:1px solid var(--purple-main);">
         <svg viewBox="0 0 24 24"><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/></svg>
       </button>
     </div>
 
-    <div class="toast-msg" id="toastMsg">Notificación</div>
+    <div class="toast-msg" id="toastMsg">Mensaje</div>
   </div>
 
-  <!-- INPUT DEBAJO DEL REPRODUCTOR -->
+  <!-- SECCIÓN SUPERIOR DE CARGA (DEBAJO DEL REPRODUCTOR) -->
   <div class="url-section">
-    <div class="url-title">Cargar Vídeo (MP4 o M3U8)</div>
+    <div class="url-title">Cargar Fuente de Vídeo (.mp4 / .m3u8)</div>
     <div class="input-wrapper">
-      <input type="text" id="urlInput" class="url-input" placeholder="Pega tu enlace MP4 o M3U8 aquí..." />
+      <input type="text" id="urlInput" class="url-input" placeholder="Pega tu URL de vídeo aquí..." />
       <button id="btnLoad" class="btn-load">Cargar</button>
     </div>
   </div>
@@ -554,7 +557,7 @@
 
       let hlsInstance = null;
       let currentUrl = '';
-      let autoHideTimer = null;
+      let controlsTimer = null;
       let isSeeking = false;
 
       function showToast(txt) {
@@ -564,9 +567,9 @@
       }
 
       function resetAutoHide() {
-        clearTimeout(autoHideTimer);
+        clearTimeout(controlsTimer);
         if (!video.paused) {
-          autoHideTimer = setTimeout(() => {
+          controlsTimer = setTimeout(() => {
             controlsOverlay.classList.remove('active');
             settingsPanel.classList.remove('active');
           }, 3500);
@@ -575,7 +578,7 @@
 
       function togglePlay() {
         if (video.paused) {
-          video.play().catch(() => showToast('Presiona para iniciar'));
+          video.play().catch(() => showToast('Toca Play'));
         } else {
           video.pause();
         }
@@ -594,4 +597,258 @@
 
       video.addEventListener('pause', () => {
         centerIconPlay.style.display = 'block';
-     
+        centerIconPause.style.display = 'none';
+        bottomIconPlay.style.display = 'block';
+        bottomIconPause.style.display = 'none';
+        clearTimeout(controlsTimer);
+        controlsOverlay.classList.add('active');
+      });
+
+      btnRewind.addEventListener('click', (e) => {
+        e.stopPropagation();
+        video.currentTime = Math.max(0, video.currentTime - 10);
+        resetAutoHide();
+      });
+
+      btnForward.addEventListener('click', (e) => {
+        e.stopPropagation();
+        video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
+        resetAutoHide();
+      });
+
+      // MOSTRAR U OCULTAR CONTROLES AL TOCAR LA PANTALLA
+      playerWrapper.addEventListener('click', (e) => {
+        if (e.target.closest('.controls-overlay') || e.target.closest('.settings-panel') || e.target.closest('.lock-overlay')) {
+          if (e.target === controlsOverlay) {
+            controlsOverlay.classList.remove('active');
+            settingsPanel.classList.remove('active');
+          }
+          return;
+        }
+
+        const isActive = controlsOverlay.classList.contains('active');
+        if (isActive) {
+          controlsOverlay.classList.remove('active');
+          settingsPanel.classList.remove('active');
+        } else {
+          controlsOverlay.classList.add('active');
+          resetAutoHide();
+        }
+      });
+
+      // TRANSMITIR (CAST)
+      btnCast.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (video.remote && typeof video.remote.prompt === 'function') {
+          try {
+            await video.remote.prompt();
+          } catch(err) {
+            showToast('Dispositivo Cast no seleccionado');
+          }
+        } else if (video.webkitShowPlaybackTargetPicker) {
+          video.webkitShowPlaybackTargetPicker();
+        } else {
+          showToast('Buscando Smart TV / Cast...');
+        }
+      });
+
+      // CONTROL DE VOLUMEN
+      volumeSlider.addEventListener('input', (e) => {
+        e.stopPropagation();
+        video.volume = parseFloat(e.target.value);
+        video.muted = (video.volume === 0);
+        updateVolIcons();
+      });
+
+      btnMute.addEventListener('click', (e) => {
+        e.stopPropagation();
+        video.muted = !video.muted;
+        volumeSlider.value = video.muted ? 0 : (video.volume || 1);
+        updateVolIcons();
+      });
+
+      function updateVolIcons() {
+        if (video.muted || video.volume === 0) {
+          iconVolHigh.style.display = 'none';
+          iconVolMute.style.display = 'block';
+        } else {
+          iconVolHigh.style.display = 'block';
+          iconVolMute.style.display = 'none';
+        }
+      }
+
+      // FORMATO HORAS-MINUTOS-SEGUNDOS (0:00:00)
+      function formatHMS(sec) {
+        if (isNaN(sec) || !isFinite(sec)) return "0:00:00";
+        const h = Math.floor(sec / 3600);
+        const m = Math.floor((sec % 3600) / 60);
+        const s = Math.floor(sec % 60);
+        return `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+      }
+
+      video.addEventListener('timeupdate', () => {
+        if (video.duration && !isSeeking) {
+          const pct = (video.currentTime / video.duration) * 100;
+          videoScrubber.value = pct;
+          currTimeElem.textContent = formatHMS(video.currentTime);
+        }
+      });
+
+      video.addEventListener('loadedmetadata', () => {
+        durTimeElem.textContent = formatHMS(video.duration);
+      });
+
+      // MANEJO DE LA BARRA DESLIZANTE CON BOLITA
+      videoScrubber.addEventListener('input', (e) => {
+        e.stopPropagation();
+        isSeeking = true;
+        if (video.duration) {
+          const targetTime = (parseFloat(videoScrubber.value) / 100) * video.duration;
+          currTimeElem.textContent = formatHMS(targetTime);
+        }
+      });
+
+      videoScrubber.addEventListener('change', (e) => {
+        e.stopPropagation();
+        if (video.duration) {
+          video.currentTime = (parseFloat(videoScrubber.value) / 100) * video.duration;
+        }
+        isSeeking = false;
+        resetAutoHide();
+      });
+
+      // PANEL DE CONFIGURACIÓN
+      btnSettings.addEventListener('click', (e) => {
+        e.stopPropagation();
+        settingsPanel.classList.toggle('active');
+      });
+
+      selectSpeed.addEventListener('change', (e) => {
+        video.playbackRate = parseFloat(e.target.value);
+        showToast(`Velocidad: ${e.target.value}x`);
+      });
+
+      optLockScreen.addEventListener('click', () => {
+        settingsPanel.classList.remove('active');
+        controlsOverlay.classList.remove('active');
+        lockOverlay.classList.add('active');
+        showToast('Pantalla bloqueada');
+      });
+
+      btnUnlock.addEventListener('click', () => {
+        lockOverlay.classList.remove('active');
+        controlsOverlay.classList.add('active');
+        showToast('Pantalla desbloqueada');
+      });
+
+      // COPIAR LINK Y DESCARGAR
+      btnCopyLink.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (currentUrl) {
+          navigator.clipboard.writeText(currentUrl);
+          showToast('Enlace copiado');
+        } else {
+          showToast('No hay enlace cargado');
+        }
+      });
+
+      btnDownload.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (currentUrl) {
+          const a = document.createElement('a');
+          a.href = currentUrl;
+          a.download = '';
+          a.target = '_blank';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } else {
+          showToast('No hay vídeo para descargar');
+        }
+      });
+
+      // PIP Y FULLSCREEN
+      btnPip.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (document.pictureInPictureElement) {
+          await document.exitPictureInPicture();
+        } else if (document.pictureInPictureEnabled) {
+          await video.requestPictureInPicture();
+        }
+      });
+
+      btnFullscreen.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!document.fullscreenElement) {
+          playerWrapper.requestFullscreen();
+          iconFS.style.display = 'none';
+          iconExitFS.style.display = 'block';
+        } else {
+          document.exitFullscreen();
+          iconFS.style.display = 'block';
+          iconExitFS.style.display = 'none';
+        }
+      });
+
+      // CARGA DE FUENTES (MP4 / M3U8)
+      function loadVideo(rawUrl) {
+        if (!rawUrl) return;
+        currentUrl = rawUrl;
+
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+
+        if (hlsInstance) {
+          hlsInstance.destroy();
+          hlsInstance = null;
+        }
+
+        const cleanUrl = rawUrl.toLowerCase();
+        const isHls = cleanUrl.includes('.m3u8') || cleanUrl.includes('m3u8');
+
+        if (isHls) {
+          if (Hls.isSupported()) {
+            hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
+            hlsInstance.loadSource(rawUrl);
+            hlsInstance.attachMedia(video);
+
+            hlsInstance.on(Hls.Events.MANIFEST_PARSED, (evt, data) => {
+              selectQuality.innerHTML = '<option value="-1">Automática</option>';
+              data.levels.forEach((lvl, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `${lvl.height || 'SD'}p`;
+                selectQuality.appendChild(opt);
+              });
+              video.play().catch(() => {});
+            });
+
+            selectQuality.onchange = (e) => {
+              if (hlsInstance) hlsInstance.currentLevel = parseInt(e.target.value);
+            };
+
+          } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = rawUrl;
+            selectQuality.innerHTML = '<option value="-1">Auto (Nativo iOS)</option>';
+            video.play().catch(() => {});
+          } else {
+            showToast('Formato HLS no soportado');
+          }
+        } else {
+          video.src = rawUrl;
+          selectQuality.innerHTML = '<option value="-1">Estándar MP4</option>';
+          video.play().catch(() => {});
+        }
+
+        showToast('Cargando fuente...');
+      }
+
+      btnLoad.addEventListener('click', () => loadVideo(urlInput.value.trim()));
+      urlInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') loadVideo(urlInput.value.trim());
+      });
+    });
+  </script>
+</body>
+</html>
