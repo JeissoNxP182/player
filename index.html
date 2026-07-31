@@ -23,6 +23,7 @@
       padding: 0;
       user-select: none;
       -webkit-user-select: none;
+      touch-action: manipulation;
     }
 
     body {
@@ -48,6 +49,7 @@
       justify-content: center;
       overflow: hidden;
       box-shadow: 0 4px 25px rgba(0, 0, 0, 0.8);
+      contain: content;
     }
 
     video {
@@ -83,7 +85,8 @@
       padding: 12px;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.25s ease;
+      transition: opacity 0.2s cubic-bezier(0, 0, 0.2, 1);
+      will-change: opacity;
       z-index: 20;
     }
 
@@ -126,6 +129,11 @@
       cursor: pointer;
       backdrop-filter: blur(4px);
       box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+      transition: transform 0.1s ease;
+    }
+
+    .btn-center:active {
+      transform: scale(0.92);
     }
 
     .btn-center.play-main {
@@ -143,7 +151,7 @@
       width: 100%;
     }
 
-    /* BARRA DESLIZANTE CON BOLITA */
+    /* BARRA DESLIZANTE Y BUFFER REAL */
     .scrubber-container {
       width: 100%;
       display: flex;
@@ -155,12 +163,13 @@
       -webkit-appearance: none;
       appearance: none;
       width: 100%;
-      height: 5px;
-      background: rgba(255, 255, 255, 0.25);
+      height: 6px;
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 3px;
       outline: none;
       cursor: pointer;
       z-index: 2;
+      will-change: background;
     }
 
     .video-scrubber::-webkit-slider-thumb {
@@ -187,13 +196,22 @@
       gap: 10px;
     }
 
-    /* CONTADORES PEQUEÑOS (HORAS-MINUTOS-SEGUNDOS) */
+    /* CONTADOR UNIFICADO */
     .time-counter {
-      font-size: 10px;
-      font-weight: 600;
-      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 700;
+      color: #e2e8f0;
       letter-spacing: 0.5px;
       font-family: monospace;
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      transition: background 0.15s ease;
+    }
+
+    .time-counter:active {
+      background: rgba(168, 85, 247, 0.4);
     }
 
     /* ESTILO GENERAL DE BOTONES / ICONOS */
@@ -208,7 +226,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.15s;
     }
 
     .icon-btn:active {
@@ -367,7 +385,7 @@
       z-index: 60;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s;
+      transition: opacity 0.2s ease;
     }
 
     .toast-msg.show { opacity: 1; }
@@ -417,9 +435,9 @@
 
       <!-- ABAJO -->
       <div class="bottom-controls-wrapper">
-        <!-- BARRA DESLIZANTE CON BOLITA DE POSICIÓN -->
+        <!-- BARRA DESLIZANTE CON BUFFER REAL -->
         <div class="scrubber-container">
-          <input type="range" class="video-scrubber" id="videoScrubber" min="0" max="100" value="0" step="0.1">
+          <input type="range" class="video-scrubber" id="videoScrubber" min="0" max="100" value="0" step="0.05">
         </div>
 
         <div class="bottom-row">
@@ -438,13 +456,12 @@
               <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1">
             </div>
 
-            <div class="time-counter" id="currTime">0:00:00</div>
+            <!-- CONTADOR DE TIEMPO ÚNICO MODO CONMUTABLE -->
+            <div class="time-counter" id="timeDisplay" title="Clic para alternar modo de tiempo">0:00:00</div>
           </div>
 
           <!-- ABAJO A LA DERECHA -->
           <div class="bottom-right">
-            <div class="time-counter" id="durTime">0:00:00</div>
-
             <button class="icon-btn" id="btnCopyLink" title="Copiar Enlace">
               <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
             </button>
@@ -531,9 +548,7 @@
       const volumeSlider = document.getElementById('volumeSlider');
 
       const videoScrubber = document.getElementById('videoScrubber');
-
-      const currTimeElem = document.getElementById('currTime');
-      const durTimeElem = document.getElementById('durTime');
+      const timeDisplay = document.getElementById('timeDisplay');
 
       const btnSettings = document.getElementById('btnSettings');
       const settingsPanel = document.getElementById('settingsPanel');
@@ -560,295 +575,26 @@
       let controlsTimer = null;
       let isSeeking = false;
 
+      // MODOS DE TIEMPO: 0 = Transcurrido, 1 = Faltante, 2 = Total
+      let timeMode = 0;
+
       function showToast(txt) {
         toastMsg.textContent = txt;
         toastMsg.classList.add('show');
-        setTimeout(() => toastMsg.classList.remove('show'), 2500);
+        setTimeout(() => toastMsg.classList.remove('show'), 2000);
       }
 
+      // DESVANECIDO CONFIGURADO A 10 SEGUNDOS
       function resetAutoHide() {
         clearTimeout(controlsTimer);
         if (!video.paused) {
           controlsTimer = setTimeout(() => {
             controlsOverlay.classList.remove('active');
             settingsPanel.classList.remove('active');
-          }, 3500);
+          }, 10000);
         }
       }
 
       function togglePlay() {
         if (video.paused) {
-          video.play().catch(() => showToast('Toca Play'));
-        } else {
-          video.pause();
-        }
-      }
-
-      btnCenterPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); resetAutoHide(); });
-      btnBottomPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); resetAutoHide(); });
-
-      video.addEventListener('play', () => {
-        centerIconPlay.style.display = 'none';
-        centerIconPause.style.display = 'block';
-        bottomIconPlay.style.display = 'none';
-        bottomIconPause.style.display = 'block';
-        resetAutoHide();
-      });
-
-      video.addEventListener('pause', () => {
-        centerIconPlay.style.display = 'block';
-        centerIconPause.style.display = 'none';
-        bottomIconPlay.style.display = 'block';
-        bottomIconPause.style.display = 'none';
-        clearTimeout(controlsTimer);
-        controlsOverlay.classList.add('active');
-      });
-
-      btnRewind.addEventListener('click', (e) => {
-        e.stopPropagation();
-        video.currentTime = Math.max(0, video.currentTime - 10);
-        resetAutoHide();
-      });
-
-      btnForward.addEventListener('click', (e) => {
-        e.stopPropagation();
-        video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
-        resetAutoHide();
-      });
-
-      // MOSTRAR U OCULTAR CONTROLES AL TOCAR LA PANTALLA
-      playerWrapper.addEventListener('click', (e) => {
-        if (e.target.closest('.controls-overlay') || e.target.closest('.settings-panel') || e.target.closest('.lock-overlay')) {
-          if (e.target === controlsOverlay) {
-            controlsOverlay.classList.remove('active');
-            settingsPanel.classList.remove('active');
-          }
-          return;
-        }
-
-        const isActive = controlsOverlay.classList.contains('active');
-        if (isActive) {
-          controlsOverlay.classList.remove('active');
-          settingsPanel.classList.remove('active');
-        } else {
-          controlsOverlay.classList.add('active');
-          resetAutoHide();
-        }
-      });
-
-      // TRANSMITIR (CAST)
-      btnCast.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        if (video.remote && typeof video.remote.prompt === 'function') {
-          try {
-            await video.remote.prompt();
-          } catch(err) {
-            showToast('Dispositivo Cast no seleccionado');
-          }
-        } else if (video.webkitShowPlaybackTargetPicker) {
-          video.webkitShowPlaybackTargetPicker();
-        } else {
-          showToast('Buscando Smart TV / Cast...');
-        }
-      });
-
-      // CONTROL DE VOLUMEN
-      volumeSlider.addEventListener('input', (e) => {
-        e.stopPropagation();
-        video.volume = parseFloat(e.target.value);
-        video.muted = (video.volume === 0);
-        updateVolIcons();
-      });
-
-      btnMute.addEventListener('click', (e) => {
-        e.stopPropagation();
-        video.muted = !video.muted;
-        volumeSlider.value = video.muted ? 0 : (video.volume || 1);
-        updateVolIcons();
-      });
-
-      function updateVolIcons() {
-        if (video.muted || video.volume === 0) {
-          iconVolHigh.style.display = 'none';
-          iconVolMute.style.display = 'block';
-        } else {
-          iconVolHigh.style.display = 'block';
-          iconVolMute.style.display = 'none';
-        }
-      }
-
-      // FORMATO HORAS-MINUTOS-SEGUNDOS (0:00:00)
-      function formatHMS(sec) {
-        if (isNaN(sec) || !isFinite(sec)) return "0:00:00";
-        const h = Math.floor(sec / 3600);
-        const m = Math.floor((sec % 3600) / 60);
-        const s = Math.floor(sec % 60);
-        return `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-      }
-
-      video.addEventListener('timeupdate', () => {
-        if (video.duration && !isSeeking) {
-          const pct = (video.currentTime / video.duration) * 100;
-          videoScrubber.value = pct;
-          currTimeElem.textContent = formatHMS(video.currentTime);
-        }
-      });
-
-      video.addEventListener('loadedmetadata', () => {
-        durTimeElem.textContent = formatHMS(video.duration);
-      });
-
-      // MANEJO DE LA BARRA DESLIZANTE CON BOLITA
-      videoScrubber.addEventListener('input', (e) => {
-        e.stopPropagation();
-        isSeeking = true;
-        if (video.duration) {
-          const targetTime = (parseFloat(videoScrubber.value) / 100) * video.duration;
-          currTimeElem.textContent = formatHMS(targetTime);
-        }
-      });
-
-      videoScrubber.addEventListener('change', (e) => {
-        e.stopPropagation();
-        if (video.duration) {
-          video.currentTime = (parseFloat(videoScrubber.value) / 100) * video.duration;
-        }
-        isSeeking = false;
-        resetAutoHide();
-      });
-
-      // PANEL DE CONFIGURACIÓN
-      btnSettings.addEventListener('click', (e) => {
-        e.stopPropagation();
-        settingsPanel.classList.toggle('active');
-      });
-
-      selectSpeed.addEventListener('change', (e) => {
-        video.playbackRate = parseFloat(e.target.value);
-        showToast(`Velocidad: ${e.target.value}x`);
-      });
-
-      optLockScreen.addEventListener('click', () => {
-        settingsPanel.classList.remove('active');
-        controlsOverlay.classList.remove('active');
-        lockOverlay.classList.add('active');
-        showToast('Pantalla bloqueada');
-      });
-
-      btnUnlock.addEventListener('click', () => {
-        lockOverlay.classList.remove('active');
-        controlsOverlay.classList.add('active');
-        showToast('Pantalla desbloqueada');
-      });
-
-      // COPIAR LINK Y DESCARGAR
-      btnCopyLink.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (currentUrl) {
-          navigator.clipboard.writeText(currentUrl);
-          showToast('Enlace copiado');
-        } else {
-          showToast('No hay enlace cargado');
-        }
-      });
-
-      btnDownload.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (currentUrl) {
-          const a = document.createElement('a');
-          a.href = currentUrl;
-          a.download = '';
-          a.target = '_blank';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        } else {
-          showToast('No hay vídeo para descargar');
-        }
-      });
-
-      // PIP Y FULLSCREEN
-      btnPip.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        if (document.pictureInPictureElement) {
-          await document.exitPictureInPicture();
-        } else if (document.pictureInPictureEnabled) {
-          await video.requestPictureInPicture();
-        }
-      });
-
-      btnFullscreen.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (!document.fullscreenElement) {
-          playerWrapper.requestFullscreen();
-          iconFS.style.display = 'none';
-          iconExitFS.style.display = 'block';
-        } else {
-          document.exitFullscreen();
-          iconFS.style.display = 'block';
-          iconExitFS.style.display = 'none';
-        }
-      });
-
-      // CARGA DE FUENTES (MP4 / M3U8)
-      function loadVideo(rawUrl) {
-        if (!rawUrl) return;
-        currentUrl = rawUrl;
-
-        video.pause();
-        video.removeAttribute('src');
-        video.load();
-
-        if (hlsInstance) {
-          hlsInstance.destroy();
-          hlsInstance = null;
-        }
-
-        const cleanUrl = rawUrl.toLowerCase();
-        const isHls = cleanUrl.includes('.m3u8') || cleanUrl.includes('m3u8');
-
-        if (isHls) {
-          if (Hls.isSupported()) {
-            hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
-            hlsInstance.loadSource(rawUrl);
-            hlsInstance.attachMedia(video);
-
-            hlsInstance.on(Hls.Events.MANIFEST_PARSED, (evt, data) => {
-              selectQuality.innerHTML = '<option value="-1">Automática</option>';
-              data.levels.forEach((lvl, idx) => {
-                const opt = document.createElement('option');
-                opt.value = idx;
-                opt.textContent = `${lvl.height || 'SD'}p`;
-                selectQuality.appendChild(opt);
-              });
-              video.play().catch(() => {});
-            });
-
-            selectQuality.onchange = (e) => {
-              if (hlsInstance) hlsInstance.currentLevel = parseInt(e.target.value);
-            };
-
-          } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = rawUrl;
-            selectQuality.innerHTML = '<option value="-1">Auto (Nativo iOS)</option>';
-            video.play().catch(() => {});
-          } else {
-            showToast('Formato HLS no soportado');
-          }
-        } else {
-          video.src = rawUrl;
-          selectQuality.innerHTML = '<option value="-1">Estándar MP4</option>';
-          video.play().catch(() => {});
-        }
-
-        showToast('Cargando fuente...');
-      }
-
-      btnLoad.addEventListener('click', () => loadVideo(urlInput.value.trim()));
-      urlInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') loadVideo(urlInput.value.trim());
-      });
-    });
-  </script>
-</body>
-</html>
+          video.play
