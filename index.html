@@ -56,12 +56,12 @@
       object-fit: contain;
     }
 
-    /* MARCA PERSONAL Y TITULO */
+    /* MARCA PERSONAL */
     .brand-watermark {
       position: absolute;
       top: 12px;
       left: 14px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
       letter-spacing: 1px;
       background: var(--silver-gradient);
@@ -76,7 +76,7 @@
     .controls-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(10, 2, 20, 0.55);
+      background: rgba(10, 2, 20, 0.6);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -101,7 +101,7 @@
       width: 100%;
     }
 
-    /* CONTROLES CENTRALES (ATRASAR - PLAY - ADELANTAR) */
+    /* CONTROLES CENTRALES (-10s, PLAY, +10s) */
     .center-controls {
       position: absolute;
       top: 50%;
@@ -114,7 +114,7 @@
     }
 
     .btn-center {
-      background: rgba(20, 3, 38, 0.75);
+      background: rgba(20, 3, 38, 0.8);
       border: 1px solid rgba(168, 85, 247, 0.5);
       width: 52px;
       height: 52px;
@@ -135,45 +135,42 @@
       border-color: #cbd5e1;
     }
 
-    /* FILA INFERIOR CONTROLES */
+    /* FILA INFERIOR Y BARRA DE NAVEGACIÓN CON BOLITA */
     .bottom-controls-wrapper {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       width: 100%;
     }
 
-    .progress-container {
+    .scrubber-container {
       width: 100%;
-      height: 12px;
       display: flex;
       align-items: center;
-      cursor: pointer;
-    }
-
-    .progress-track {
-      width: 100%;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.25);
-      border-radius: 2px;
       position: relative;
     }
 
-    .progress-buffered {
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      background: rgba(255, 255, 255, 0.4);
-      border-radius: 2px;
-      width: 0%;
+    .video-scrubber {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+      z-index: 2;
     }
 
-    .progress-fill {
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      background: linear-gradient(90deg, var(--purple-main), #e2e8f0);
-      border-radius: 2px;
-      width: 0%;
+    .video-scrubber::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #f8fafc;
+      border: 2px solid var(--purple-main);
       box-shadow: 0 0 8px var(--purple-main);
+      cursor: pointer;
     }
 
     .bottom-row {
@@ -185,14 +182,16 @@
     .bottom-left, .bottom-right {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
+    /* RELOJES EN PEQUEÑO Y SEPARADOS (0:00:00) */
     .time-counter {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       color: #cbd5e1;
       letter-spacing: 0.5px;
+      font-family: monospace;
     }
 
     /* ESTILO GENERAL DE BOTONES / ICONOS */
@@ -207,7 +206,6 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: background 0.2s;
     }
 
     .icon-btn:active {
@@ -220,16 +218,17 @@
       fill: currentColor;
     }
 
-    /* SLIDER DE VOLUMEN */
+    /* SLIDER DE VOLUMEN CON BOLITA */
     .volume-group {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
 
     .volume-slider {
       -webkit-appearance: none;
-      width: 60px;
+      appearance: none;
+      width: 55px;
       height: 4px;
       background: rgba(255, 255, 255, 0.3);
       border-radius: 2px;
@@ -238,15 +237,15 @@
 
     .volume-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 12px;
-      height: 12px;
+      width: 11px;
+      height: 11px;
       border-radius: 50%;
       background: #e2e8f0;
-      box-shadow: 0 0 6px var(--purple-main);
+      box-shadow: 0 0 5px var(--purple-main);
       cursor: pointer;
     }
 
-    /* MENU DESPLEGABLE DE OPCIONES (TUERCA) */
+    /* MENU DESPLEGABLE (TUERCA) */
     .settings-panel {
       position: absolute;
       bottom: 0;
@@ -296,7 +295,7 @@
 
     .lock-overlay.active { display: flex; }
 
-    /* CONTENEDOR DE ENLACE DEBAJO DEL REPRODUCTOR */
+    /* SECCIÓN INFERIOR PARA ENLACE DEBAJO DEL REPRODUCTOR */
     .url-section {
       padding: 16px;
       display: flex;
@@ -307,7 +306,7 @@
     }
 
     .url-title {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       color: #94a3b8;
       text-transform: uppercase;
@@ -333,11 +332,6 @@
       -webkit-user-select: text;
     }
 
-    .url-input:focus {
-      border-color: var(--purple-main);
-      box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
-    }
-
     .btn-load {
       height: 42px;
       padding: 0 18px;
@@ -355,8 +349,8 @@
       top: 50px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(20, 3, 38, 0.9);
-      border: 1px solid #e2e8f0;
+      background: rgba(20, 3, 38, 0.95);
+      border: 1px solid var(--purple-main);
       color: #fff;
       padding: 6px 16px;
       border-radius: 20px;
@@ -372,16 +366,16 @@
 </head>
 <body>
 
-  <!-- MARCA DE AGUA -->
+  <!-- CONTENEDOR DEL REPRODUCTOR -->
   <div class="player-wrapper" id="playerWrapper">
     <div class="brand-watermark">JeissoNxP182</div>
 
     <video id="mainVideo" preload="metadata" playsinline webkit-playsinline></video>
 
-    <!-- CAPA DE CONTROLES GENERALES -->
+    <!-- OVERLAY CON CONTROLES -->
     <div class="controls-overlay" id="controlsOverlay">
       
-      <!-- ARRIBA A LA DERECHA -->
+      <!-- ARRIBA DERECHA -->
       <div class="top-controls">
         <button class="icon-btn" id="btnCast" title="Transmitir">
           <svg viewBox="0 0 24 24"><path d="M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
@@ -396,7 +390,7 @@
         </button>
       </div>
 
-      <!-- TRES OPCIONES CENTRALES -->
+      <!-- ICONOS CENTRALES HORIZONTALES -->
       <div class="center-controls">
         <button class="btn-center" id="btnRewind" title="-10 Segundos">
           <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
@@ -412,18 +406,15 @@
         </button>
       </div>
 
-      <!-- ABAJO -->
+      <!-- FILA INFERIOR -->
       <div class="bottom-controls-wrapper">
-        <!-- BARRA DE BUFFER / PROGRESO -->
-        <div class="progress-container" id="progressContainer">
-          <div class="progress-track">
-            <div class="progress-buffered" id="progressBuffered"></div>
-            <div class="progress-fill" id="progressFill"></div>
-          </div>
+        <!-- BARRA CON BOLITA DESLIZANTE -->
+        <div class="scrubber-container">
+          <input type="range" class="video-scrubber" id="videoScrubber" min="0" max="100" value="0" step="0.1">
         </div>
 
         <div class="bottom-row">
-          <!-- ABAJO A LA IZQUIERDA -->
+          <!-- ABAJO IZQUIERDA: PLAY, VOLUMEN Y TIEMPO TRANSCURRIDO -->
           <div class="bottom-left">
             <button class="icon-btn" id="btnBottomPlay">
               <svg id="bottomIconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -438,13 +429,15 @@
               <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1">
             </div>
 
-            <div class="time-counter">
-              <span id="currTime">00:00</span> / <span id="durTime">00:00</span>
-            </div>
+            <!-- TIEMPO ACTUAL -->
+            <div class="time-counter" id="currTime">0:00:00</div>
           </div>
 
-          <!-- ABAJO A LA DERECHA -->
+          <!-- ABAJO DERECHA: TIEMPO TOTAL Y BOTONES AUXILIARES -->
           <div class="bottom-right">
+            <!-- TIEMPO TOTAL PELÍCULA -->
+            <div class="time-counter" id="durTime">0:00:00</div>
+
             <button class="icon-btn" id="btnCopyLink" title="Copiar Enlace">
               <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
             </button>
@@ -462,7 +455,7 @@
       </div>
     </div>
 
-    <!-- PANELS / MODALES -->
+    <!-- PANEL TUERCA -->
     <div class="settings-panel" id="settingsPanel">
       <div class="settings-item">
         <span>Calidad</span>
@@ -489,21 +482,21 @@
       </div>
     </div>
 
-    <!-- CAPA DE DESBLOQUEO -->
+    <!-- BLOQUEO -->
     <div class="lock-overlay" id="lockOverlay">
-      <button class="icon-btn" id="btnUnlock" style="background:rgba(20,3,38,0.8); border:1px solid var(--purple-main);">
+      <button class="icon-btn" id="btnUnlock" style="background:rgba(20,3,38,0.9); border:1px solid var(--purple-main);">
         <svg viewBox="0 0 24 24"><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/></svg>
       </button>
     </div>
 
-    <div class="toast-msg" id="toastMsg">Mensaje</div>
+    <div class="toast-msg" id="toastMsg">Notificación</div>
   </div>
 
-  <!-- SECCIÓN SUPERIOR DE CARGA (DEBAJO DEL REPRODUCTOR) -->
+  <!-- CAJA INFERIOR PARA COPIAR ENLACES DEBAJO -->
   <div class="url-section">
-    <div class="url-title">Cargar Fuente de Vídeo (.mp4 / .m3u8)</div>
+    <div class="url-title">Cargar Vídeo (MP4 o M3U8)</div>
     <div class="input-wrapper">
-      <input type="text" id="urlInput" class="url-input" placeholder="Pega tu URL de vídeo aquí..." />
+      <input type="text" id="urlInput" class="url-input" placeholder="Pega tu enlace aquí..." />
       <button id="btnLoad" class="btn-load">Cargar</button>
     </div>
   </div>
@@ -530,9 +523,7 @@
       const iconVolMute = document.getElementById('iconVolMute');
       const volumeSlider = document.getElementById('volumeSlider');
 
-      const progressContainer = document.getElementById('progressContainer');
-      const progressFill = document.getElementById('progressFill');
-      const progressBuffered = document.getElementById('progressBuffered');
+      const videoScrubber = document.getElementById('videoScrubber');
 
       const currTimeElem = document.getElementById('currTime');
       const durTimeElem = document.getElementById('durTime');
@@ -559,7 +550,8 @@
 
       let hlsInstance = null;
       let currentUrl = '';
-      let controlsTimer = null;
+      let autoHideTimer = null;
+      let isSeeking = false;
 
       function showToast(txt) {
         toastMsg.textContent = txt;
@@ -567,239 +559,34 @@
         setTimeout(() => toastMsg.classList.remove('show'), 2500);
       }
 
+      function resetAutoHide() {
+        clearTimeout(autoHideTimer);
+        if (!video.paused) {
+          autoHideTimer = setTimeout(() => {
+            controlsOverlay.classList.remove('active');
+            settingsPanel.classList.remove('active');
+          }, 3500);
+        }
+      }
+
       function togglePlay() {
         if (video.paused) {
-          video.play().catch(() => showToast('Toca Play'));
+          video.play().catch(() => showToast('Pulsa para iniciar'));
         } else {
           video.pause();
         }
       }
 
-      btnCenterPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
-      btnBottomPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
+      btnCenterPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); resetAutoHide(); });
+      btnBottomPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); resetAutoHide(); });
 
       video.addEventListener('play', () => {
         centerIconPlay.style.display = 'none';
         centerIconPause.style.display = 'block';
         bottomIconPlay.style.display = 'none';
         bottomIconPause.style.display = 'block';
+        resetAutoHide();
       });
 
       video.addEventListener('pause', () => {
-        centerIconPlay.style.display = 'block';
-        centerIconPause.style.display = 'none';
-        bottomIconPlay.style.display = 'block';
-        bottomIconPause.style.display = 'none';
-      });
-
-      btnRewind.addEventListener('click', (e) => {
-        e.stopPropagation();
-        video.currentTime = Math.max(0, video.currentTime - 10);
-      });
-
-      btnForward.addEventListener('click', (e) => {
-        e.stopPropagation();
-        video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
-      });
-
-      // TOGGLE OVERLAY CONTROLES AL TOCAR PANTALLA
-      playerWrapper.addEventListener('click', (e) => {
-        if (e.target.closest('.controls-overlay') || e.target.closest('.settings-panel') || e.target.closest('.lock-overlay')) return;
-        
-        const isActive = controlsOverlay.classList.contains('active');
-        if (isActive) {
-          controlsOverlay.classList.remove('active');
-          settingsPanel.classList.remove('active');
-        } else {
-          controlsOverlay.classList.add('active');
-        }
-      });
-
-      // VOLUMEN
-      volumeSlider.addEventListener('input', (e) => {
-        e.stopPropagation();
-        video.volume = parseFloat(e.target.value);
-        video.muted = (video.volume === 0);
-        updateVolIcons();
-      });
-
-      btnMute.addEventListener('click', (e) => {
-        e.stopPropagation();
-        video.muted = !video.muted;
-        if (video.muted) {
-          volumeSlider.value = 0;
-        } else {
-          video.volume = 1;
-          volumeSlider.value = 1;
-        }
-        updateVolIcons();
-      });
-
-      function updateVolIcons() {
-        if (video.muted || video.volume === 0) {
-          iconVolHigh.style.display = 'none';
-          iconVolMute.style.display = 'block';
-        } else {
-          iconVolHigh.style.display = 'block';
-          iconVolMute.style.display = 'none';
-        }
-      }
-
-      // TIEMPO Y BARRA DE PROGRESO
-      function formatTime(sec) {
-        if (isNaN(sec) || !isFinite(sec)) return "00:00";
-        const m = Math.floor(sec / 60);
-        const s = Math.floor(sec % 60);
-        return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-      }
-
-      video.addEventListener('timeupdate', () => {
-        if (video.duration) {
-          const pct = (video.currentTime / video.duration) * 100;
-          progressFill.style.width = pct + '%';
-          currTimeElem.textContent = formatTime(video.currentTime);
-        }
-      });
-
-      video.addEventListener('loadedmetadata', () => {
-        durTimeElem.textContent = formatTime(video.duration);
-      });
-
-      video.addEventListener('progress', () => {
-        if (video.buffered.length > 0 && video.duration) {
-          const bufEnd = video.buffered.end(video.buffered.length - 1);
-          progressBuffered.style.width = ((bufEnd / video.duration) * 100) + '%';
-        }
-      });
-
-      progressContainer.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const rect = progressContainer.getBoundingClientRect();
-        const pos = (e.clientX - rect.left) / rect.width;
-        if (video.duration) {
-          video.currentTime = pos * video.duration;
-        }
-      });
-
-      // PANEL DE AJUSTES Y BLOQUEO
-      btnSettings.addEventListener('click', (e) => {
-        e.stopPropagation();
-        settingsPanel.classList.toggle('active');
-      });
-
-      selectSpeed.addEventListener('change', (e) => {
-        video.playbackRate = parseFloat(e.target.value);
-        showToast(`Velocidad: ${e.target.value}x`);
-      });
-
-      optLockScreen.addEventListener('click', () => {
-        settingsPanel.classList.remove('active');
-        controlsOverlay.classList.remove('active');
-        lockOverlay.classList.add('active');
-        showToast('Pantalla bloqueada');
-      });
-
-      btnUnlock.addEventListener('click', () => {
-        lockOverlay.classList.remove('active');
-        controlsOverlay.classList.add('active');
-        showToast('Pantalla desbloqueada');
-      });
-
-      // DESCARGA Y COPIAR LINK
-      btnCopyLink.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (currentUrl) {
-          navigator.clipboard.writeText(currentUrl);
-          showToast('Enlace copiado');
-        } else {
-          showToast('No hay enlace cargado');
-        }
-      });
-
-      btnDownload.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (currentUrl) {
-          const a = document.createElement('a');
-          a.href = currentUrl;
-          a.download = '';
-          a.target = '_blank';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        } else {
-          showToast('No hay vídeo para descargar');
-        }
-      });
-
-      // PIP Y FULLSCREEN
-      btnPip.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        if (document.pictureInPictureElement) {
-          await document.exitPictureInPicture();
-        } else if (document.pictureInPictureEnabled) {
-          await video.requestPictureInPicture();
-        }
-      });
-
-      btnFullscreen.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (!document.fullscreenElement) {
-          playerWrapper.requestFullscreen();
-          iconFS.style.display = 'none';
-          iconExitFS.style.display = 'block';
-        } else {
-          document.exitFullscreen();
-          iconFS.style.display = 'block';
-          iconExitFS.style.display = 'none';
-        }
-      });
-
-      // FUNCION PARA CARGAR VIDEO (.m3u8 / .mp4)
-      function loadVideo(rawUrl) {
-        if (!rawUrl) return;
-        currentUrl = rawUrl;
-
-        video.pause();
-        video.removeAttribute('src');
-        video.load();
-
-        if (hlsInstance) {
-          hlsInstance.destroy();
-          hlsInstance = null;
-        }
-
-        const isHls = rawUrl.includes('.m3u8');
-
-        if (isHls && Hls.isSupported()) {
-          hlsInstance = new Hls({ enableWorker: true });
-          hlsInstance.loadSource(rawUrl);
-          hlsInstance.attachMedia(video);
-
-          hlsInstance.on(Hls.Events.MANIFEST_PARSED, (evt, data) => {
-            selectQuality.innerHTML = '<option value="-1">Automática</option>';
-            data.levels.forEach((lvl, idx) => {
-              const opt = document.createElement('option');
-              opt.value = idx;
-              opt.textContent = `${lvl.height || lvl.bitrate}p`;
-              selectQuality.appendChild(opt);
-            });
-            video.play().catch(() => {});
-          });
-
-          selectQuality.onchange = (e) => {
-            hlsInstance.currentLevel = parseInt(e.target.value);
-          };
-        } else {
-          video.src = rawUrl;
-          selectQuality.innerHTML = '<option value="-1">Estándar</option>';
-          video.play().catch(() => {});
-        }
-
-        showToast('Cargando vídeo...');
-      }
-
-      btnLoad.addEventListener('click', () => loadVideo(urlInput.value.trim()));
-    });
-  </script>
-</body>
-</html>
+        centerIconPlay.style.display = 'b
