@@ -3,24 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reproductor Púrpura</title>
+  <title>Reproductor Púrpura YouTube Style 2026</title>
 
-  <!-- Video.js Base CSS -->
-  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
-  
-  <!-- FontAwesome Iconos -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-  <!-- Google Cast SDK (Transmitir) -->
+  <!-- Google Cast Framework -->
   <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+  <!-- HLS.js para soporte de listas .m3u8 -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
   <style>
     :root {
       --purple-main: #9d4edd;
       --purple-accent: #c77dff;
       --purple-dark: #240046;
-      --purple-bg: #10002b;
-      --purple-card: #1e0036;
+      --purple-bg: #0b0214;
+      --purple-panel: rgba(28, 10, 48, 0.92);
       --text-light: #f7f0f5;
     }
 
@@ -28,31 +24,34 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     html, body {
       width: 100%;
       height: 100%;
       background-color: var(--purple-bg);
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
       color: var(--text-light);
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
 
-    /* BARRA SUPERIOR PARA CUALQUIER LINK (.mp4 / .m3u8) */
+    /* BARRA SUPERIOR PARA LINKS (.mp4 / .m3u8) */
     .url-bar-container {
       width: 100%;
-      height: 56px;
-      background: var(--purple-card);
-      border-bottom: 1px solid var(--purple-dark);
+      height: 52px;
+      background: var(--purple-dark);
+      border-bottom: 1px solid rgba(199, 125, 255, 0.2);
       display: flex;
       align-items: center;
       padding: 0 16px;
-      gap: 10px;
+      gap: 12px;
       z-index: 100;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      flex-shrink: 0;
     }
 
     .url-bar-container label {
@@ -67,25 +66,27 @@
 
     .url-input {
       flex-grow: 1;
-      height: 38px;
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(199, 125, 255, 0.25);
+      height: 36px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(199, 125, 255, 0.3);
       border-radius: 8px;
       padding: 0 14px;
       color: #fff;
       font-size: 13px;
       outline: none;
       transition: all 0.2s ease;
+      user-select: text;
+      -webkit-user-select: text;
     }
 
     .url-input:focus {
-      border-color: var(--purple-main);
+      border-color: var(--purple-accent);
       box-shadow: 0 0 12px rgba(157, 78, 221, 0.4);
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.14);
     }
 
     .btn-load {
-      height: 38px;
+      height: 36px;
       padding: 0 18px;
       background: linear-gradient(135deg, var(--purple-main), var(--purple-dark));
       border: 1px solid var(--purple-accent);
@@ -98,6 +99,7 @@
       align-items: center;
       gap: 6px;
       transition: all 0.2s ease;
+      white-space: nowrap;
     }
 
     .btn-load:hover {
@@ -105,8 +107,8 @@
       box-shadow: 0 0 15px rgba(199, 125, 255, 0.5);
     }
 
-    /* CONTENEDOR DEL REPRODUCTOR */
-    .player-area {
+    /* CONTENEDOR PRINCIPAL DEL REPRODUCTOR */
+    .player-container {
       flex-grow: 1;
       width: 100%;
       position: relative;
@@ -114,318 +116,563 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
     }
 
-    .video-js {
-      width: 100% !important;
-      height: 100% !important;
-      font-family: inherit;
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
     }
 
-    /* ESTILIZACIÓN PÚRPURA DE VIDEO.JS */
-    .video-js .vjs-control-bar {
-      background: linear-gradient(0deg, rgba(16, 0, 43, 0.95) 0%, rgba(16, 0, 43, 0.6) 70%, transparent 100%) !important;
-      height: 52px !important;
-      padding: 0 8px;
+    /* CONTROLES ESTILO YOUTUBE */
+    .controls-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 20%, transparent 70%, rgba(11, 2, 20, 0.95) 100%);
+      opacity: 1;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+      padding: 12px 16px;
+      pointer-events: none;
     }
 
-    .video-js .vjs-button {
-      color: var(--text-light) !important;
-      transition: color 0.2s ease, transform 0.1s ease;
+    .player-container.user-idle .controls-overlay {
+      opacity: 0;
     }
 
-    .video-js .vjs-button:hover {
-      color: var(--purple-accent) !important;
-      text-shadow: 0 0 8px var(--purple-main);
+    .controls-overlay * {
+      pointer-events: auto;
     }
 
-    /* Botón central Play personalizado con Poster */
-    .video-js .vjs-big-play-button {
-      background: linear-gradient(135deg, rgba(157, 78, 221, 0.85), rgba(36, 0, 70, 0.85)) !important;
-      border: 2px solid var(--purple-accent) !important;
-      border-radius: 50% !important;
-      width: 80px !important;
-      height: 80px !important;
-      line-height: 76px !important;
-      margin-left: -40px !important;
-      margin-top: -40px !important;
-      box-shadow: 0 0 25px rgba(157, 78, 221, 0.6) !important;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    /* TITULO SUPERIOR */
+    .top-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
     }
 
-    .video-js:hover .vjs-big-play-button {
-      transform: scale(1.15);
-      background: linear-gradient(135deg, var(--purple-main), var(--purple-dark)) !important;
-      box-shadow: 0 0 40px rgba(199, 125, 255, 0.9) !important;
+    .video-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 80%;
     }
 
-    /* Barra de progreso púrpura */
-    .video-js .vjs-play-progress {
-      background-color: var(--purple-accent) !important;
-      box-shadow: 0 0 10px var(--purple-main);
-    }
-
-    .video-js .vjs-load-progress {
-      background: rgba(255, 255, 255, 0.2) !important;
-    }
-
-    .video-js .vjs-slider {
-      background-color: rgba(255, 255, 255, 0.15) !important;
-      border-radius: 4px;
-    }
-
-    /* Menús de velocidad y calidad */
-    .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
-      background-color: var(--purple-card) !important;
-      border: 1px solid var(--purple-main);
-      border-radius: 8px;
-      padding: 6px 0;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-    }
-
-    .video-js .vjs-menu-item {
-      color: var(--text-light) !important;
-      font-size: 13px !important;
-    }
-
-    .video-js .vjs-menu-item.vjs-selected, 
-    .video-js .vjs-menu-item:hover {
-      background-color: var(--purple-main) !important;
-      color: #fff !important;
-    }
-
-    /* ANIMACIÓN FLOTANTE (+10s / -10s) */
-    .tap-feedback {
+    /* BOTON PLAY CENTRADO / PORTADA */
+    .center-play-btn {
       position: absolute;
       top: 50%;
-      transform: translateY(-50%);
-      width: 90px;
-      height: 90px;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 72px;
+      height: 72px;
       border-radius: 50%;
-      background: rgba(157, 78, 221, 0.7);
-      backdrop-filter: blur(4px);
+      background: rgba(157, 78, 221, 0.85);
+      border: 2px solid var(--purple-accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(157, 78, 221, 0.6);
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 12;
+      pointer-events: auto;
+    }
+
+    .center-play-btn:hover {
+      transform: translate(-50%, -50%) scale(1.12);
+      background: var(--purple-main);
+      box-shadow: 0 0 40px rgba(199, 125, 255, 0.9);
+    }
+
+    .center-play-btn svg {
+      width: 34px;
+      height: 34px;
+      fill: #fff;
+    }
+
+    .player-container.is-playing .center-play-btn {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* BARRA INFERIOR DE CONTROLES */
+    .bottom-controls {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 6px;
+    }
+
+    /* BARRA DE PROGRESO DE YOUTUBE CON SCRUBBER */
+    .progress-bar-container {
+      width: 100%;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .progress-bar-track {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 3px;
+      position: relative;
+      transition: height 0.15s ease;
+    }
+
+    .progress-bar-container:hover .progress-bar-track {
+      height: 8px;
+    }
+
+    .progress-bar-buffered {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 3px;
+      width: 0%;
+    }
+
+    .progress-bar-fill {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      background: var(--purple-accent);
+      box-shadow: 0 0 10px var(--purple-main);
+      border-radius: 3px;
+      width: 0%;
+    }
+
+    .progress-scrubber {
+      position: absolute;
+      top: 50%;
+      left: 0%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 14px;
+      height: 14px;
+      background-color: var(--purple-accent);
+      border: 2px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(0,0,0,0.8);
+      transition: transform 0.15s ease;
+    }
+
+    .progress-bar-container:hover .progress-scrubber,
+    .progress-bar-container.dragging .progress-scrubber {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* TOOLTIP DE TIEMPO AL PASAR CURSOR POR LA BARRA */
+    .progress-tooltip {
+      position: absolute;
+      bottom: 24px;
+      transform: translateX(-50%);
+      background: var(--purple-dark);
+      border: 1px solid var(--purple-accent);
+      color: #fff;
+      padding: 3px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      pointer-events: none;
+      display: none;
+      white-space: nowrap;
+    }
+
+    /* FILA DE BOTONES DE ACCION */
+    .buttons-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .controls-left, .controls-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* ICONOS HOMOGÉNEOS Y UNIFICADOS */
+    .icon-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease, color 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--purple-accent);
+    }
+
+    .icon-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    /* CONTENEDOR VOLUMEN DESLIZANTE DE YOUTUBE */
+    .volume-container {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .volume-slider-wrapper {
+      width: 0px;
+      overflow: hidden;
+      transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+    }
+
+    .volume-container:hover .volume-slider-wrapper,
+    .volume-slider-wrapper:focus-within {
+      width: 70px;
+      margin-left: 6px;
+    }
+
+    .volume-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 60px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--purple-accent);
+      cursor: pointer;
+    }
+
+    /* DISPOSICION DE TIEMPO */
+    .time-display {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+      margin-left: 4px;
+      white-space: nowrap;
+    }
+
+    /* MENÚ EMERGENTE ESTILO TUERCA DE YOUTUBE */
+    .settings-menu {
+      position: absolute;
+      bottom: 56px;
+      right: 16px;
+      background: var(--purple-panel);
+      border: 1px solid rgba(199, 125, 255, 0.4);
+      backdrop-filter: blur(12px);
+      border-radius: 12px;
+      padding: 8px 0;
+      width: 220px;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+      z-index: 50;
+    }
+
+    .settings-menu.active {
+      display: flex;
+    }
+
+    .settings-item {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      color: #fff;
+    }
+
+    .settings-item:hover {
+      background: rgba(157, 78, 221, 0.3);
+    }
+
+    .settings-item .val {
+      color: var(--purple-accent);
+      font-weight: 600;
+    }
+
+    /* SUBMENÚS DE VELOCIDAD Y CALIDAD */
+    .submenu {
+      display: none;
+      flex-direction: column;
+    }
+
+    .submenu.active {
+      display: flex;
+    }
+
+    .submenu-header {
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--purple-accent);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .submenu-option {
+      padding: 8px 20px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .submenu-option:hover, .submenu-option.selected {
+      background: rgba(157, 78, 221, 0.35);
+      color: var(--purple-accent);
+    }
+
+    /* ANIMACIÓN Y ONDAS DE DOBLE TAP / CLIC (+10s / -10s) */
+    .ripple-feedback {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 40%;
+      background: rgba(157, 78, 221, 0.25);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       color: #fff;
-      font-size: 13px;
+      font-size: 15px;
       font-weight: bold;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      z-index: 20;
-      box-shadow: 0 0 20px rgba(199, 125, 255, 0.6);
+      transition: opacity 0.25s ease;
+      z-index: 15;
     }
 
-    .tap-feedback i {
-      font-size: 20px;
-      margin-bottom: 2px;
+    .ripple-feedback.left {
+      left: 0;
+      border-radius: 0 100% 100% 0 / 0 50% 50% 0;
     }
 
-    .tap-feedback.left { left: 15%; }
-    .tap-feedback.right { right: 15%; }
+    .ripple-feedback.right {
+      right: 0;
+      border-radius: 100% 0 0 100% / 50% 0 0 50%;
+    }
 
-    .tap-feedback.show {
+    .ripple-feedback svg {
+      width: 36px;
+      height: 36px;
+      fill: #fff;
+      margin-bottom: 4px;
+    }
+
+    .ripple-feedback.show {
       opacity: 1;
-      transform: translateY(-50%) scale(1.1);
+      animation: pulseRipple 0.5s ease;
     }
 
-    /* NOTIFICACIÓN TOAST */
-    .toast-alert {
+    @keyframes pulseRipple {
+      0% { transform: scale(0.9); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    /* NOTIFICACIONES TOAST ESTILO YOUTUBE */
+    .toast-msg {
       position: absolute;
       top: 20px;
-      right: 20px;
-      background: var(--purple-card);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(24, 8, 40, 0.95);
       border: 1px solid var(--purple-accent);
       color: #fff;
-      padding: 10px 18px;
-      border-radius: 8px;
+      padding: 10px 20px;
+      border-radius: 20px;
       font-size: 13px;
-      z-index: 120;
+      font-weight: 500;
+      z-index: 100;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
     }
-    .toast-alert.show { opacity: 1; }
 
-    /* BOTÓN DEDICADO TRANSMITIR Y COMPARTIR */
-    .vjs-custom-icon {
-      cursor: pointer;
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px !important;
+    .toast-msg.show {
+      opacity: 1;
     }
   </style>
 </head>
 <body>
 
-  <!-- BARRA DE ENLACES SUPERA (.MP4 Y .M3U8) -->
+  <!-- BARRA DE ENLACES SUPERIOR (.MP4 Y .M3U8) -->
   <div class="url-bar-container">
-    <label for="urlInput"><i class="fa-solid fa-link"></i> URL Video:</label>
+    <label for="urlInput">
+      <svg viewBox="0 0 24 24" style="width:18px; height:18px; fill:currentColor;"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+      Enlace Video:
+    </label>
     <input type="text" id="urlInput" class="url-input" placeholder="Pega el enlace .mp4 o .m3u8 aquí..." />
-    <button id="btnLoad" class="btn-load"><i class="fa-solid fa-play"></i> Cargar</button>
+    <button id="btnLoad" class="btn-load">
+      <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:currentColor;"><path d="M8 5v14l11-7z"/></svg>
+      Cargar
+    </button>
   </div>
 
-  <!-- ZONA DEL REPRODUCTOR -->
-  <div class="player-area" id="playerArea">
-    <div class="tap-feedback left" id="feedbackRewind">
-      <i class="fa-solid fa-rotate-left"></i>
-      <span>-10s</span>
-    </div>
-    <div class="tap-feedback right" id="feedbackForward">
-      <i class="fa-solid fa-rotate-right"></i>
-      <span>+10s</span>
-    </div>
-    <div class="toast-alert" id="toastAlert">¡Mensaje!</div>
-
-    <!-- VIDEO REPRODUCTOR (NO AUTOPLAY + PORTADA CONFIGURABLE) -->
+  <!-- REPRODUCTOR -->
+  <div class="player-container" id="playerContainer">
+    
+    <!-- VIDEO Y POSTER (SIN AUTOPLAY) -->
     <video 
-      id="purplePlayer" 
-      class="video-js vjs-big-play-centered" 
-      controls 
+      id="mainVideo" 
       preload="metadata" 
-      playsinline
+      playsinline 
       poster="https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80">
-      
-      <!-- CAMBIA AQUÍ EL LINK DE TU VIDEO DEFAULT -->
       <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
     </video>
-  </div>
 
-  <!-- VIDEO.JS + HLS / QUALITY PLUGIN -->
-  <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/videojs-contrib-quality-levels@4.0.0/dist/videojs-contrib-quality-levels.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/videojs-hls-quality-selector@2.0.0/dist/videojs-hls-quality-selector.min.js"></script>
+    <!-- ONDAS ADELANTAR / ATRASAR 10s -->
+    <div class="ripple-feedback left" id="rippleLeft">
+      <svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+      <span>-10 segundos</span>
+    </div>
+    <div class="ripple-feedback right" id="rippleRight">
+      <svg viewBox="0 0 24 24"><path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88-3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8z"/></svg>
+      <span>+10 segundos</span>
+    </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const playerArea = document.getElementById('playerArea');
-      const toast = document.getElementById('toastAlert');
-      const feedbackRewind = document.getElementById('feedbackRewind');
-      const feedbackForward = document.getElementById('feedbackForward');
-      const urlInput = document.getElementById('urlInput');
-      const btnLoad = document.getElementById('btnLoad');
+    <!-- NOTIFICACION TOAST -->
+    <div class="toast-msg" id="toastMsg">Mensaje</div>
 
-      function showToast(text) {
-        toast.textContent = text;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2200);
-      }
+    <!-- BOTON PLAY CENTRADO CON PORTADA -->
+    <button class="center-play-btn" id="centerPlayBtn" title="Reproducir">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
 
-      // Inicializar Video.js
-      const player = videojs('purplePlayer', {
-        autoplay: false, // Requisito 3: No inicia automáticamente
-        playbackRates: [0.5, 0.75, 1, 1.25, 1.5, 2], // Requisito 9: Velocidades
-        responsive: true,
-        fluid: false,
-        controlBar: {
-          children: [
-            'playToggle', // Requisito 12: Play/Pause con ícono
-            'volumePanel', // Requisito 6: Volumen y Mute con ícono
-            'currentTimeDisplay',
-            'timeDivider',
-            'durationDisplay',
-            'progressControl',
-            'playbackRateMenuButton', // Requisito 9: Selector de velocidad
-            'pictureInPictureToggle', // Requisito 8: PiP
-            'fullscreenToggle' // Requisito 7: Maximizar
-          ]
-        }
-      });
+    <!-- MENU DE AJUSTES ESTILO TUERCA DE YOUTUBE -->
+    <div class="settings-menu" id="settingsMenu">
+      <div id="mainSettings">
+        <div class="settings-item" id="optQuality">
+          <span>Calidad del vídeo</span>
+          <span class="val" id="lblQuality">1080p</span>
+        </div>
+        <div class="settings-item" id="optSpeed">
+          <span>Velocidad de reproducción</span>
+          <span class="val" id="lblSpeed">Normal</span>
+        </div>
+      </div>
 
-      // Plugin de selector de calidad para HLS (.m3u8)
-      if (typeof player.hlsQualitySelector === 'function') {
-        player.hlsQualitySelector({ displayCurrentQuality: true }); // Requisito 10
-      }
+      <!-- SUBMENU VELOCIDAD -->
+      <div class="submenu" id="speedSubmenu">
+        <div class="submenu-header" id="backFromSpeed">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          Velocidad
+        </div>
+        <div class="submenu-option" data-speed="0.5">0.5x</div>
+        <div class="submenu-option" data-speed="0.75">0.75x</div>
+        <div class="submenu-option selected" data-speed="1">Normal</div>
+        <div class="submenu-option" data-speed="1.25">1.25x</div>
+        <div class="submenu-option" data-speed="1.5">1.5x</div>
+        <div class="submenu-option" data-speed="2">2.0x</div>
+      </div>
 
-      // Requisito 5: Cargar links .mp4 y .m3u8
-      function loadSource(url) {
-        if (!url) return;
-        let mimeType = 'video/mp4';
-        if (url.toLowerCase().includes('.m3u8')) {
-          mimeType = 'application/x-mpegURL';
-        }
-        player.src({ src: url, type: mimeType });
-        player.play().catch(() => {});
-        showToast("Cargando video...");
-      }
+      <!-- SUBMENU CALIDAD -->
+      <div class="submenu" id="qualitySubmenu">
+        <div class="submenu-header" id="backFromQuality">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          Calidad del vídeo
+        </div>
+        <div id="qualityList">
+          <div class="submenu-option selected">1080p (HD)</div>
+        </div>
+      </div>
+    </div>
 
-      btnLoad.addEventListener('click', () => loadSource(urlInput.value.trim()));
-      urlInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') loadSource(urlInput.value.trim());
-      });
+    <!-- CAPA DE CONTROLES INFERIOR Y SUPERIOR -->
+    <div class="controls-overlay" id="controlsOverlay">
+      
+      <!-- ARRIBA -->
+      <div class="top-controls">
+        <div class="video-title" id="videoTitle">V/H/S - Película Completa</div>
+      </div>
 
-      player.ready(() => {
-        const controlBar = player.controlBar;
+      <!-- ABAJO -->
+      <div class="bottom-controls">
+        
+        <!-- BARRA DE NAVEGACION POR TIEMPO/MINUTO -->
+        <div class="progress-bar-container" id="progressContainer">
+          <div class="progress-tooltip" id="progressTooltip">00:00</div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-buffered" id="progressBuffered"></div>
+            <div class="progress-bar-fill" id="progressFill"></div>
+            <div class="progress-scrubber" id="progressScrubber"></div>
+          </div>
+        </div>
 
-        // Requisito 4: Botón de Transmitir (Chromecast)
-        const castBtn = document.createElement('button');
-        castBtn.className = 'vjs-control vjs-button vjs-custom-icon';
-        castBtn.innerHTML = '<i class="fa-solid fa-tv"></i>';
-        castBtn.title = "Transmitir pantalla";
-        castBtn.onclick = () => {
-          if (window.chrome && window.chrome.cast) {
-            const sessionRequest = new chrome.cast.SessionRequest(chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID);
-            chrome.cast.requestSession((session) => {
-              const currentSrc = player.currentSrc();
-              const mediaInfo = new chrome.cast.media.MediaInfo(currentSrc, 'video/mp4');
-              const request = new chrome.cast.media.LoadRequest(mediaInfo);
-              session.loadMedia(request);
-            }, (err) => console.log('Error Cast:', err));
-          } else {
-            showToast("Transmitir no soportado en este navegador");
-          }
-        };
-        controlBar.el().insertBefore(castBtn, controlBar.fullscreenToggle.el());
+        <!-- FILA DE BOTONES HOMOGÉNEOS -->
+        <div class="buttons-row">
+          <div class="controls-left">
+            
+            <!-- PLAY / PAUSE -->
+            <button class="icon-btn" id="btnPlayPause" title="Reproducir (k)">
+              <svg id="iconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <svg id="iconPause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
 
-        // Requisito 11: Botón para copiar/compartir el enlace
-        const shareBtn = document.createElement('button');
-        shareBtn.className = 'vjs-control vjs-button vjs-custom-icon';
-        shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i>';
-        shareBtn.title = "Copiar enlace del video";
-        shareBtn.onclick = () => {
-          const currentSrc = player.currentSrc() || window.location.href;
-          navigator.clipboard.writeText(currentSrc);
-          showToast("¡Enlace copiado al portapapeles!");
-        };
-        controlBar.el().insertBefore(shareBtn, castBtn);
-      });
+            <!-- VOLUMEN / MUTE -->
+            <div class="volume-container">
+              <button class="icon-btn" id="btnMute" title="Silenciar (m)">
+                <svg id="iconVolHigh" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                <svg id="iconVolMute" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+              </button>
+              <div class="volume-slider-wrapper">
+                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1">
+              </div>
+            </div>
 
-      // Requisito 2: Doble clic/tap (Adelantar / Atrasar 10s)
-      let lastTap = 0;
-      function triggerFeedback(elem) {
-        elem.classList.add('show');
-        setTimeout(() => elem.classList.remove('show'), 400);
-      }
+            <!-- TIEMPO -->
+            <div class="time-display">
+              <span id="currentTime">0:00</span> / <span id="durationTime">0:00</span>
+            </div>
+          </div>
 
-      playerArea.addEventListener('click', (e) => {
-        // Ignorar clics dentro de la barra de controles
-        if (e.target.closest('.vjs-control-bar') || e.target.closest('.url-bar-container')) return;
+          <div class="controls-right">
+            
+            <!-- COMPARTIR ENLACE -->
+            <button class="icon-btn" id="btnShare" title="Copiar enlace">
+              <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+            </button>
 
-        const now = new Date().getTime();
-        const timespan = now - lastTap;
+            <!-- TRANSMITIR (GOOGLE CAST) -->
+            <button class="icon-btn" id="btnCast" title="Transmitir pantalla">
+              <svg viewBox="0 0 24 24"><path d="M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+            </button>
 
-        if (timespan < 300 && timespan > 0) {
-          const rect = playerArea.getBoundingClientRect();
-          const clickX = e.clientX - rect.left;
-          const ratio = clickX / rect.width;
-
-          if (ratio < 0.4) {
-            // Lado izquierdo: -10s
-            player.currentTime(Math.max(0, player.currentTime() - 10));
-            triggerFeedback(feedbackRewind);
-          } else if (ratio > 0.6) {
-            // Lado derecho: +10s
-            player.currentTime(Math.min(player.duration() || 0, player.currentTime() + 10));
-            triggerFeedback(feedbackForward);
-          }
-        }
-        lastTap = now;
-      });
-    });
-  </script>
-</body>
-</html>
+            <!-- AJUSTES / TUERCA -->
+            <button class="icon-btn" id="btnSettings" titl
