@@ -2,22 +2,19 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reproductor Púrpura YouTube Style 2026</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Reproductor JeissoNxP182</title>
 
-  <!-- Google Cast Framework -->
-  <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
-  <!-- HLS.js para soporte de listas .m3u8 -->
+  <!-- HLS.js para listas .m3u8 -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
   <style>
     :root {
-      --purple-main: #9d4edd;
-      --purple-accent: #c77dff;
-      --purple-dark: #240046;
-      --purple-bg: #0b0214;
-      --purple-panel: rgba(28, 10, 48, 0.92);
-      --text-light: #f7f0f5;
+      --purple-main: #a855f7;
+      --purple-dark: #3b0764;
+      --purple-deep: #140326;
+      --silver-gradient: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 50%, #cbd5e1 100%);
+      --text-color: #f8fafc;
     }
 
     * {
@@ -28,298 +25,193 @@
       -webkit-user-select: none;
     }
 
-    html, body {
-      width: 100%;
-      height: 100%;
-      background-color: var(--purple-bg);
-      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
-      color: var(--text-light);
+    body {
+      width: 100vw;
+      height: 100vh;
+      background: var(--purple-deep);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text-color);
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
 
-    /* BARRA SUPERIOR PARA LINKS (.mp4 / .m3u8) */
-    .url-bar-container {
+    /* REPRODUCTOR - CONTENEDOR PRINCIPAL */
+    .player-wrapper {
       width: 100%;
-      height: 52px;
-      background: var(--purple-dark);
-      border-bottom: 1px solid rgba(199, 125, 255, 0.2);
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 12px;
-      z-index: 100;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-      flex-shrink: 0;
-    }
-
-    .url-bar-container label {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--purple-accent);
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .url-input {
-      flex-grow: 1;
-      height: 36px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(199, 125, 255, 0.3);
-      border-radius: 8px;
-      padding: 0 14px;
-      color: #fff;
-      font-size: 13px;
-      outline: none;
-      transition: all 0.2s ease;
-      user-select: text;
-      -webkit-user-select: text;
-    }
-
-    .url-input:focus {
-      border-color: var(--purple-accent);
-      box-shadow: 0 0 12px rgba(157, 78, 221, 0.4);
-      background: rgba(255, 255, 255, 0.14);
-    }
-
-    .btn-load {
-      height: 36px;
-      padding: 0 18px;
-      background: linear-gradient(135deg, var(--purple-main), var(--purple-dark));
-      border: 1px solid var(--purple-accent);
-      border-radius: 8px;
-      color: #fff;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-    }
-
-    .btn-load:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 15px rgba(199, 125, 255, 0.5);
-    }
-
-    /* CONTENEDOR PRINCIPAL DEL REPRODUCTOR */
-    .player-container {
-      flex-grow: 1;
-      width: 100%;
+      height: 60vh;
+      max-height: 70vh;
       position: relative;
-      background-color: #000;
+      background: #000;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.8);
     }
 
     video {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      background: #000;
     }
 
-    /* CONTROLES OVERLAY */
-    .controls-overlay {
+    /* MARCA PERSONAL Y TITULO */
+    .brand-watermark {
       position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 20%, transparent 70%, rgba(11, 2, 20, 0.95) 100%);
-      opacity: 1;
-      transition: opacity 0.3s ease;
-      z-index: 10;
-      padding: 12px 16px;
+      top: 12px;
+      left: 14px;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: var(--silver-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 8px rgba(168, 85, 247, 0.4);
+      z-index: 25;
       pointer-events: none;
     }
 
-    .player-container.user-idle .controls-overlay {
+    /* CAPA DE CONTROLES OVERLAY */
+    .controls-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 2, 20, 0.55);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px;
       opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      z-index: 20;
     }
 
-    .controls-overlay * {
+    .controls-overlay.active {
+      opacity: 1;
       pointer-events: auto;
     }
 
-    /* TITULO SUPERIOR */
+    /* FILA SUPERIOR CONTROLES (DERECHA) */
     .top-controls {
       display: flex;
+      justify-content: flex-end;
       align-items: center;
-      justify-content: space-between;
+      gap: 12px;
       width: 100%;
     }
 
-    .video-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #fff;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 80%;
-    }
-
-    /* BOTON PLAY CENTRADO */
-    .center-play-btn {
+    /* CONTROLES CENTRALES (ATRASAR - PLAY - ADELANTAR) */
+    .center-controls {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 72px;
-      height: 72px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      z-index: 22;
+    }
+
+    .btn-center {
+      background: rgba(20, 3, 38, 0.75);
+      border: 1px solid rgba(168, 85, 247, 0.5);
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
-      background: rgba(157, 78, 221, 0.85);
-      border: 2px solid var(--purple-accent);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 0 30px rgba(157, 78, 221, 0.6);
-      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      z-index: 12;
-      pointer-events: auto;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
     }
 
-    .center-play-btn:hover {
-      transform: translate(-50%, -50%) scale(1.12);
-      background: var(--purple-main);
-      box-shadow: 0 0 40px rgba(199, 125, 255, 0.9);
+    .btn-center.play-main {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--purple-main), var(--purple-dark));
+      border-color: #cbd5e1;
     }
 
-    .center-play-btn svg {
-      width: 34px;
-      height: 34px;
-      fill: #fff;
-    }
-
-    .player-container.is-playing .center-play-btn {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    /* BARRA INFERIOR DE CONTROLES */
-    .bottom-controls {
+    /* FILA INFERIOR CONTROLES */
+    .bottom-controls-wrapper {
       display: flex;
       flex-direction: column;
+      gap: 8px;
       width: 100%;
-      gap: 6px;
     }
 
-    /* BARRA DE PROGRESO DE YOUTUBE CON SCRUBBER */
-    .progress-bar-container {
+    .progress-container {
       width: 100%;
-      height: 16px;
+      height: 12px;
       display: flex;
       align-items: center;
       cursor: pointer;
-      position: relative;
     }
 
-    .progress-bar-track {
+    .progress-track {
       width: 100%;
-      height: 5px;
+      height: 4px;
       background: rgba(255, 255, 255, 0.25);
-      border-radius: 3px;
+      border-radius: 2px;
       position: relative;
-      transition: height 0.15s ease;
     }
 
-    .progress-bar-container:hover .progress-bar-track {
-      height: 8px;
-    }
-
-    .progress-bar-buffered {
+    .progress-buffered {
       position: absolute;
-      top: 0; left: 0; bottom: 0;
+      left: 0; top: 0; bottom: 0;
       background: rgba(255, 255, 255, 0.4);
-      border-radius: 3px;
+      border-radius: 2px;
       width: 0%;
     }
 
-    .progress-bar-fill {
+    .progress-fill {
       position: absolute;
-      top: 0; left: 0; bottom: 0;
-      background: var(--purple-accent);
-      box-shadow: 0 0 10px var(--purple-main);
-      border-radius: 3px;
+      left: 0; top: 0; bottom: 0;
+      background: linear-gradient(90deg, var(--purple-main), #e2e8f0);
+      border-radius: 2px;
       width: 0%;
+      box-shadow: 0 0 8px var(--purple-main);
     }
 
-    .progress-scrubber {
-      position: absolute;
-      top: 50%;
-      left: 0%;
-      transform: translate(-50%, -50%) scale(0);
-      width: 14px;
-      height: 14px;
-      background-color: var(--purple-accent);
-      border: 2px solid #fff;
-      border-radius: 50%;
-      box-shadow: 0 0 8px rgba(0,0,0,0.8);
-      transition: transform 0.15s ease;
-    }
-
-    .progress-bar-container:hover .progress-scrubber,
-    .progress-bar-container.dragging .progress-scrubber {
-      transform: translate(-50%, -50%) scale(1);
-    }
-
-    .progress-tooltip {
-      position: absolute;
-      bottom: 24px;
-      transform: translateX(-50%);
-      background: var(--purple-dark);
-      border: 1px solid var(--purple-accent);
-      color: #fff;
-      padding: 3px 7px;
-      border-radius: 4px;
-      font-size: 11px;
-      pointer-events: none;
-      display: none;
-      white-space: nowrap;
-    }
-
-    /* FILA DE BOTONES DE ACCION */
-    .buttons-row {
+    .bottom-row {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      width: 100%;
+      align-items: center;
     }
 
-    .controls-left, .controls-right {
+    .bottom-left, .bottom-right {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
+    .time-counter {
+      font-size: 11px;
+      font-weight: 600;
+      color: #cbd5e1;
+      letter-spacing: 0.5px;
+    }
+
+    /* ESTILO GENERAL DE BOTONES / ICONOS */
     .icon-btn {
       background: none;
       border: none;
-      color: #fff;
-      width: 38px;
-      height: 38px;
+      color: #f8fafc;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: background 0.2s ease, transform 0.1s ease, color 0.2s ease;
+      transition: background 0.2s;
     }
 
-    .icon-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-      color: var(--purple-accent);
+    .icon-btn:active {
+      background: rgba(168, 85, 247, 0.3);
     }
 
     .icon-btn svg {
@@ -328,353 +220,586 @@
       fill: currentColor;
     }
 
-    /* NUEVA BARRA DE VOLUMEN CON DESLIZADOR Y BOLITA VISIBLE */
-    .volume-container {
+    /* SLIDER DE VOLUMEN */
+    .volume-group {
       display: flex;
       align-items: center;
-      gap: 8px;
-    }
-
-    .volume-slider-wrapper {
-      width: 80px;
-      display: flex;
-      align-items: center;
+      gap: 6px;
     }
 
     .volume-slider {
       -webkit-appearance: none;
-      appearance: none;
-      width: 100%;
-      height: 6px;
+      width: 60px;
+      height: 4px;
       background: rgba(255, 255, 255, 0.3);
-      border-radius: 3px;
+      border-radius: 2px;
       outline: none;
-      cursor: pointer;
     }
 
-    /* Bolita deslizable (Thumb) Chrome, Safari, Edge, Opera */
     .volume-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      appearance: none;
-      width: 14px;
-      height: 14px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
-      background: var(--purple-accent);
-      border: 2px solid #fff;
-      box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+      background: #e2e8f0;
+      box-shadow: 0 0 6px var(--purple-main);
       cursor: pointer;
-      transition: transform 0.15s ease;
     }
 
-    .volume-slider::-webkit-slider-thumb:hover {
-      transform: scale(1.2);
-      background: #fff;
-    }
-
-    /* Bolita deslizable (Thumb) Firefox */
-    .volume-slider::-moz-range-thumb {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--purple-accent);
-      border: 2px solid #fff;
-      box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
-      cursor: pointer;
-      transition: transform 0.15s ease;
-    }
-
-    .volume-slider::-moz-range-thumb:hover {
-      transform: scale(1.2);
-      background: #fff;
-    }
-
-    .time-display {
-      font-size: 13px;
-      font-weight: 500;
-      color: rgba(255, 255, 255, 0.9);
-      margin-left: 4px;
-      white-space: nowrap;
-    }
-
-    /* MENU DE AJUSTES */
-    .settings-menu {
+    /* MENU DESPLEGABLE DE OPCIONES (TUERCA) */
+    .settings-panel {
       position: absolute;
-      bottom: 56px;
-      right: 16px;
-      background: var(--purple-panel);
-      border: 1px solid rgba(199, 125, 255, 0.4);
-      backdrop-filter: blur(12px);
-      border-radius: 12px;
-      padding: 8px 0;
-      width: 220px;
+      bottom: 0;
+      left: 0; right: 0;
+      background: rgba(20, 3, 38, 0.96);
+      border-top: 1px solid var(--purple-main);
+      border-radius: 16px 16px 0 0;
+      padding: 16px;
       display: none;
       flex-direction: column;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-      z-index: 50;
+      gap: 14px;
+      z-index: 40;
+      backdrop-filter: blur(10px);
     }
 
-    .settings-menu.active {
-      display: flex;
-    }
+    .settings-panel.active { display: flex; }
 
     .settings-item {
-      padding: 10px 16px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       font-size: 13px;
-      cursor: pointer;
-      transition: background 0.2s ease;
+      color: #e2e8f0;
+    }
+
+    .settings-item select {
+      background: #2e0854;
       color: #fff;
-    }
-
-    .settings-item:hover {
-      background: rgba(157, 78, 221, 0.3);
-    }
-
-    .settings-item .val {
-      color: var(--purple-accent);
-      font-weight: 600;
-    }
-
-    .submenu {
-      display: none;
-      flex-direction: column;
-    }
-
-    .submenu.active {
-      display: flex;
-    }
-
-    .submenu-header {
-      padding: 8px 16px;
+      border: 1px solid var(--purple-main);
+      padding: 4px 8px;
+      border-radius: 6px;
+      outline: none;
       font-size: 12px;
-      font-weight: bold;
-      color: var(--purple-accent);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
     }
 
-    .submenu-option {
-      padding: 8px 20px;
-      font-size: 13px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .submenu-option:hover, .submenu-option.selected {
-      background: rgba(157, 78, 221, 0.35);
-      color: var(--purple-accent);
-    }
-
-    /* ONDAS ADELANTAR / ATRASAR */
-    .ripple-feedback {
+    /* BLOQUEO DE PANTALLA */
+    .lock-overlay {
       position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 40%;
-      background: rgba(157, 78, 221, 0.25);
+      inset: 0;
+      background: transparent;
+      z-index: 50;
+      display: none;
+      align-items: flex-start;
+      justify-content: flex-end;
+      padding: 12px;
+    }
+
+    .lock-overlay.active { display: flex; }
+
+    /* CONTENEDOR DE ENLACE DEBAJO DEL REPRODUCTOR */
+    .url-section {
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      gap: 10px;
+      background: var(--purple-deep);
+      flex-grow: 1;
+    }
+
+    .url-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-wrapper {
+      display: flex;
+      gap: 8px;
+    }
+
+    .url-input {
+      flex-grow: 1;
+      height: 42px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      border-radius: 8px;
+      padding: 0 12px;
       color: #fff;
-      font-size: 15px;
-      font-weight: bold;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.25s ease;
-      z-index: 15;
+      font-size: 13px;
+      outline: none;
+      user-select: text;
+      -webkit-user-select: text;
     }
 
-    .ripple-feedback.left {
-      left: 0;
-      border-radius: 0 100% 100% 0 / 0 50% 50% 0;
+    .url-input:focus {
+      border-color: var(--purple-main);
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
     }
 
-    .ripple-feedback.right {
-      right: 0;
-      border-radius: 100% 0 0 100% / 50% 0 0 50%;
+    .btn-load {
+      height: 42px;
+      padding: 0 18px;
+      background: linear-gradient(135deg, var(--purple-main), var(--purple-dark));
+      border: 1px solid #94a3b8;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
     }
 
-    .ripple-feedback svg {
-      width: 36px;
-      height: 36px;
-      fill: #fff;
-      margin-bottom: 4px;
-    }
-
-    .ripple-feedback.show {
-      opacity: 1;
-      animation: pulseRipple 0.5s ease;
-    }
-
-    @keyframes pulseRipple {
-      0% { transform: scale(0.9); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-
-    /* NOTIFICACIONES TOAST */
     .toast-msg {
       position: absolute;
-      top: 20px;
+      top: 50px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(24, 8, 40, 0.95);
-      border: 1px solid var(--purple-accent);
+      background: rgba(20, 3, 38, 0.9);
+      border: 1px solid #e2e8f0;
       color: #fff;
-      padding: 10px 20px;
+      padding: 6px 16px;
       border-radius: 20px;
-      font-size: 13px;
-      font-weight: 500;
-      z-index: 100;
+      font-size: 11px;
+      z-index: 60;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s ease;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      transition: opacity 0.3s;
     }
 
-    .toast-msg.show {
-      opacity: 1;
-    }
+    .toast-msg.show { opacity: 1; }
   </style>
 </head>
 <body>
 
-  <!-- BARRA DE ENLACES SUPERIOR (.MP4 Y .M3U8) -->
-  <div class="url-bar-container">
-    <label for="urlInput">
-      <svg viewBox="0 0 24 24" style="width:18px; height:18px; fill:currentColor;"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
-      Enlace Video:
-    </label>
-    <input type="text" id="urlInput" class="url-input" placeholder="Pega aquí tu enlace .mp4 o .m3u8..." />
-    <button id="btnLoad" class="btn-load">
-      <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:currentColor;"><path d="M8 5v14l11-7z"/></svg>
-      Cargar
-    </button>
-  </div>
+  <!-- MARCA DE AGUA -->
+  <div class="player-wrapper" id="playerWrapper">
+    <div class="brand-watermark">JeissoNxP182</div>
 
-  <!-- REPRODUCTOR -->
-  <div class="player-container" id="playerContainer">
-    
-    <video 
-      id="mainVideo" 
-      preload="metadata" 
-      playsinline 
-      poster="https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80">
-      <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
-    </video>
+    <video id="mainVideo" preload="metadata" playsinline webkit-playsinline></video>
 
-    <!-- ONDAS ADELANTAR / ATRASAR -->
-    <div class="ripple-feedback left" id="rippleLeft">
-      <svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
-      <span>-10 segundos</span>
+    <!-- CAPA DE CONTROLES GENERALES -->
+    <div class="controls-overlay" id="controlsOverlay">
+      
+      <!-- ARRIBA A LA DERECHA -->
+      <div class="top-controls">
+        <button class="icon-btn" id="btnCast" title="Transmitir">
+          <svg viewBox="0 0 24 24"><path d="M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+        </button>
+
+        <button class="icon-btn" id="btnPip" title="PiP (Vídeo pequeño)">
+          <svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V5c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 0H3V5h18v14z"/></svg>
+        </button>
+
+        <button class="icon-btn" id="btnSettings" title="Ajustes">
+          <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+        </button>
+      </div>
+
+      <!-- TRES OPCIONES CENTRALES -->
+      <div class="center-controls">
+        <button class="btn-center" id="btnRewind" title="-10 Segundos">
+          <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+        </button>
+
+        <button class="btn-center play-main" id="btnCenterPlay" title="Pausar / Reproducir">
+          <svg id="centerIconPlay" viewBox="0 0 24 24" style="width:34px;height:34px;fill:currentColor;"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="centerIconPause" viewBox="0 0 24 24" style="width:34px;height:34px;fill:currentColor;display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+
+        <button class="btn-center" id="btnForward" title="+10 Segundos">
+          <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;"><path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88-3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8z"/></svg>
+        </button>
+      </div>
+
+      <!-- ABAJO -->
+      <div class="bottom-controls-wrapper">
+        <!-- BARRA DE BUFFER / PROGRESO -->
+        <div class="progress-container" id="progressContainer">
+          <div class="progress-track">
+            <div class="progress-buffered" id="progressBuffered"></div>
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+
+        <div class="bottom-row">
+          <!-- ABAJO A LA IZQUIERDA -->
+          <div class="bottom-left">
+            <button class="icon-btn" id="btnBottomPlay">
+              <svg id="bottomIconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <svg id="bottomIconPause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
+
+            <div class="volume-group">
+              <button class="icon-btn" id="btnMute">
+                <svg id="iconVolHigh" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                <svg id="iconVolMute" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+              </button>
+              <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1">
+            </div>
+
+            <div class="time-counter">
+              <span id="currTime">00:00</span> / <span id="durTime">00:00</span>
+            </div>
+          </div>
+
+          <!-- ABAJO A LA DERECHA -->
+          <div class="bottom-right">
+            <button class="icon-btn" id="btnCopyLink" title="Copiar Enlace">
+              <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            </button>
+
+            <button class="icon-btn" id="btnDownload" title="Descargar Vídeo">
+              <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            </button>
+
+            <button class="icon-btn" id="btnFullscreen" title="Maximizar">
+              <svg id="iconFS" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+              <svg id="iconExitFS" viewBox="0 0 24 24" style="display:none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="ripple-feedback right" id="rippleRight">
-      <svg viewBox="0 0 24 24"><path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88-3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8z"/></svg>
-      <span>+10 segundos</span>
+
+    <!-- PANELS / MODALES -->
+    <div class="settings-panel" id="settingsPanel">
+      <div class="settings-item">
+        <span>Calidad</span>
+        <select id="selectQuality">
+          <option value="-1">Automática</option>
+        </select>
+      </div>
+
+      <div class="settings-item">
+        <span>Velocidad de reproducción</span>
+        <select id="selectSpeed">
+          <option value="0.5">0.5x</option>
+          <option value="0.75">0.75x</option>
+          <option value="1" selected>1.0x (Normal)</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2.0x</option>
+        </select>
+      </div>
+
+      <div class="settings-item" id="optLockScreen" style="cursor:pointer;">
+        <span>Bloquear pantalla</span>
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+      </div>
+    </div>
+
+    <!-- CAPA DE DESBLOQUEO -->
+    <div class="lock-overlay" id="lockOverlay">
+      <button class="icon-btn" id="btnUnlock" style="background:rgba(20,3,38,0.8); border:1px solid var(--purple-main);">
+        <svg viewBox="0 0 24 24"><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/></svg>
+      </button>
     </div>
 
     <div class="toast-msg" id="toastMsg">Mensaje</div>
+  </div>
 
-    <button class="center-play-btn" id="centerPlayBtn" title="Reproducir">
-      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-    </button>
-
-    <!-- MENU AJUSTES -->
-    <div class="settings-menu" id="settingsMenu">
-      <div id="mainSettings">
-        <div class="settings-item" id="optQuality">
-          <span>Calidad del vídeo</span>
-          <span class="val" id="lblQuality">Auto</span>
-        </div>
-        <div class="settings-item" id="optSpeed">
-          <span>Velocidad de reproducción</span>
-          <span class="val" id="lblSpeed">Normal</span>
-        </div>
-      </div>
-
-      <div class="submenu" id="speedSubmenu">
-        <div class="submenu-header" id="backFromSpeed">
-          <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-          Velocidad
-        </div>
-        <div class="submenu-option" data-speed="0.5">0.5x</div>
-        <div class="submenu-option" data-speed="0.75">0.75x</div>
-        <div class="submenu-option selected" data-speed="1">Normal</div>
-        <div class="submenu-option" data-speed="1.25">1.25x</div>
-        <div class="submenu-option" data-speed="1.5">1.5x</div>
-        <div class="submenu-option" data-speed="2">2.0x</div>
-      </div>
-
-      <div class="submenu" id="qualitySubmenu">
-        <div class="submenu-header" id="backFromQuality">
-          <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-          Calidad del vídeo
-        </div>
-        <div id="qualityList">
-          <div class="submenu-option selected">Auto</div>
-        </div>
-      </div>
+  <!-- SECCIÓN SUPERIOR DE CARGA (DEBAJO DEL REPRODUCTOR) -->
+  <div class="url-section">
+    <div class="url-title">Cargar Fuente de Vídeo (.mp4 / .m3u8)</div>
+    <div class="input-wrapper">
+      <input type="text" id="urlInput" class="url-input" placeholder="Pega tu URL de vídeo aquí..." />
+      <button id="btnLoad" class="btn-load">Cargar</button>
     </div>
+  </div>
 
-    <!-- OVERLAY CONTROLES -->
-    <div class="controls-overlay" id="controlsOverlay">
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const video = document.getElementById('mainVideo');
+      const playerWrapper = document.getElementById('playerWrapper');
+      const controlsOverlay = document.getElementById('controlsOverlay');
       
-      <div class="top-controls">
-        <div class="video-title" id="videoTitle">Reproductor Púrpura HLS / MP4</div>
-      </div>
+      const btnCenterPlay = document.getElementById('btnCenterPlay');
+      const centerIconPlay = document.getElementById('centerIconPlay');
+      const centerIconPause = document.getElementById('centerIconPause');
+      
+      const btnBottomPlay = document.getElementById('btnBottomPlay');
+      const bottomIconPlay = document.getElementById('bottomIconPlay');
+      const bottomIconPause = document.getElementById('bottomIconPause');
+      
+      const btnRewind = document.getElementById('btnRewind');
+      const btnForward = document.getElementById('btnForward');
 
-      <div class="bottom-controls">
+      const btnMute = document.getElementById('btnMute');
+      const iconVolHigh = document.getElementById('iconVolHigh');
+      const iconVolMute = document.getElementById('iconVolMute');
+      const volumeSlider = document.getElementById('volumeSlider');
+
+      const progressContainer = document.getElementById('progressContainer');
+      const progressFill = document.getElementById('progressFill');
+      const progressBuffered = document.getElementById('progressBuffered');
+
+      const currTimeElem = document.getElementById('currTime');
+      const durTimeElem = document.getElementById('durTime');
+
+      const btnSettings = document.getElementById('btnSettings');
+      const settingsPanel = document.getElementById('settingsPanel');
+      const selectSpeed = document.getElementById('selectSpeed');
+      const selectQuality = document.getElementById('selectQuality');
+      const optLockScreen = document.getElementById('optLockScreen');
+      const lockOverlay = document.getElementById('lockOverlay');
+      const btnUnlock = document.getElementById('btnUnlock');
+
+      const btnCopyLink = document.getElementById('btnCopyLink');
+      const btnDownload = document.getElementById('btnDownload');
+      const btnFullscreen = document.getElementById('btnFullscreen');
+      const iconFS = document.getElementById('iconFS');
+      const iconExitFS = document.getElementById('iconExitFS');
+      const btnPip = document.getElementById('btnPip');
+      const btnCast = document.getElementById('btnCast');
+
+      const urlInput = document.getElementById('urlInput');
+      const btnLoad = document.getElementById('btnLoad');
+      const toastMsg = document.getElementById('toastMsg');
+
+      let hlsInstance = null;
+      let currentUrl = '';
+      let controlsTimer = null;
+
+      function showToast(txt) {
+        toastMsg.textContent = txt;
+        toastMsg.classList.add('show');
+        setTimeout(() => toastMsg.classList.remove('show'), 2500);
+      }
+
+      function togglePlay() {
+        if (video.paused) {
+          video.play().catch(() => showToast('Toca Play'));
+        } else {
+          video.pause();
+        }
+      }
+
+      btnCenterPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
+      btnBottomPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
+
+      video.addEventListener('play', () => {
+        centerIconPlay.style.display = 'none';
+        centerIconPause.style.display = 'block';
+        bottomIconPlay.style.display = 'none';
+        bottomIconPause.style.display = 'block';
+      });
+
+      video.addEventListener('pause', () => {
+        centerIconPlay.style.display = 'block';
+        centerIconPause.style.display = 'none';
+        bottomIconPlay.style.display = 'block';
+        bottomIconPause.style.display = 'none';
+      });
+
+      btnRewind.addEventListener('click', (e) => {
+        e.stopPropagation();
+        video.currentTime = Math.max(0, video.currentTime - 10);
+      });
+
+      btnForward.addEventListener('click', (e) => {
+        e.stopPropagation();
+        video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
+      });
+
+      // TOGGLE OVERLAY CONTROLES AL TOCAR PANTALLA
+      playerWrapper.addEventListener('click', (e) => {
+        if (e.target.closest('.controls-overlay') || e.target.closest('.settings-panel') || e.target.closest('.lock-overlay')) return;
         
-        <div class="progress-bar-container" id="progressContainer">
-          <div class="progress-tooltip" id="progressTooltip">00:00</div>
-          <div class="progress-bar-track">
-            <div class="progress-bar-buffered" id="progressBuffered"></div>
-            <div class="progress-bar-fill" id="progressFill"></div>
-            <div class="progress-scrubber" id="progressScrubber"></div>
-          </div>
-        </div>
+        const isActive = controlsOverlay.classList.contains('active');
+        if (isActive) {
+          controlsOverlay.classList.remove('active');
+          settingsPanel.classList.remove('active');
+        } else {
+          controlsOverlay.classList.add('active');
+        }
+      });
 
-        <div class="buttons-row">
-          <div class="controls-left">
-            
-            <button class="icon-btn" id="btnPlayPause" title="Reproducir">
-              <svg id="iconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              <svg id="iconPause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-            </button>
+      // VOLUMEN
+      volumeSlider.addEventListener('input', (e) => {
+        e.stopPropagation();
+        video.volume = parseFloat(e.target.value);
+        video.muted = (video.volume === 0);
+        updateVolIcons();
+      });
 
-            <!-- VOLUMEN ARREGLADO CON DESLIZADOR Y BOLITA VISIBLE -->
-            <div class="volume-container">
-              <button class="icon-btn" id="btnMute" title="Silenciar">
-                <svg id="iconVolHigh" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-                <svg id="iconVolMute" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
-              </button>
-              <div class="volume-slider-wrapper">
-                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="1">
-              </div>
-            </div>
+      btnMute.addEventListener('click', (e) => {
+        e.stopPropagation();
+        video.muted = !video.muted;
+        if (video.muted) {
+          volumeSlider.value = 0;
+        } else {
+          video.volume = 1;
+          volumeSlider.value = 1;
+        }
+        updateVolIcons();
+      });
 
-            <div class="time-display">
-              <span id="currentTime">0:00</span> / <span id="durationTime">0:00</span>
-            </div>
-          </div>
+      function updateVolIcons() {
+        if (video.muted || video.volume === 0) {
+          iconVolHigh.style.display = 'none';
+          iconVolMute.style.display = 'block';
+        } else {
+          iconVolHigh.style.display = 'block';
+          iconVolMute.style.display = 'none';
+        }
+      }
 
-          <div class="controls-right">
-            
-            <button class="icon-btn" id="btnShare" title="Copiar enlace">
-              <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
-            </button>
+      // TIEMPO Y BARRA DE PROGRESO
+      function formatTime(sec) {
+        if (isNaN(sec) || !isFinite(sec)) return "00:00";
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+      }
 
-            <button class="icon-btn" id="btnCast" title="Transmitir pantalla">
-              <svg viewBox="0 0 24 24"><path d="M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
-            </button>
+      video.addEventListener('timeupdate', () => {
+        if (video.duration) {
+          const pct = (video.currentTime / video.duration) * 100;
+          progressFill.style.width = pct + '%';
+          currTimeElem.textContent = formatTime(video.currentTime);
+        }
+      });
 
-            <button class="icon-btn" id="btnSettings" title="Configuración">
-              <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.4
+      video.addEventListener('loadedmetadata', () => {
+        durTimeElem.textContent = formatTime(video.duration);
+      });
+
+      video.addEventListener('progress', () => {
+        if (video.buffered.length > 0 && video.duration) {
+          const bufEnd = video.buffered.end(video.buffered.length - 1);
+          progressBuffered.style.width = ((bufEnd / video.duration) * 100) + '%';
+        }
+      });
+
+      progressContainer.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const rect = progressContainer.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        if (video.duration) {
+          video.currentTime = pos * video.duration;
+        }
+      });
+
+      // PANEL DE AJUSTES Y BLOQUEO
+      btnSettings.addEventListener('click', (e) => {
+        e.stopPropagation();
+        settingsPanel.classList.toggle('active');
+      });
+
+      selectSpeed.addEventListener('change', (e) => {
+        video.playbackRate = parseFloat(e.target.value);
+        showToast(`Velocidad: ${e.target.value}x`);
+      });
+
+      optLockScreen.addEventListener('click', () => {
+        settingsPanel.classList.remove('active');
+        controlsOverlay.classList.remove('active');
+        lockOverlay.classList.add('active');
+        showToast('Pantalla bloqueada');
+      });
+
+      btnUnlock.addEventListener('click', () => {
+        lockOverlay.classList.remove('active');
+        controlsOverlay.classList.add('active');
+        showToast('Pantalla desbloqueada');
+      });
+
+      // DESCARGA Y COPIAR LINK
+      btnCopyLink.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (currentUrl) {
+          navigator.clipboard.writeText(currentUrl);
+          showToast('Enlace copiado');
+        } else {
+          showToast('No hay enlace cargado');
+        }
+      });
+
+      btnDownload.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (currentUrl) {
+          const a = document.createElement('a');
+          a.href = currentUrl;
+          a.download = '';
+          a.target = '_blank';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } else {
+          showToast('No hay vídeo para descargar');
+        }
+      });
+
+      // PIP Y FULLSCREEN
+      btnPip.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (document.pictureInPictureElement) {
+          await document.exitPictureInPicture();
+        } else if (document.pictureInPictureEnabled) {
+          await video.requestPictureInPicture();
+        }
+      });
+
+      btnFullscreen.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!document.fullscreenElement) {
+          playerWrapper.requestFullscreen();
+          iconFS.style.display = 'none';
+          iconExitFS.style.display = 'block';
+        } else {
+          document.exitFullscreen();
+          iconFS.style.display = 'block';
+          iconExitFS.style.display = 'none';
+        }
+      });
+
+      // FUNCION PARA CARGAR VIDEO (.m3u8 / .mp4)
+      function loadVideo(rawUrl) {
+        if (!rawUrl) return;
+        currentUrl = rawUrl;
+
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+
+        if (hlsInstance) {
+          hlsInstance.destroy();
+          hlsInstance = null;
+        }
+
+        const isHls = rawUrl.includes('.m3u8');
+
+        if (isHls && Hls.isSupported()) {
+          hlsInstance = new Hls({ enableWorker: true });
+          hlsInstance.loadSource(rawUrl);
+          hlsInstance.attachMedia(video);
+
+          hlsInstance.on(Hls.Events.MANIFEST_PARSED, (evt, data) => {
+            selectQuality.innerHTML = '<option value="-1">Automática</option>';
+            data.levels.forEach((lvl, idx) => {
+              const opt = document.createElement('option');
+              opt.value = idx;
+              opt.textContent = `${lvl.height || lvl.bitrate}p`;
+              selectQuality.appendChild(opt);
+            });
+            video.play().catch(() => {});
+          });
+
+          selectQuality.onchange = (e) => {
+            hlsInstance.currentLevel = parseInt(e.target.value);
+          };
+        } else {
+          video.src = rawUrl;
+          selectQuality.innerHTML = '<option value="-1">Estándar</option>';
+          video.play().catch(() => {});
+        }
+
+        showToast('Cargando vídeo...');
+      }
+
+      btnLoad.addEventListener('click', () => loadVideo(urlInput.value.trim()));
+    });
+  </script>
+</body>
+</html>
