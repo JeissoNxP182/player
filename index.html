@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VLC Purple Player Engine</title>
+  <title>VLC Purple Player & Loader</title>
   
   <!-- Video.js CSS Core -->
   <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
@@ -17,6 +17,8 @@
       --vlc-purple-dark: #5a189a;
       --vlc-purple-glow: rgba(138, 43, 226, 0.4);
       --vlc-bg: #0d0d11;
+      --vlc-toolbar-bg: #14121c;
+      --vlc-text: #e0e0e0;
     }
 
     * {
@@ -30,21 +32,92 @@
       height: 100%;
       background-color: var(--vlc-bg);
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column; /* Para apilar barra superior y reproductor */
       overflow: hidden;
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--vlc-text);
+    }
+
+    /* --- BARRA DE CARGA SUPERIOR --- */
+    .url-loader-bar {
+      width: 100%;
+      height: 60px;
+      background-color: var(--vlc-toolbar-bg);
+      border-bottom: 1px solid var(--vlc-purple-dark);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 100;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .loader-label {
+      font-size: 14px;
+      font-weight: bold;
+      margin-right: 15px;
+      color: var(--vlc-purple);
+      white-space: nowrap;
+    }
+
+    .url-input {
+      flex-grow: 1;
+      height: 36px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(138, 43, 226, 0.3);
+      border-radius: 6px;
+      padding: 0 12px;
+      color: #fff;
+      font-size: 13px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .url-input:focus {
+      outline: none;
+      border-color: var(--vlc-purple);
+      box-shadow: 0 0 10px var(--vlc-purple-glow);
+    }
+
+    .load-btn {
+      height: 36px;
+      padding: 0 20px;
+      background-color: var(--vlc-purple-dark);
+      border: 1px solid var(--vlc-purple);
+      border-radius: 6px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 10px;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .load-btn:hover {
+      background-color: var(--vlc-purple);
+      box-shadow: 0 0 15px var(--vlc-purple-glow);
+    }
+
+    .load-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* --- CONTENEDOR DEL REPRODUCTOR --- */
+    .player-container {
+      flex-grow: 1; /* Ocupa todo el espacio restante */
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
     }
 
     .player-wrapper {
       width: 100%;
       height: 100%;
-      max-width: 100vw;
-      max-height: 100vh;
-      aspect-ratio: 16 / 9;
       position: relative;
     }
 
+    /* --- ESTILOS VLC PURPLE (Video.js) --- */
     .video-js {
       width: 100%;
       height: 100%;
@@ -52,7 +125,7 @@
     }
 
     .vjs-theme-vlc {
-      color: #e0e0e0;
+      color: var(--vlc-text);
     }
 
     /* Barra de control inferior */
@@ -102,7 +175,7 @@
       background-color: rgba(255, 255, 255, 0.3);
     }
 
-    /* Botones -10s / +10s / Copiar */
+    /* Botones personalizados de la barra de control */
     .vjs-vlc-btn {
       font-size: 13px !important;
       font-weight: bold;
@@ -112,7 +185,7 @@
       cursor: pointer;
     }
 
-    /* Menús Flotantes */
+    /* Menús Flotantes (Velocidad, etc.) */
     .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
       background-color: rgba(20, 18, 28, 0.95) !important;
       border: 1px solid var(--vlc-purple);
@@ -131,7 +204,7 @@
       color: #fff !important;
     }
 
-    /* Indicador Doble Clic/Toque */
+    /* Indicador Doble Clic/Toque en pantalla */
     .seek-feedback {
       position: absolute;
       top: 50%;
@@ -153,7 +226,7 @@
     .seek-feedback.right { right: 10%; }
     .seek-feedback.show { opacity: 1; transform: translateY(-50%) scale(1.05); }
 
-    /* Notificaciones */
+    /* Notificaciones Flotantes (Toast) */
     .toast-msg {
       position: absolute;
       top: 20px;
@@ -164,7 +237,7 @@
       padding: 10px 18px;
       border-radius: 8px;
       font-size: 13px;
-      z-index: 30;
+      z-index: 150;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
@@ -174,41 +247,57 @@
 </head>
 <body>
 
-  <div class="player-wrapper" id="playerWrapper">
-    <div class="seek-feedback left" id="feedbackLeft">⏮ -10s</div>
-    <div class="seek-feedback right" id="feedbackRight">+10s ⏭</div>
-    <div class="toast-msg" id="toastMsg">Enlace copiado</div>
-
-    <!-- Etiqueta de Video Genérica sin src ni poster hardcodeados -->
-    <video 
-      id="vlcPlayer" 
-      class="video-js vjs-theme-vlc vjs-big-play-centered" 
-      controls 
-      preload="metadata" 
-      playsinline>
-    </video>
+  <!-- 1. BARRA DE HERRAMIENTAS SUPERIOR -->
+  <div class="url-loader-bar">
+    <span class="loader-label">VLC LOADER:</span>
+    <input type="text" id="urlInput" class="url-input" placeholder="Pega tu enlace .mp4 o .m3u8 aquí..." />
+    <button id="loadBtn" class="load-btn">REPRODUCIR</button>
   </div>
 
+  <!-- 2. CONTENEDOR DEL REPRODUCTOR -->
+  <div class="player-container">
+    <div class="player-wrapper" id="playerWrapper">
+      <!-- Elementos visuales de feedback -->
+      <div class="seek-feedback left" id="feedbackLeft">⏮ -10s</div>
+      <div class="seek-feedback right" id="feedbackRight">+10s ⏭</div>
+      <div class="toast-msg" id="toastMsg">Enlace cargado</div>
+
+      <!-- Etiqueta de Video Genérica -->
+      <video 
+        id="vlcPlayer" 
+        class="video-js vjs-theme-vlc vjs-big-play-centered" 
+        controls 
+        preload="metadata" 
+        playsinline>
+      </video>
+    </div>
+  </div>
+
+  <!-- Video.js JS Core -->
   <script src="https://vjs.zencdn.net/8.10.0/video.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Elementos del DOM
       const wrapper = document.getElementById('playerWrapper');
       const toast = document.getElementById('toastMsg');
       const feedbackLeft = document.getElementById('feedbackLeft');
       const feedbackRight = document.getElementById('feedbackRight');
+      const urlInput = document.getElementById('urlInput');
+      const loadBtn = document.getElementById('loadBtn');
 
-      function showToast(text) {
+      // Función para mostrar notificaciones
+      function showToast(text, duration = 2000) {
         toast.textContent = text;
         toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2000);
+        setTimeout(() => toast.classList.remove('show'), duration);
       }
 
-      // Inicialización genérica del reproductor
+      // --- INICIALIZACIÓN DEL REPRODUCTOR ---
       const player = videojs('vlcPlayer', {
         playbackRates: [0.5, 0.75, 1, 1.25, 1.5, 2],
         responsive: true,
-        fluid: false,
+        fluid: false, // Usamos flexbox para el tamaño
         controlBar: {
           children: [
             'playToggle',
@@ -224,6 +313,56 @@
         }
       });
 
+      // --- LÓGICA DE CARGA DE VIDEO EXTERNO ---
+      function loadVideoFromInput() {
+        const url = urlInput.value.trim();
+        
+        if (!url) {
+          showToast("⚠️ Por favor, pega un enlace válido.");
+          return;
+        }
+
+        // Determinar el tipo de contenido basándose en la extensión
+        let type = 'video/mp4'; // Por defecto MP4
+        
+        if (url.toLowerCase().includes('.m3u8')) {
+          type = 'application/x-mpegURL'; // HLS (m3u8)
+        } else if (url.toLowerCase().includes('.mp4')) {
+          type = 'video/mp4';
+        } else if (url.toLowerCase().includes('.webm')) {
+          type = 'video/webm';
+        } else if (url.toLowerCase().includes('.ogv')) {
+          type = 'video/ogg';
+        } else {
+          // Si no tiene extensión conocida, intentamos cargarla como MP4 y mostramos aviso
+          showToast("ℹ️ Intentando cargar como video genérico...", 3000);
+        }
+
+        // Cargar la nueva fuente en el reproductor
+        player.src({ src: url, type: type });
+        
+        // Intentar reproducir automáticamente
+        player.ready(() => {
+          player.play().catch(error => {
+            console.log("Autoplay bloqueado por el navegador, requiere interacción del usuario.");
+            showToast("▶️ Video cargado. Presiona Play.");
+          });
+          showToast("✅ Video cargado con éxito.");
+        });
+      }
+
+      // Eventos de la barra de carga
+      loadBtn.addEventListener('click', loadVideoFromInput);
+      
+      // Permitir cargar presionando 'Enter' en el input
+      urlInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          loadVideoFromInput();
+        }
+      });
+
+
+      // --- CONTROLES PERSONALIZADOS VLC ---
       player.ready(() => {
         const controlBar = player.controlBar;
 
@@ -249,35 +388,26 @@
         };
         controlBar.el().insertBefore(rewindBtn, controlBar.playToggle.el());
 
-        // Botón: Copiar Link del Video Actual
+        // Botón: Copiar Link Actual
         const copyBtn = document.createElement('button');
         copyBtn.className = 'vjs-control vjs-button vjs-vlc-btn';
         copyBtn.innerHTML = '🔗';
-        copyBtn.title = 'Copiar enlace del video';
+        copyBtn.title = 'Copiar enlace del video actual';
         copyBtn.onclick = () => {
           const currentSrc = player.currentSrc();
           if (currentSrc) {
             navigator.clipboard.writeText(currentSrc).then(() => {
-              showToast("¡Enlace copiado!");
+              showToast("¡Enlace copiado al portapapeles!");
             });
           } else {
-            showToast("No hay video cargado");
+            showToast("❌ No hay video cargado.");
           }
         };
         controlBar.el().insertBefore(copyBtn, controlBar.fullscreenToggle.el());
-
-        // Botón: Calidad HD
-        const qualityBtn = document.createElement('button');
-        qualityBtn.className = 'vjs-control vjs-button vjs-vlc-btn';
-        qualityBtn.innerHTML = '<span>HD</span>';
-        qualityBtn.title = 'Calidad de Video';
-        qualityBtn.onclick = () => {
-          showToast("Calidad: Original HD");
-        };
-        controlBar.el().insertBefore(qualityBtn, controlBar.playbackRateMenuButton.el());
       });
 
-      // Gestos de Doble Toque / Doble Clic
+
+      // --- GESTOS Y FEEDBACK ---
       let lastTap = 0;
 
       function showFeedback(element) {
@@ -285,7 +415,9 @@
         setTimeout(() => element.classList.remove('show'), 500);
       }
 
+      // Doble Clic / Doble Toque en la pantalla del video
       wrapper.addEventListener('click', (e) => {
+        // Ignorar si se hace clic en la barra de controles inferior
         if (e.target.closest('.vjs-control-bar')) return;
 
         const currentTime = new Date().getTime();
@@ -296,6 +428,7 @@
           const clickX = e.clientX - rect.left;
           const percentage = (clickX / rect.width) * 100;
 
+          // Zonas de salto (35% izquierda = retroceder, 65% derecha = adelantar)
           if (percentage <= 35) {
             player.currentTime(player.currentTime() - 10);
             showFeedback(feedbackLeft);
@@ -307,7 +440,8 @@
         lastTap = currentTime;
       });
 
-      // Transmisión a TV (Chromecast)
+
+      // --- GOOGLE CAST (Chromecast) ---
       window.__onGCastApiAvailable = function(isAvailable) {
         if (isAvailable) {
           cast.framework.CastContext.getInstance().setOptions({
