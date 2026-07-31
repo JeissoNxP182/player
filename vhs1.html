@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ver Película</title>
   
-  <!-- Plyr.js -->
+  <!-- Plyr.js (Estilos y Reproductor) -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
   <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
-  <!-- Google Cast SDK -->
+  <!-- Google Cast SDK (Transmitir a la TV) -->
   <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 
   <style>
@@ -47,38 +47,6 @@
       width: 100%;
     }
 
-    .loading-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(11, 11, 12, 0.95);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 20;
-      font-size: 15px;
-      gap: 12px;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .spinner {
-      width: 35px;
-      height: 35px;
-      border: 3px solid rgba(255, 255, 255, 0.2);
-      border-top-color: #e50914;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
     .seek-feedback {
       position: absolute;
       top: 50%;
@@ -103,37 +71,32 @@
 <body>
 
   <div class="player-container" id="playerWrapper">
-    <div class="loading-overlay" id="loadingOverlay">
-      <div class="spinner" id="spinner"></div>
-      <p id="loadingText">Obteniendo enlace directo con la API...</p>
-    </div>
-
+    <!-- Indicadores de Salto (-10s / +10s) -->
     <div class="seek-feedback left" id="feedbackLeft">⏮ -10s</div>
     <div class="seek-feedback right" id="feedbackRight">+10s ⏭</div>
 
+    <!-- Etiqueta nativa de Video -->
     <video id="player" playsinline controls preload="metadata"></video>
   </div>
 
   <script>
     // =========================================================
-    // ⚙️ CONFIGURACIÓN DE TU CUENTA Y PELÍCULA
+    // ⚙️ CONFIGURACIÓN DE TU PELÍCULA
     // =========================================================
     
-    const API_LOGIN = "e321bcab62b1cf179cf7"; // Tu usuario de API de Streamtape
-    const API_KEY = "AAjvzj6wypuX3Mq";     // Tu contraseña/Key de API de Streamtape
-    const STREAMTAPE_ID = "ZJqVe14JA9CKq9"; 
+    // PEGA AQUÍ EL LINK DIRECTO DE ARCHIVE.ORG QUE COPIASTE
+    const LINK_VIDEO = "https://archive.org/download/vhs-1_202607/2012%20-%20VHS%20Las%20cr%C3%B3nicas%20del%20miedo.mp4"; 
+    
+    // Opcional: Link de la portada o poster
     const LINK_POSTER = "https://m.media-amazon.com/images/S/pv-target-images/2b1354e4eb010e86e07d4536dfa06322d07dfe41e38e51427b16a0387732467f.png";
 
     // =========================================================
-    // LÓGICA CON API OFICIAL
+    // REPRODUCTOR PLYR.JS
     // =========================================================
 
-    document.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', () => {
       const videoElement = document.getElementById('player');
       const wrapper = document.getElementById('playerWrapper');
-      const loadingOverlay = document.getElementById('loadingOverlay');
-      const loadingText = document.getElementById('loadingText');
-      const spinner = document.getElementById('spinner');
       const feedbackLeft = document.getElementById('feedbackLeft');
       const feedbackRight = document.getElementById('feedbackRight');
 
@@ -141,63 +104,21 @@
         videoElement.setAttribute('poster', LINK_POSTER);
       }
 
-      let plyrInstance = null;
-
-      function initPlyr() {
-        plyrInstance = new Plyr(videoElement, {
-          autoplay: false,
-          controls: [
-            'play-large', 'restart', 'play', 'progress', 'current-time', 
-            'duration', 'mute', 'volume', 'settings', 'pip', 'airplay', 'fullscreen'
-          ],
-          tooltips: { controls: true, seek: true },
-          speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] }
-        });
+      if (LINK_VIDEO) {
+        videoElement.src = LINK_VIDEO;
       }
 
-      async function consultarApiStreamtape(fileId) {
-  const apiUrl = `https://api.streamtape.com/file/dnl?file=${fileId}&login=${API_LOGIN}&key=${API_KEY}`;
-  
-  // Lista de proxies de respaldo para saltar la restricción CORS de la API
-  const proxies = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`,
-    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(apiUrl)}`
-  ];
+      const plyrInstance = new Plyr(videoElement, {
+        autoplay: false,
+        controls: [
+          'play-large', 'restart', 'play', 'progress', 'current-time', 
+          'duration', 'mute', 'volume', 'settings', 'pip', 'airplay', 'fullscreen'
+        ],
+        tooltips: { controls: true, seek: true },
+        speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] }
+      });
 
-  for (const proxy of proxies) {
-    try {
-      const response = await fetch(proxy);
-      if (!response.ok) continue;
-
-      const data = await response.json();
-
-      // Si Streamtape responde con éxito y trae la URL del MP4
-      if (data && data.status === 200 && data.result && data.result.url) {
-        return data.result.url;
-      }
-    } catch (e) {
-      console.warn("Error con un proxy, intentando el siguiente...", e);
-    }
-  }
-
-  return null;
-      }
-      
-      }
-
-      let freshUrl = await consultarApiStreamtape(STREAMTAPE_ID);
-
-      if (freshUrl) {
-        videoElement.src = freshUrl;
-        initPlyr();
-        loadingOverlay.style.opacity = "0";
-        setTimeout(() => loadingOverlay.style.display = "none", 300);
-      } else {
-        spinner.style.display = "none";
-        loadingText.innerHTML = "No se pudo obtener el enlace vía API.<br>Verifica tu API Login, API Key y la ID del video.";
-      }
-
-      // Doble Clic / Doble Toque (-10s / +10s)
+      // Doble Clic / Doble Toque (-10s izquierda / +10s derecha)
       let lastTap = 0;
 
       function showFeedback(element) {
@@ -230,7 +151,7 @@
         lastTap = currentTime;
       });
 
-      // Google Cast
+      // Inicialización de Google Cast (Transmitir a la TV)
       window.__onGCastApiAvailable = function(isAvailable) {
         if (isAvailable) {
           cast.framework.CastContext.getInstance().setOptions({
