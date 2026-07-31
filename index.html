@@ -2,10 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Reproductor Púrpura Móvil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reproductor Púrpura YouTube Style 2026</title>
 
-  <!-- HLS.js para reproducción de .m3u8 en móvil/web -->
+  <!-- Google Cast Framework -->
+  <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+  <!-- HLS.js para soporte de listas .m3u8 -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
   <style>
@@ -14,7 +16,7 @@
       --purple-accent: #c77dff;
       --purple-dark: #240046;
       --purple-bg: #0b0214;
-      --purple-panel: rgba(28, 10, 48, 0.95);
+      --purple-panel: rgba(28, 10, 48, 0.92);
       --text-light: #f7f0f5;
     }
 
@@ -30,62 +32,82 @@
       width: 100%;
       height: 100%;
       background-color: var(--purple-bg);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
       color: var(--text-light);
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
 
-    /* BARRA SUPERIOR PARA COPIAR / PEGAR ENLACES */
+    /* BARRA SUPERIOR PARA LINKS (.mp4 / .m3u8) */
     .url-bar-container {
       width: 100%;
-      padding: 8px 12px;
+      height: 52px;
       background: var(--purple-dark);
       border-bottom: 1px solid rgba(199, 125, 255, 0.2);
       display: flex;
-      gap: 8px;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
       z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
       flex-shrink: 0;
+    }
+
+    .url-bar-container label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--purple-accent);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .url-input {
       flex-grow: 1;
-      height: 40px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(199, 125, 255, 0.4);
+      height: 36px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(199, 125, 255, 0.3);
       border-radius: 8px;
-      padding: 0 12px;
+      padding: 0 14px;
       color: #fff;
-      font-size: 14px;
+      font-size: 13px;
       outline: none;
+      transition: all 0.2s ease;
       user-select: text;
       -webkit-user-select: text;
     }
 
     .url-input:focus {
       border-color: var(--purple-accent);
-      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 12px rgba(157, 78, 221, 0.4);
+      background: rgba(255, 255, 255, 0.14);
     }
 
     .btn-load {
-      height: 40px;
-      padding: 0 16px;
-      background: var(--purple-main);
-      border: none;
+      height: 36px;
+      padding: 0 18px;
+      background: linear-gradient(135deg, var(--purple-main), var(--purple-dark));
+      border: 1px solid var(--purple-accent);
       border-radius: 8px;
       color: #fff;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
       white-space: nowrap;
     }
 
-    .btn-load:active {
-      transform: scale(0.96);
+    .btn-load:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 15px rgba(199, 125, 255, 0.5);
     }
 
-    /* CONTENEDOR DEL VIDEO */
+    /* CONTENEDOR PRINCIPAL DEL REPRODUCTOR */
     .player-container {
       flex-grow: 1;
       width: 100%;
@@ -94,6 +116,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
     }
 
     video {
@@ -103,29 +126,79 @@
       background: #000;
     }
 
-    /* BOTÓN PLAY CENTRADO */
+    /* CONTROLES OVERLAY */
+    .controls-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 20%, transparent 70%, rgba(11, 2, 20, 0.95) 100%);
+      opacity: 1;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+      padding: 12px 16px;
+      pointer-events: none;
+    }
+
+    .player-container.user-idle .controls-overlay {
+      opacity: 0;
+    }
+
+    .controls-overlay * {
+      pointer-events: auto;
+    }
+
+    /* TITULO SUPERIOR */
+    .top-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .video-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 80%;
+    }
+
+    /* BOTON PLAY CENTRADO */
     .center-play-btn {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 68px;
-      height: 68px;
+      width: 72px;
+      height: 72px;
       border-radius: 50%;
-      background: rgba(157, 78, 221, 0.9);
+      background: rgba(157, 78, 221, 0.85);
       border: 2px solid var(--purple-accent);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      box-shadow: 0 0 30px rgba(157, 78, 221, 0.6);
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       z-index: 12;
-      box-shadow: 0 0 20px rgba(157, 78, 221, 0.6);
+      pointer-events: auto;
+    }
+
+    .center-play-btn:hover {
+      transform: translate(-50%, -50%) scale(1.12);
+      background: var(--purple-main);
+      box-shadow: 0 0 40px rgba(199, 125, 255, 0.9);
     }
 
     .center-play-btn svg {
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       fill: #fff;
     }
 
@@ -134,24 +207,337 @@
       pointer-events: none;
     }
 
-    /* NOTIFICACIÓN TOAST */
-    .toast-msg {
+    /* BARRA INFERIOR DE CONTROLES */
+    .bottom-controls {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 6px;
+    }
+
+    /* BARRA DE PROGRESO DE YOUTUBE CON SCRUBBER */
+    .progress-bar-container {
+      width: 100%;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .progress-bar-track {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 3px;
+      position: relative;
+      transition: height 0.15s ease;
+    }
+
+    .progress-bar-container:hover .progress-bar-track {
+      height: 8px;
+    }
+
+    .progress-bar-buffered {
       position: absolute;
-      top: 16px;
-      left: 50%;
+      top: 0; left: 0; bottom: 0;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 3px;
+      width: 0%;
+    }
+
+    .progress-bar-fill {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      background: var(--purple-accent);
+      box-shadow: 0 0 10px var(--purple-main);
+      border-radius: 3px;
+      width: 0%;
+    }
+
+    .progress-scrubber {
+      position: absolute;
+      top: 50%;
+      left: 0%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 14px;
+      height: 14px;
+      background-color: var(--purple-accent);
+      border: 2px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(0,0,0,0.8);
+      transition: transform 0.15s ease;
+    }
+
+    .progress-bar-container:hover .progress-scrubber,
+    .progress-bar-container.dragging .progress-scrubber {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .progress-tooltip {
+      position: absolute;
+      bottom: 24px;
       transform: translateX(-50%);
-      background: var(--purple-panel);
+      background: var(--purple-dark);
       border: 1px solid var(--purple-accent);
       color: #fff;
+      padding: 3px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      pointer-events: none;
+      display: none;
+      white-space: nowrap;
+    }
+
+    /* FILA DE BOTONES DE ACCION */
+    .buttons-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .controls-left, .controls-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease, color 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--purple-accent);
+    }
+
+    .icon-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    /* NUEVA BARRA DE VOLUMEN CON DESLIZADOR Y BOLITA VISIBLE */
+    .volume-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .volume-slider-wrapper {
+      width: 80px;
+      display: flex;
+      align-items: center;
+    }
+
+    .volume-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Bolita deslizable (Thumb) Chrome, Safari, Edge, Opera */
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--purple-accent);
+      border: 2px solid #fff;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .volume-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      background: #fff;
+    }
+
+    /* Bolita deslizable (Thumb) Firefox */
+    .volume-slider::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--purple-accent);
+      border: 2px solid #fff;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .volume-slider::-moz-range-thumb:hover {
+      transform: scale(1.2);
+      background: #fff;
+    }
+
+    .time-display {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+      margin-left: 4px;
+      white-space: nowrap;
+    }
+
+    /* MENU DE AJUSTES */
+    .settings-menu {
+      position: absolute;
+      bottom: 56px;
+      right: 16px;
+      background: var(--purple-panel);
+      border: 1px solid rgba(199, 125, 255, 0.4);
+      backdrop-filter: blur(12px);
+      border-radius: 12px;
+      padding: 8px 0;
+      width: 220px;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+      z-index: 50;
+    }
+
+    .settings-menu.active {
+      display: flex;
+    }
+
+    .settings-item {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      color: #fff;
+    }
+
+    .settings-item:hover {
+      background: rgba(157, 78, 221, 0.3);
+    }
+
+    .settings-item .val {
+      color: var(--purple-accent);
+      font-weight: 600;
+    }
+
+    .submenu {
+      display: none;
+      flex-direction: column;
+    }
+
+    .submenu.active {
+      display: flex;
+    }
+
+    .submenu-header {
       padding: 8px 16px;
-      border-radius: 20px;
       font-size: 12px;
+      font-weight: bold;
+      color: var(--purple-accent);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .submenu-option {
+      padding: 8px 20px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .submenu-option:hover, .submenu-option.selected {
+      background: rgba(157, 78, 221, 0.35);
+      color: var(--purple-accent);
+    }
+
+    /* ONDAS ADELANTAR / ATRASAR */
+    .ripple-feedback {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 40%;
+      background: rgba(157, 78, 221, 0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 15px;
+      font-weight: bold;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      z-index: 15;
+    }
+
+    .ripple-feedback.left {
+      left: 0;
+      border-radius: 0 100% 100% 0 / 0 50% 50% 0;
+    }
+
+    .ripple-feedback.right {
+      right: 0;
+      border-radius: 100% 0 0 100% / 50% 0 0 50%;
+    }
+
+    .ripple-feedback svg {
+      width: 36px;
+      height: 36px;
+      fill: #fff;
+      margin-bottom: 4px;
+    }
+
+    .ripple-feedback.show {
+      opacity: 1;
+      animation: pulseRipple 0.5s ease;
+    }
+
+    @keyframes pulseRipple {
+      0% { transform: scale(0.9); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    /* NOTIFICACIONES TOAST */
+    .toast-msg {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(24, 8, 40, 0.95);
+      border: 1px solid var(--purple-accent);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
       z-index: 100;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
-      text-align: center;
-      max-width: 90%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
     }
 
     .toast-msg.show {
@@ -161,128 +547,134 @@
 </head>
 <body>
 
-  <!-- CONTENEDOR MÓVIL SUPERIOR -->
+  <!-- BARRA DE ENLACES SUPERIOR (.MP4 Y .M3U8) -->
   <div class="url-bar-container">
-    <input type="text" id="urlInput" class="url-input" placeholder="Pega tu enlace (.m3u8 o .mp4)..." />
-    <button id="btnLoad" class="btn-load">Cargar</button>
+    <label for="urlInput">
+      <svg viewBox="0 0 24 24" style="width:18px; height:18px; fill:currentColor;"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+      Enlace Video:
+    </label>
+    <input type="text" id="urlInput" class="url-input" placeholder="Pega aquí tu enlace .mp4 o .m3u8..." />
+    <button id="btnLoad" class="btn-load">
+      <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:currentColor;"><path d="M8 5v14l11-7z"/></svg>
+      Cargar
+    </button>
   </div>
 
-  <!-- CONTENEDOR REPRODUCTOR -->
+  <!-- REPRODUCTOR -->
   <div class="player-container" id="playerContainer">
-    <video id="mainVideo" controls preload="metadata" playsinline webkit-playsinline></video>
+    
+    <video 
+      id="mainVideo" 
+      preload="metadata" 
+      playsinline 
+      poster="https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80">
+      <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+    </video>
 
-    <button class="center-play-btn" id="centerPlayBtn">
+    <!-- ONDAS ADELANTAR / ATRASAR -->
+    <div class="ripple-feedback left" id="rippleLeft">
+      <svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+      <span>-10 segundos</span>
+    </div>
+    <div class="ripple-feedback right" id="rippleRight">
+      <svg viewBox="0 0 24 24"><path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88-3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8z"/></svg>
+      <span>+10 segundos</span>
+    </div>
+
+    <div class="toast-msg" id="toastMsg">Mensaje</div>
+
+    <button class="center-play-btn" id="centerPlayBtn" title="Reproducir">
       <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
     </button>
 
-    <div class="toast-msg" id="toastMsg">Cargando...</div>
-  </div>
+    <!-- MENU AJUSTES -->
+    <div class="settings-menu" id="settingsMenu">
+      <div id="mainSettings">
+        <div class="settings-item" id="optQuality">
+          <span>Calidad del vídeo</span>
+          <span class="val" id="lblQuality">Auto</span>
+        </div>
+        <div class="settings-item" id="optSpeed">
+          <span>Velocidad de reproducción</span>
+          <span class="val" id="lblSpeed">Normal</span>
+        </div>
+      </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const video = document.getElementById('mainVideo');
-      const urlInput = document.getElementById('urlInput');
-      const btnLoad = document.getElementById('btnLoad');
-      const centerPlayBtn = document.getElementById('centerPlayBtn');
-      const playerContainer = document.getElementById('playerContainer');
-      const toastMsg = document.getElementById('toastMsg');
+      <div class="submenu" id="speedSubmenu">
+        <div class="submenu-header" id="backFromSpeed">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          Velocidad
+        </div>
+        <div class="submenu-option" data-speed="0.5">0.5x</div>
+        <div class="submenu-option" data-speed="0.75">0.75x</div>
+        <div class="submenu-option selected" data-speed="1">Normal</div>
+        <div class="submenu-option" data-speed="1.25">1.25x</div>
+        <div class="submenu-option" data-speed="1.5">1.5x</div>
+        <div class="submenu-option" data-speed="2">2.0x</div>
+      </div>
 
-      let hlsInstance = null;
+      <div class="submenu" id="qualitySubmenu">
+        <div class="submenu-header" id="backFromQuality">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          Calidad del vídeo
+        </div>
+        <div id="qualityList">
+          <div class="submenu-option selected">Auto</div>
+        </div>
+      </div>
+    </div>
 
-      function showToast(msg) {
-        toastMsg.textContent = msg;
-        toastMsg.classList.add('show');
-        setTimeout(() => toastMsg.classList.remove('show'), 3000);
-      }
-
-      function togglePlay() {
-        if (video.paused) {
-          video.play().catch(e => showToast('Pulsa Play para iniciar'));
-        } else {
-          video.pause();
-        }
-      }
-
-      centerPlayBtn.addEventListener('click', togglePlay);
-
-      video.addEventListener('play', () => playerContainer.classList.add('is-playing'));
-      video.addEventListener('pause', () => playerContainer.classList.remove('is-playing'));
-
-      function loadVideo(rawUrl) {
-        if (!rawUrl) {
-          showToast('Pega un enlace válido');
-          return;
-        }
-
-        // Limpiar estados previos
-        video.pause();
-        video.removeAttribute('src');
-        video.load();
-
-        if (hlsInstance) {
-          hlsInstance.destroy();
-          hlsInstance = null;
-        }
-
-        showToast('Conectando al servidor...');
-
-        // 1. Detección nativa para Safari / iOS o móviles con soporte directo de HLS
-        if (video.canPlayType('application/vnd.apple.mpegurl')) {
-          video.src = rawUrl;
-          video.play().catch(() => showToast('Toca Play para reproducir'));
-          return;
-        }
-
-        // 2. Carga por HLS.js con configuración limpia
-        if (Hls.isSupported()) {
-          hlsInstance = new Hls({
-            enableWorker: true,
-            lowLatencyMode: false,
-            xhrSetup: function(xhr, url) {
-              // Permite el paso directo de tokens sin bloquear peticiones cruzadas
-              xhr.withCredentials = false;
-            }
-          });
-
-          hlsInstance.loadSource(rawUrl);
-          hlsInstance.attachMedia(video);
-
-          hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-            showToast('Vídeo listo');
-            video.play().catch(() => showToast('Toca Play para iniciar'));
-          });
-
-          hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-            if (data.fatal) {
-              switch (data.type) {
-                case Hls.ErrorTypes.NETWORK_ERROR:
-                  showToast('Error de red, reintentando...');
-                  hlsInstance.startLoad();
-                  break;
-                case Hls.ErrorTypes.MEDIA_ERROR:
-                  showToast('Restaurando formato de vídeo...');
-                  hlsInstance.recoverMediaError();
-                  break;
-                default:
-                  showToast('El servidor bloqueó la conexión directa');
-                  hlsInstance.destroy();
-                  break;
-              }
-            }
-          });
-        } else {
-          // Enlace MP4 directo
-          video.src = rawUrl;
-          video.play().catch(() => showToast('Toca Play para iniciar'));
-        }
-      }
-
-      btnLoad.addEventListener('click', () => loadVideo(urlInput.value.trim()));
+    <!-- OVERLAY CONTROLES -->
+    <div class="controls-overlay" id="controlsOverlay">
       
-      urlInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') loadVideo(urlInput.value.trim());
-      });
-    });
-  </script>
-</body>
-</html>
+      <div class="top-controls">
+        <div class="video-title" id="videoTitle">Reproductor Púrpura HLS / MP4</div>
+      </div>
+
+      <div class="bottom-controls">
+        
+        <div class="progress-bar-container" id="progressContainer">
+          <div class="progress-tooltip" id="progressTooltip">00:00</div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-buffered" id="progressBuffered"></div>
+            <div class="progress-bar-fill" id="progressFill"></div>
+            <div class="progress-scrubber" id="progressScrubber"></div>
+          </div>
+        </div>
+
+        <div class="buttons-row">
+          <div class="controls-left">
+            
+            <button class="icon-btn" id="btnPlayPause" title="Reproducir">
+              <svg id="iconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <svg id="iconPause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
+
+            <!-- VOLUMEN ARREGLADO CON DESLIZADOR Y BOLITA VISIBLE -->
+            <div class="volume-container">
+              <button class="icon-btn" id="btnMute" title="Silenciar">
+                <svg id="iconVolHigh" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                <svg id="iconVolMute" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+              </button>
+              <div class="volume-slider-wrapper">
+                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+              </div>
+            </div>
+
+            <div class="time-display">
+              <span id="currentTime">0:00</span> / <span id="durationTime">0:00</span>
+            </div>
+          </div>
+
+          <div class="controls-right">
+            
+            <button class="icon-btn" id="btnShare" title="Copiar enlace">
+              <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+            </button>
+
+            <button class="icon-btn" id="btnCast" title="Transmitir pantalla">
+              <svg viewBox="0 0 24 24"><path d="M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+            </button>
+
+            <button class="icon-btn" id="btnSettings" title="Configuración">
+              <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.4
