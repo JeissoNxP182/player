@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reproductor Púrpura YouTube Style 2026</title>
+  <title>Reproductor Púrpura Universal 2026</title>
 
   <!-- Google Cast Framework -->
   <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
@@ -215,7 +215,6 @@
       gap: 6px;
     }
 
-    /* BARRA DE PROGRESO DE YOUTUBE CON SCRUBBER */
     .progress-bar-container {
       width: 100%;
       height: 16px;
@@ -289,7 +288,6 @@
       white-space: nowrap;
     }
 
-    /* FILA DE BOTONES DE ACCION */
     .buttons-row {
       display: flex;
       align-items: center;
@@ -328,7 +326,6 @@
       fill: currentColor;
     }
 
-    /* BARRA DE VOLUMEN CON DESLIZADOR Y BOLITA VISIBLE */
     .volume-container {
       display: flex;
       align-items: center;
@@ -365,27 +362,6 @@
       transition: transform 0.15s ease;
     }
 
-    .volume-slider::-webkit-slider-thumb:hover {
-      transform: scale(1.2);
-      background: #fff;
-    }
-
-    .volume-slider::-moz-range-thumb {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--purple-accent);
-      border: 2px solid #fff;
-      box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
-      cursor: pointer;
-      transition: transform 0.15s ease;
-    }
-
-    .volume-slider::-moz-range-thumb:hover {
-      transform: scale(1.2);
-      background: #fff;
-    }
-
     .time-display {
       font-size: 13px;
       font-weight: 500;
@@ -411,9 +387,7 @@
       z-index: 50;
     }
 
-    .settings-menu.active {
-      display: flex;
-    }
+    .settings-menu.active { display: flex; }
 
     .settings-item {
       padding: 10px 16px;
@@ -426,23 +400,15 @@
       color: #fff;
     }
 
-    .settings-item:hover {
-      background: rgba(157, 78, 221, 0.3);
-    }
+    .settings-item:hover { background: rgba(157, 78, 221, 0.3); }
 
     .settings-item .val {
       color: var(--purple-accent);
       font-weight: 600;
     }
 
-    .submenu {
-      display: none;
-      flex-direction: column;
-    }
-
-    .submenu.active {
-      display: flex;
-    }
+    .submenu { display: none; flex-direction: column; }
+    .submenu.active { display: flex; }
 
     .submenu-header {
       padding: 8px 16px;
@@ -473,9 +439,7 @@
     /* ONDAS ADELANTAR / ATRASAR */
     .ripple-feedback {
       position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 40%;
+      top: 0; bottom: 0; width: 40%;
       background: rgba(157, 78, 221, 0.25);
       display: flex;
       flex-direction: column;
@@ -490,21 +454,11 @@
       z-index: 15;
     }
 
-    .ripple-feedback.left {
-      left: 0;
-      border-radius: 0 100% 100% 0 / 0 50% 50% 0;
-    }
-
-    .ripple-feedback.right {
-      right: 0;
-      border-radius: 100% 0 0 100% / 50% 0 0 50%;
-    }
+    .ripple-feedback.left { left: 0; border-radius: 0 100% 100% 0 / 0 50% 50% 0; }
+    .ripple-feedback.right { right: 0; border-radius: 100% 0 0 100% / 50% 0 0 50%; }
 
     .ripple-feedback svg {
-      width: 36px;
-      height: 36px;
-      fill: #fff;
-      margin-bottom: 4px;
+      width: 36px; height: 36px; fill: #fff; margin-bottom: 4px;
     }
 
     .ripple-feedback.show {
@@ -518,7 +472,7 @@
       100% { transform: scale(1); }
     }
 
-    /* NOTIFICACIONES TOAST */
+    /* TOAST NOTIFICACION */
     .toast-msg {
       position: absolute;
       top: 20px;
@@ -538,20 +492,18 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.6);
     }
 
-    .toast-msg.show {
-      opacity: 1;
-    }
+    .toast-msg.show { opacity: 1; }
   </style>
 </head>
 <body>
 
-  <!-- BARRA DE ENLACES SUPERIOR (.MP4 Y .M3U8) -->
+  <!-- BARRA DE ENLACES SUPERIOR -->
   <div class="url-bar-container">
     <label for="urlInput">
       <svg viewBox="0 0 24 24" style="width:18px; height:18px; fill:currentColor;"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
       Enlace Video:
     </label>
-    <input type="text" id="urlInput" class="url-input" placeholder="Pega aquí tu enlace .mp4 o .m3u8..." />
+    <input type="text" id="urlInput" class="url-input" placeholder="Pega aquí tu enlace de Kingred, Tapecontent o MP4..." />
     <button id="btnLoad" class="btn-load">
       <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:currentColor;"><path d="M8 5v14l11-7z"/></svg>
       Cargar
@@ -561,7 +513,6 @@
   <!-- REPRODUCTOR -->
   <div class="player-container" id="playerContainer">
     
-    <!-- SIN ATRIBUTO POSTER / SIN IMAGEN DE PORTADA -->
     <video id="mainVideo" preload="metadata" playsinline></video>
 
     <!-- ONDAS ADELANTAR / ATRASAR -->
@@ -643,7 +594,6 @@
               <svg id="iconPause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
             </button>
 
-            <!-- BARRA DE VOLUMEN CON DESLIZADOR Y BOLITA VISIBLE -->
             <div class="volume-container">
               <button class="icon-btn" id="btnMute" title="Silenciar">
                 <svg id="iconVolHigh" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
@@ -670,4 +620,17 @@
             </button>
 
             <button class="icon-btn" id="btnSettings" title="Configuración">
-              <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.6
+              <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+            </button>
+
+            <button class="icon-btn" id="btnPip" title="Picture-in-Picture">
+              <svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V5c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 0H3V5h18v14z"/></svg>
+            </button>
+
+            <button class="icon-btn" id="btnFullscreen" title="Pantalla completa">
+              <svg id="iconFS" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+              <svg id="iconExitFS" viewBox="0 0 24 24" style="display:none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
+            </button>
+
+          </div>
+          
