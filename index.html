@@ -3,22 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VLC Purple Player & Loader</title>
-  
-  <!-- Video.js CSS Core -->
+  <title>Reproductor Púrpura</title>
+
+  <!-- Video.js Base CSS -->
   <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
   
-  <!-- Google Cast SDK -->
+  <!-- FontAwesome Iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Google Cast SDK (Transmitir) -->
   <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 
   <style>
     :root {
-      --vlc-purple: #8a2be2;
-      --vlc-purple-dark: #5a189a;
-      --vlc-purple-glow: rgba(138, 43, 226, 0.4);
-      --vlc-bg: #0d0d11;
-      --vlc-toolbar-bg: #14121c;
-      --vlc-text: #e0e0e0;
+      --purple-main: #9d4edd;
+      --purple-accent: #c77dff;
+      --purple-dark: #240046;
+      --purple-bg: #10002b;
+      --purple-card: #1e0036;
+      --text-light: #f7f0f5;
     }
 
     * {
@@ -30,426 +33,398 @@
     html, body {
       width: 100%;
       height: 100%;
-      background-color: var(--vlc-bg);
-      display: flex;
-      flex-direction: column; /* Para apilar barra superior y reproductor */
-      overflow: hidden;
+      background-color: var(--purple-bg);
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      color: var(--vlc-text);
+      color: var(--text-light);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
-    /* --- BARRA DE CARGA SUPERIOR --- */
-    .url-loader-bar {
+    /* BARRA SUPERIOR PARA CUALQUIER LINK (.mp4 / .m3u8) */
+    .url-bar-container {
       width: 100%;
-      height: 60px;
-      background-color: var(--vlc-toolbar-bg);
-      border-bottom: 1px solid var(--vlc-purple-dark);
+      height: 56px;
+      background: var(--purple-card);
+      border-bottom: 1px solid var(--purple-dark);
       display: flex;
       align-items: center;
-      padding: 0 20px;
+      padding: 0 16px;
+      gap: 10px;
       z-index: 100;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
 
-    .loader-label {
+    .url-bar-container label {
       font-size: 14px;
-      font-weight: bold;
-      margin-right: 15px;
-      color: var(--vlc-purple);
+      font-weight: 600;
+      color: var(--purple-accent);
       white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .url-input {
       flex-grow: 1;
-      height: 36px;
-      background-color: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(138, 43, 226, 0.3);
-      border-radius: 6px;
-      padding: 0 12px;
+      height: 38px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(199, 125, 255, 0.25);
+      border-radius: 8px;
+      padding: 0 14px;
       color: #fff;
       font-size: 13px;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      outline: none;
+      transition: all 0.2s ease;
     }
 
     .url-input:focus {
-      outline: none;
-      border-color: var(--vlc-purple);
-      box-shadow: 0 0 10px var(--vlc-purple-glow);
+      border-color: var(--purple-main);
+      box-shadow: 0 0 12px rgba(157, 78, 221, 0.4);
+      background: rgba(255, 255, 255, 0.12);
     }
 
-    .load-btn {
-      height: 36px;
-      padding: 0 20px;
-      background-color: var(--vlc-purple-dark);
-      border: 1px solid var(--vlc-purple);
-      border-radius: 6px;
+    .btn-load {
+      height: 38px;
+      padding: 0 18px;
+      background: linear-gradient(135deg, var(--purple-main), var(--purple-dark));
+      border: 1px solid var(--purple-accent);
+      border-radius: 8px;
       color: #fff;
       font-size: 13px;
-      font-weight: bold;
+      font-weight: 600;
       cursor: pointer;
-      margin-left: 10px;
-      transition: background-color 0.2s ease, transform 0.1s ease;
-      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
     }
 
-    .load-btn:hover {
-      background-color: var(--vlc-purple);
-      box-shadow: 0 0 15px var(--vlc-purple-glow);
+    .btn-load:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 15px rgba(199, 125, 255, 0.5);
     }
 
-    .load-btn:active {
-      transform: scale(0.97);
-    }
-
-    /* --- CONTENEDOR DEL REPRODUCTOR --- */
-    .player-container {
-      flex-grow: 1; /* Ocupa todo el espacio restante */
+    /* CONTENEDOR DEL REPRODUCTOR */
+    .player-area {
+      flex-grow: 1;
       width: 100%;
+      position: relative;
+      background-color: #000;
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
     }
 
-    .player-wrapper {
-      width: 100%;
-      height: 100%;
-      position: relative;
-    }
-
-    /* --- ESTILOS VLC PURPLE (Video.js) --- */
     .video-js {
-      width: 100%;
-      height: 100%;
+      width: 100% !important;
+      height: 100% !important;
       font-family: inherit;
     }
 
-    .vjs-theme-vlc {
-      color: var(--vlc-text);
+    /* ESTILIZACIÓN PÚRPURA DE VIDEO.JS */
+    .video-js .vjs-control-bar {
+      background: linear-gradient(0deg, rgba(16, 0, 43, 0.95) 0%, rgba(16, 0, 43, 0.6) 70%, transparent 100%) !important;
+      height: 52px !important;
+      padding: 0 8px;
     }
 
-    /* Barra de control inferior */
-    .vjs-theme-vlc .vjs-control-bar {
-      background: linear-gradient(180deg, transparent 0%, rgba(13, 13, 17, 0.95) 100%);
-      height: 48px;
-      padding: 0 10px;
+    .video-js .vjs-button {
+      color: var(--text-light) !important;
+      transition: color 0.2s ease, transform 0.1s ease;
     }
 
-    .vjs-theme-vlc .vjs-button:hover {
-      color: #fff;
-      text-shadow: 0 0 10px var(--vlc-purple);
+    .video-js .vjs-button:hover {
+      color: var(--purple-accent) !important;
+      text-shadow: 0 0 8px var(--purple-main);
     }
 
-    /* Botón gigante central */
-    .vjs-theme-vlc .vjs-big-play-button {
-      background-color: rgba(90, 24, 154, 0.8) !important;
-      border: 2px solid var(--vlc-purple) !important;
+    /* Botón central Play personalizado con Poster */
+    .video-js .vjs-big-play-button {
+      background: linear-gradient(135deg, rgba(157, 78, 221, 0.85), rgba(36, 0, 70, 0.85)) !important;
+      border: 2px solid var(--purple-accent) !important;
       border-radius: 50% !important;
-      width: 70px !important;
-      height: 70px !important;
-      line-height: 66px !important;
-      margin-left: -35px !important;
-      margin-top: -35px !important;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 0 20px var(--vlc-purple-glow);
+      width: 80px !important;
+      height: 80px !important;
+      line-height: 76px !important;
+      margin-left: -40px !important;
+      margin-top: -40px !important;
+      box-shadow: 0 0 25px rgba(157, 78, 221, 0.6) !important;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
     }
 
-    .vjs-theme-vlc:hover .vjs-big-play-button {
-      transform: scale(1.1);
-      background-color: var(--vlc-purple) !important;
-      box-shadow: 0 0 30px rgba(138, 43, 226, 0.8);
+    .video-js:hover .vjs-big-play-button {
+      transform: scale(1.15);
+      background: linear-gradient(135deg, var(--purple-main), var(--purple-dark)) !important;
+      box-shadow: 0 0 40px rgba(199, 125, 255, 0.9) !important;
     }
 
-    /* Línea de tiempo / Progreso */
-    .vjs-theme-vlc .vjs-play-progress {
-      background-color: var(--vlc-purple) !important;
-      box-shadow: 0 0 10px var(--vlc-purple);
+    /* Barra de progreso púrpura */
+    .video-js .vjs-play-progress {
+      background-color: var(--purple-accent) !important;
+      box-shadow: 0 0 10px var(--purple-main);
     }
 
-    .vjs-theme-vlc .vjs-slider {
-      background-color: rgba(255, 255, 255, 0.2);
-      border-radius: 3px;
+    .video-js .vjs-load-progress {
+      background: rgba(255, 255, 255, 0.2) !important;
     }
 
-    .vjs-theme-vlc .vjs-load-progress {
-      background-color: rgba(255, 255, 255, 0.3);
+    .video-js .vjs-slider {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+      border-radius: 4px;
     }
 
-    /* Botones personalizados de la barra de control */
-    .vjs-vlc-btn {
+    /* Menús de velocidad y calidad */
+    .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
+      background-color: var(--purple-card) !important;
+      border: 1px solid var(--purple-main);
+      border-radius: 8px;
+      padding: 6px 0;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+
+    .video-js .vjs-menu-item {
+      color: var(--text-light) !important;
       font-size: 13px !important;
-      font-weight: bold;
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
     }
 
-    /* Menús Flotantes (Velocidad, etc.) */
-    .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
-      background-color: rgba(20, 18, 28, 0.95) !important;
-      border: 1px solid var(--vlc-purple);
-      border-radius: 6px;
-      padding: 5px 0;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.8);
-    }
-
-    .vjs-menu-item {
-      font-size: 13px;
-      padding: 6px 15px !important;
-    }
-
-    .vjs-menu-item.vjs-selected, .vjs-menu-item:hover {
-      background-color: var(--vlc-purple) !important;
+    .video-js .vjs-menu-item.vjs-selected, 
+    .video-js .vjs-menu-item:hover {
+      background-color: var(--purple-main) !important;
       color: #fff !important;
     }
 
-    /* Indicador Doble Clic/Toque en pantalla */
-    .seek-feedback {
+    /* ANIMACIÓN FLOTANTE (+10s / -10s) */
+    .tap-feedback {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(138, 43, 226, 0.85);
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: rgba(157, 78, 221, 0.7);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       color: #fff;
-      padding: 12px 24px;
-      border-radius: 30px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: bold;
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.2s ease, transform 0.2s ease;
-      z-index: 10;
-      box-shadow: 0 0 15px var(--vlc-purple-glow);
+      z-index: 20;
+      box-shadow: 0 0 20px rgba(199, 125, 255, 0.6);
     }
 
-    .seek-feedback.left { left: 10%; }
-    .seek-feedback.right { right: 10%; }
-    .seek-feedback.show { opacity: 1; transform: translateY(-50%) scale(1.05); }
+    .tap-feedback i {
+      font-size: 20px;
+      margin-bottom: 2px;
+    }
 
-    /* Notificaciones Flotantes (Toast) */
-    .toast-msg {
+    .tap-feedback.left { left: 15%; }
+    .tap-feedback.right { right: 15%; }
+
+    .tap-feedback.show {
+      opacity: 1;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    /* NOTIFICACIÓN TOAST */
+    .toast-alert {
       position: absolute;
       top: 20px;
       right: 20px;
-      background: rgba(20, 18, 28, 0.9);
-      border: 1px solid var(--vlc-purple);
+      background: var(--purple-card);
+      border: 1px solid var(--purple-accent);
       color: #fff;
       padding: 10px 18px;
       border-radius: 8px;
       font-size: 13px;
-      z-index: 150;
+      z-index: 120;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
-    .toast-msg.show { opacity: 1; }
+    .toast-alert.show { opacity: 1; }
+
+    /* BOTÓN DEDICADO TRANSMITIR Y COMPARTIR */
+    .vjs-custom-icon {
+      cursor: pointer;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px !important;
+    }
   </style>
 </head>
 <body>
 
-  <!-- 1. BARRA DE HERRAMIENTAS SUPERIOR -->
-  <div class="url-loader-bar">
-    <span class="loader-label">VLC LOADER:</span>
-    <input type="text" id="urlInput" class="url-input" placeholder="Pega tu enlace .mp4 o .m3u8 aquí..." />
-    <button id="loadBtn" class="load-btn">REPRODUCIR</button>
+  <!-- BARRA DE ENLACES SUPERA (.MP4 Y .M3U8) -->
+  <div class="url-bar-container">
+    <label for="urlInput"><i class="fa-solid fa-link"></i> URL Video:</label>
+    <input type="text" id="urlInput" class="url-input" placeholder="Pega el enlace .mp4 o .m3u8 aquí..." />
+    <button id="btnLoad" class="btn-load"><i class="fa-solid fa-play"></i> Cargar</button>
   </div>
 
-  <!-- 2. CONTENEDOR DEL REPRODUCTOR -->
-  <div class="player-container">
-    <div class="player-wrapper" id="playerWrapper">
-      <!-- Elementos visuales de feedback -->
-      <div class="seek-feedback left" id="feedbackLeft">⏮ -10s</div>
-      <div class="seek-feedback right" id="feedbackRight">+10s ⏭</div>
-      <div class="toast-msg" id="toastMsg">Enlace cargado</div>
-
-      <!-- Etiqueta de Video Genérica -->
-      <video 
-        id="vlcPlayer" 
-        class="video-js vjs-theme-vlc vjs-big-play-centered" 
-        controls 
-        preload="metadata" 
-        playsinline>
-      </video>
+  <!-- ZONA DEL REPRODUCTOR -->
+  <div class="player-area" id="playerArea">
+    <div class="tap-feedback left" id="feedbackRewind">
+      <i class="fa-solid fa-rotate-left"></i>
+      <span>-10s</span>
     </div>
+    <div class="tap-feedback right" id="feedbackForward">
+      <i class="fa-solid fa-rotate-right"></i>
+      <span>+10s</span>
+    </div>
+    <div class="toast-alert" id="toastAlert">¡Mensaje!</div>
+
+    <!-- VIDEO REPRODUCTOR (NO AUTOPLAY + PORTADA CONFIGURABLE) -->
+    <video 
+      id="purplePlayer" 
+      class="video-js vjs-big-play-centered" 
+      controls 
+      preload="metadata" 
+      playsinline
+      poster="https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80">
+      
+      <!-- CAMBIA AQUÍ EL LINK DE TU VIDEO DEFAULT -->
+      <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+    </video>
   </div>
 
-  <!-- Video.js JS Core -->
-  <script src="https://vjs.zencdn.net/8.10.0/video.js"></script>
+  <!-- VIDEO.JS + HLS / QUALITY PLUGIN -->
+  <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/videojs-contrib-quality-levels@4.0.0/dist/videojs-contrib-quality-levels.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/videojs-hls-quality-selector@2.0.0/dist/videojs-hls-quality-selector.min.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Elementos del DOM
-      const wrapper = document.getElementById('playerWrapper');
-      const toast = document.getElementById('toastMsg');
-      const feedbackLeft = document.getElementById('feedbackLeft');
-      const feedbackRight = document.getElementById('feedbackRight');
+      const playerArea = document.getElementById('playerArea');
+      const toast = document.getElementById('toastAlert');
+      const feedbackRewind = document.getElementById('feedbackRewind');
+      const feedbackForward = document.getElementById('feedbackForward');
       const urlInput = document.getElementById('urlInput');
-      const loadBtn = document.getElementById('loadBtn');
+      const btnLoad = document.getElementById('btnLoad');
 
-      // Función para mostrar notificaciones
-      function showToast(text, duration = 2000) {
+      function showToast(text) {
         toast.textContent = text;
         toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), duration);
+        setTimeout(() => toast.classList.remove('show'), 2200);
       }
 
-      // --- INICIALIZACIÓN DEL REPRODUCTOR ---
-      const player = videojs('vlcPlayer', {
-        playbackRates: [0.5, 0.75, 1, 1.25, 1.5, 2],
+      // Inicializar Video.js
+      const player = videojs('purplePlayer', {
+        autoplay: false, // Requisito 3: No inicia automáticamente
+        playbackRates: [0.5, 0.75, 1, 1.25, 1.5, 2], // Requisito 9: Velocidades
         responsive: true,
-        fluid: false, // Usamos flexbox para el tamaño
+        fluid: false,
         controlBar: {
           children: [
-            'playToggle',
-            'volumePanel',
+            'playToggle', // Requisito 12: Play/Pause con ícono
+            'volumePanel', // Requisito 6: Volumen y Mute con ícono
             'currentTimeDisplay',
             'timeDivider',
             'durationDisplay',
             'progressControl',
-            'playbackRateMenuButton',
-            'pictureInPictureToggle',
-            'fullscreenToggle'
+            'playbackRateMenuButton', // Requisito 9: Selector de velocidad
+            'pictureInPictureToggle', // Requisito 8: PiP
+            'fullscreenToggle' // Requisito 7: Maximizar
           ]
         }
       });
 
-      // --- LÓGICA DE CARGA DE VIDEO EXTERNO ---
-      function loadVideoFromInput() {
-        const url = urlInput.value.trim();
-        
-        if (!url) {
-          showToast("⚠️ Por favor, pega un enlace válido.");
-          return;
-        }
-
-        // Determinar el tipo de contenido basándose en la extensión
-        let type = 'video/mp4'; // Por defecto MP4
-        
-        if (url.toLowerCase().includes('.m3u8')) {
-          type = 'application/x-mpegURL'; // HLS (m3u8)
-        } else if (url.toLowerCase().includes('.mp4')) {
-          type = 'video/mp4';
-        } else if (url.toLowerCase().includes('.webm')) {
-          type = 'video/webm';
-        } else if (url.toLowerCase().includes('.ogv')) {
-          type = 'video/ogg';
-        } else {
-          // Si no tiene extensión conocida, intentamos cargarla como MP4 y mostramos aviso
-          showToast("ℹ️ Intentando cargar como video genérico...", 3000);
-        }
-
-        // Cargar la nueva fuente en el reproductor
-        player.src({ src: url, type: type });
-        
-        // Intentar reproducir automáticamente
-        player.ready(() => {
-          player.play().catch(error => {
-            console.log("Autoplay bloqueado por el navegador, requiere interacción del usuario.");
-            showToast("▶️ Video cargado. Presiona Play.");
-          });
-          showToast("✅ Video cargado con éxito.");
-        });
+      // Plugin de selector de calidad para HLS (.m3u8)
+      if (typeof player.hlsQualitySelector === 'function') {
+        player.hlsQualitySelector({ displayCurrentQuality: true }); // Requisito 10
       }
 
-      // Eventos de la barra de carga
-      loadBtn.addEventListener('click', loadVideoFromInput);
-      
-      // Permitir cargar presionando 'Enter' en el input
-      urlInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          loadVideoFromInput();
+      // Requisito 5: Cargar links .mp4 y .m3u8
+      function loadSource(url) {
+        if (!url) return;
+        let mimeType = 'video/mp4';
+        if (url.toLowerCase().includes('.m3u8')) {
+          mimeType = 'application/x-mpegURL';
         }
+        player.src({ src: url, type: mimeType });
+        player.play().catch(() => {});
+        showToast("Cargando video...");
+      }
+
+      btnLoad.addEventListener('click', () => loadSource(urlInput.value.trim()));
+      urlInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') loadSource(urlInput.value.trim());
       });
 
-
-      // --- CONTROLES PERSONALIZADOS VLC ---
       player.ready(() => {
         const controlBar = player.controlBar;
 
-        // Botón: Adelantar 10s
-        const forwardBtn = document.createElement('button');
-        forwardBtn.className = 'vjs-control vjs-button vjs-vlc-btn';
-        forwardBtn.innerHTML = '<span>+10s</span>';
-        forwardBtn.title = 'Adelantar 10 segundos';
-        forwardBtn.onclick = () => {
-          player.currentTime(player.currentTime() + 10);
-          showFeedback(feedbackRight);
-        };
-        controlBar.el().insertBefore(forwardBtn, controlBar.playToggle.el().nextSibling);
-
-        // Botón: Retroceder 10s
-        const rewindBtn = document.createElement('button');
-        rewindBtn.className = 'vjs-control vjs-button vjs-vlc-btn';
-        rewindBtn.innerHTML = '<span>-10s</span>';
-        rewindBtn.title = 'Retroceder 10 segundos';
-        rewindBtn.onclick = () => {
-          player.currentTime(player.currentTime() - 10);
-          showFeedback(feedbackLeft);
-        };
-        controlBar.el().insertBefore(rewindBtn, controlBar.playToggle.el());
-
-        // Botón: Copiar Link Actual
-        const copyBtn = document.createElement('button');
-        copyBtn.className = 'vjs-control vjs-button vjs-vlc-btn';
-        copyBtn.innerHTML = '🔗';
-        copyBtn.title = 'Copiar enlace del video actual';
-        copyBtn.onclick = () => {
-          const currentSrc = player.currentSrc();
-          if (currentSrc) {
-            navigator.clipboard.writeText(currentSrc).then(() => {
-              showToast("¡Enlace copiado al portapapeles!");
-            });
+        // Requisito 4: Botón de Transmitir (Chromecast)
+        const castBtn = document.createElement('button');
+        castBtn.className = 'vjs-control vjs-button vjs-custom-icon';
+        castBtn.innerHTML = '<i class="fa-solid fa-tv"></i>';
+        castBtn.title = "Transmitir pantalla";
+        castBtn.onclick = () => {
+          if (window.chrome && window.chrome.cast) {
+            const sessionRequest = new chrome.cast.SessionRequest(chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID);
+            chrome.cast.requestSession((session) => {
+              const currentSrc = player.currentSrc();
+              const mediaInfo = new chrome.cast.media.MediaInfo(currentSrc, 'video/mp4');
+              const request = new chrome.cast.media.LoadRequest(mediaInfo);
+              session.loadMedia(request);
+            }, (err) => console.log('Error Cast:', err));
           } else {
-            showToast("❌ No hay video cargado.");
+            showToast("Transmitir no soportado en este navegador");
           }
         };
-        controlBar.el().insertBefore(copyBtn, controlBar.fullscreenToggle.el());
+        controlBar.el().insertBefore(castBtn, controlBar.fullscreenToggle.el());
+
+        // Requisito 11: Botón para copiar/compartir el enlace
+        const shareBtn = document.createElement('button');
+        shareBtn.className = 'vjs-control vjs-button vjs-custom-icon';
+        shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i>';
+        shareBtn.title = "Copiar enlace del video";
+        shareBtn.onclick = () => {
+          const currentSrc = player.currentSrc() || window.location.href;
+          navigator.clipboard.writeText(currentSrc);
+          showToast("¡Enlace copiado al portapapeles!");
+        };
+        controlBar.el().insertBefore(shareBtn, castBtn);
       });
 
-
-      // --- GESTOS Y FEEDBACK ---
+      // Requisito 2: Doble clic/tap (Adelantar / Atrasar 10s)
       let lastTap = 0;
-
-      function showFeedback(element) {
-        element.classList.add('show');
-        setTimeout(() => element.classList.remove('show'), 500);
+      function triggerFeedback(elem) {
+        elem.classList.add('show');
+        setTimeout(() => elem.classList.remove('show'), 400);
       }
 
-      // Doble Clic / Doble Toque en la pantalla del video
-      wrapper.addEventListener('click', (e) => {
-        // Ignorar si se hace clic en la barra de controles inferior
-        if (e.target.closest('.vjs-control-bar')) return;
+      playerArea.addEventListener('click', (e) => {
+        // Ignorar clics dentro de la barra de controles
+        if (e.target.closest('.vjs-control-bar') || e.target.closest('.url-bar-container')) return;
 
-        const currentTime = new Date().getTime();
-        const tapLength = currentTime - lastTap;
+        const now = new Date().getTime();
+        const timespan = now - lastTap;
 
-        if (tapLength < 300 && tapLength > 0) {
-          const rect = wrapper.getBoundingClientRect();
+        if (timespan < 300 && timespan > 0) {
+          const rect = playerArea.getBoundingClientRect();
           const clickX = e.clientX - rect.left;
-          const percentage = (clickX / rect.width) * 100;
+          const ratio = clickX / rect.width;
 
-          // Zonas de salto (35% izquierda = retroceder, 65% derecha = adelantar)
-          if (percentage <= 35) {
-            player.currentTime(player.currentTime() - 10);
-            showFeedback(feedbackLeft);
-          } else if (percentage >= 65) {
-            player.currentTime(player.currentTime() + 10);
-            showFeedback(feedbackRight);
+          if (ratio < 0.4) {
+            // Lado izquierdo: -10s
+            player.currentTime(Math.max(0, player.currentTime() - 10));
+            triggerFeedback(feedbackRewind);
+          } else if (ratio > 0.6) {
+            // Lado derecho: +10s
+            player.currentTime(Math.min(player.duration() || 0, player.currentTime() + 10));
+            triggerFeedback(feedbackForward);
           }
         }
-        lastTap = currentTime;
+        lastTap = now;
       });
-
-
-      // --- GOOGLE CAST (Chromecast) ---
-      window.__onGCastApiAvailable = function(isAvailable) {
-        if (isAvailable) {
-          cast.framework.CastContext.getInstance().setOptions({
-            receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
-            autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-          });
-        }
-      };
     });
   </script>
 </body>
