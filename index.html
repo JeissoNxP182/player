@@ -2,57 +2,341 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Mi Videoteca</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de Películas - JeissoNxP182</title>
   <style>
-    body { background: #0f0f12; color: white; font-family: sans-serif; padding: 20px; }
-    h1 { text-align: center; color: #a855f7; margin-bottom: 30px; }
-    
-    /* Estilo para las "Carpetas" */
-    details {
-      background: #1a1a24;
-      margin-bottom: 10px;
-      padding: 15px;
-      border-radius: 8px;
-      border: 1px solid #333;
+    :root {
+      --purple-main: #a855f7;
+      --purple-dark: #3b0764;
+      --purple-deep: #0f031c;
+      --silver-gradient: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 50%, #cbd5e1 100%);
+      --text-color: #f8fafc;
     }
-    summary { font-weight: bold; cursor: pointer; font-size: 1.2em; outline: none; }
-    
-    /* Lista de películas */
-    ul { list-style: none; padding: 10px 0 0 20px; }
-    li { margin: 10px 0; }
-    a { color: #d1d5db; text-decoration: none; font-size: 1.1em; transition: 0.3s; }
-    a:hover { color: #a855f7; padding-left: 5px; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--purple-deep);
+      color: var(--text-color);
+      min-height: 100vh;
+      padding: 20px 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      margin-top: 10px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      background: var(--silver-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    p.subtitle {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ESTILO DE LAS CARPETAS (SAGAS) */
+    details.folder {
+      background: rgba(30, 9, 56, 0.4);
+      border: 1px solid rgba(168, 85, 247, 0.25);
+      border-radius: 14px;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    details.folder[open] {
+      border-color: var(--purple-main);
+      box-shadow: 0 4px 25px rgba(168, 85, 247, 0.15);
+    }
+
+    summary.folder-title {
+      padding: 16px 20px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #e2e8f0;
+      background: rgba(20, 3, 38, 0.6);
+      user-select: none;
+    }
+
+    summary.folder-title::-webkit-details-marker {
+      display: none;
+    }
+
+    .folder-icon {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .arrow-icon {
+      transition: transform 0.25s ease;
+      fill: var(--purple-main);
+    }
+
+    details[open] .arrow-icon {
+      transform: rotate(180deg);
+    }
+
+    /* CUADRÍCULA DE PÓSTERS (GRID) */
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 16px;
+      padding: 18px;
+    }
+
+    /* TARJETA DE CADA PELÍCULA */
+    .movie-card {
+      position: relative;
+      background: rgba(20, 3, 38, 0.8);
+      border-radius: 10px;
+      overflow: hidden;
+      text-decoration: none;
+      color: #f8fafc;
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-6px) scale(1.03);
+      border-color: var(--purple-main);
+      box-shadow: 0 10px 25px rgba(168, 85, 247, 0.35);
+    }
+
+    /* CONTENEDOR DEL PÓSTER (RELACIÓN 2:3) */
+    .poster-wrapper {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+      background: #17072b;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .poster-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .movie-card:hover .poster-wrapper img {
+      transform: scale(1.05);
+    }
+
+    /* SILUETA/ICONO SI NO HAY IMAGEN */
+    .no-poster {
+      font-size: 32px;
+      opacity: 0.4;
+    }
+
+    /* TÍTULO DE LA PELÍCULA BAJO EL PÓSTER */
+    .card-info {
+      padding: 10px 8px;
+      background: rgba(15, 3, 28, 0.95);
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.3;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
   </style>
 </head>
 <body>
 
-  <h1>🎬 Mi Colección</h1>
+  <header>
+    <h1>Colección de Películas</h1>
+    <p class="subtitle">JeissoNxP182</p>
+  </header>
 
-  <!-- Aquí empiezas a crear tus carpetas (Sagas) -->
-  
-  <details>
-    <summary>📁 VHS - (Saga)</summary>
-    <ul>
-      <!-- Solo cambia href con el nombre exacto de tu archivo existente -->
-      <li><a href="vhs-1.html">V/H/S: Las cronicas del miedo</a></li>
-      <li><a href="vhs-2.html">V/H/S/2: Las cronicas del miedo 2</a></li>
-      <li><a href="vhs-viral.html">V/H/S: Viral</a></li>
-      <li><a href="vhs-94.html">V/H/S/94</a></li>
-      <li><a href="vhs-99.html">V/H/S/99</a></li>
-      <li><a href="vhs-85.html">V/H/S/85</a></li>
-      <li><a href="vhs-beyond.html">V/H/S: Beyond</a></li>
-      <li><a href="vhs-halloween.html">V/H/S: Halloween</a></li>
-      <li><a href="siren.html">Siren</a></li>
-    </ul>
-  </details>
+  <div class="container">
 
-  <details>
-    <summary>📁 REC - (Saga)</summary>
-    <ul>
-      <li><a href="otra-pelicula.html">Nombre de la película</a></li>
-    </ul>
-  </details>
+    <!-- ========================================================
+         CARPETA 1: SAGA VHS
+         ======================================================== -->
+    <details class="folder" open>
+      <summary class="folder-title">
+        <div class="folder-icon">
+          📁 <span>VHS - Saga</span>
+        </div>
+        <svg class="arrow-icon" width="20" height="20" viewBox="0 0 24 24">
+          <path d="M7 10l5 5 5-5z"/>
+        </svg>
+      </summary>
+
+      <div class="movie-grid">
+
+        <!-- Película 1 -->
+        <a href="vhs-1.html" class="movie-card">
+          <div class="poster-wrapper">
+            <!-- Pónle el enlace de la imagen de la carátula en 'src' -->
+            <!-- Si no tienes imagen aún, deja src="" y se verá el icono 🎬 -->
+            <img src="https://m.media-amazon.com/images/S/pv-target-images/2b1354e4eb010e86e07d4536dfa06322d07dfe41e38e51427b16a0387732467f.png" alt="V/H/S: Las cronicas del miedo" onerror="this.style.display='none'">
+            <span class="no-poster">🎬</span>
+          </div>
+          <div class="card-info">
+            <span>V/H/S: Las crónicas del miedo</span>
+          </div>
+        </a>
+
+        <!-- Película 2 -->
+        <a href="vhs-2.html" class="movie-card">
+          <div class="poster-wrapper">
+            <img src="https://m.media-amazon.com/images/S/pv-target-images/ae005f4cb1bd8f3942953d204b36a8c03bec056cf53cfbb57b465fc9184988c0.jpg" alt="V/H/S/2: Las cronicas del miedo 2" onerror="this.style.display='none'">
+            <span class="no-poster">🎬</span>
+          </div>
+          <div class="card-info">
+            <span>V/H/S/2: Las crónicas del miedo 2</span>
+          </div>
+        </a>
+
+        <!-- Película 3 -->
+        <a href="vhs-viral.html" class="movie-card">
+          <div class="poster-wrapper">
+            <img src="https://m.media-amazon.com/images/S/pv-target-images/ba228ce2dc0c710fa832289653a46eaf8cc92432b31133a8de92c90f79af7378.jpg" alt="V/H/S: Viral" onerror="this.style.display='none'">
+            <span class="no-poster">🎬</span>
+          </div>
+          <div class="card-info">
+            <span>V/H/S: Viral</span>
+          </div>
+        </a>
+
+        <!-- Película 4 -->
+        <a href="vhs-94.html" class="movie-card">
+          <div class="poster-wrapper">
+            <img src="https://m.media-amazon.com/images/S/pv-target-images/24e6782210e30cd498f57f063fcdb7a268071632d0c1da12248f7134fb1ba04c.jpg" alt="V/H/S/94" onerror="this.style.display='none'">
+            <span class="no-poster">🎬</span>
+          </div>
+          <div class="card-info">
+            <span>V/H/S/94</span>
+          </div>
+        </a>
+
+        <!-- Película 5 -->
+        <a href="vhs-99.html" class="movie-card">
+          <div class="poster-wrapper">
+            <img src="https://m.media-amazon.com/images/S/pv-target-images/e9bad655d69329dcc93618b11d0afc79b78504c6813ed0b1c173fd3807dfee1c.jpg" alt="V/H/S/99" onerror="this.style.display='none'">
+            <span class="no-poster">🎬</span>
+          </div>
+          <div class="card-info">
+            <span>V/H/S/99</span>
+          </div>
+        </a>
+
+        <!-- Película 6 -->
+        <a href="vhs-85.html" class="movie-card">
+          <div class="poster-wrapper">
+            <img src="https://m.media-amazon.com/images/S/pv-target-images/5899ccdbd4b46dad0902e54dd94688d7fdebf3f9bbb77a31c3c7f32ce308e5c5._UR1920,1080_CLs%7C1920,1080%7C/G/bundle/BottomRightCardGradient16x9.png,/G/01/digital/video/merch/subs/benefit-id/s-z/shuddertv/logos/channels-logo-white-stacked.png%7C0,0,1920,1080+0,0,1920,1080+1685,847,156,156_kv8175ae568b2dd42d69c41267781b6d26_SX624_FMjpg_.jpg" alt="V/H/S/85" onerror="this.style.display='none'">
+            <span class="no-poster">🎬</span>
+          </div>
+          <div class="card-info">
+            <span>V/H/S/85</span>
+          </div>
+        </a>
+
+        <!-- Película 7 -->
+        <a href="vhs-beyond.html" class="movie-card">
+          <div class="poster-wrapper">
+            <img src="https://m.media-amazon.com/images/S/pv-target-images/7da9c88098c25a94489a1b20e9d0b1679afa2d5fa3693de90f1960717907e00b.jpg" alt="V/H/S: Beyond" onerror="this.style.display='none'">
+            <span class="no-poster">🎬</span>
+          </div>
+          <div class="card-info">
+            <span>V/H/S: Beyond</span>
+          </div>
+        </a>
+
+        <!-- Película 8 -->
+        <a href="vhs-halloween.html" class="movie-card">
+          <div class="poster-wrapper">
+            <img src="https://m.media-amazon.com/images/S/pv-target-images/72d3a487a494eb3fc3b808f1a5dc173b4fa25ca04b691c445bb4913a5a232019.jpg" alt="V/H/S: Halloween" onerror="this.style.display='none'">
+            <span class="no-poster">🎬</span>
+          </div>
+          <div class="card-info">
+            <span>V/H/S: Halloween</span>
+          </div>
+        </a>
+
+        <!-- Película 9 -->
+        <a href="siren.html" class="movie-card">
+          <div class="poster-wrapper">
+            <img src="https://m.media-amazon.com/images/S/pv-target-images/fdc125dc54e903a1d8234925ca8f79b8b9827ee16ab055c3dead31d6185652e1._UR1920,1080_CLs%7C1920,1080%7C/G/bundle/BottomRightCardGradient16x9.png,/G/01/digital/video/merch/subs/benefit-id/g-l/indiepix/logos/channels-logo-white.png%7C0,0,1920,1080+0,0,1920,1080+1480,847,361,156_kv9c279b81550f279da5fb87206676553e_SX624_FMjpg_.jpg" alt="siren" onerror="this.style.display='none'">
+            <span class="no-poster">🎬</span>
+          </div>
+          <div class="card-info">
+            <span>siren</span>
+          </div>
+        </a>
+        
+      </div>
+    </details>
+
+    <!-- ========================================================
+         CARPETA 2: OTRA COLECCIÓN
+         ======================================================== -->
+    <details class="folder">
+      <summary class="folder-title">
+        <div class="folder-icon">
+          📁 <span>Películas Clásicas</span>
+        </div>
+        <svg class="arrow-icon" width="20" height="20" viewBox="0 0 24 24">
+          <path d="M7 10l5 5 5-5z"/>
+        </svg>
+      </summary>
+
+      <div class="movie-grid">
+
+        <a href="ejemplo.html" class="movie-card">
+          <div class="poster-wrapper">
+            <img src="" alt="Clásico" onerror="this.style.display='none'">
+            <span class="no-poster">🎬</span>
+          </div>
+          <div class="card-info">
+            <span>Título de Película</span>
+          </div>
+        </a>
+
+      </div>
+    </details>
+
+  </div>
 
 </body>
 </html>
-
