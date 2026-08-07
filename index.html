@@ -3,20 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catalogo De Películas - JeissoNxP182</title>
-  
-    <!-- META ETIQUETAS OPEN GRAPH (Para vista previa en redes sociales y WhatsApp) -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Mis Peliculas - JeissoNxP182">
-  <meta property="og:description" content="Mi coleccion personal de peliculas variadas.">
-  <meta property="og:url" content="https://jeissonxp182.github.io/player/">
-  <meta property="og:image" content="https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80">
+  <title>Colección de Películas - JeissoNxP182</title>
 
-  <!-- META ETIQUETAS PARA TWITTER / X -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Mis Películas - JeissoNxP182">
-  <meta name="twitter:description" content="Mi coleccion personal de peliculas variadas.">
-  <meta name="twitter:image" content="https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80">
+  <!-- META ETIQUETAS OPEN GRAPH -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Catálogo de Películas - JeissoNxP182">
+  <meta property="og:description" content="Explora mi colección personal de películas y sagas completas.">
+  <meta property="og:url" content="https://jeissonxp182.github.io/player/">
 
   <style>
     :root {
@@ -163,7 +156,7 @@
       background: rgba(20, 3, 38, 0.8);
       border-radius: 10px;
       overflow: hidden;
-      text-decoration: none;
+      cursor: pointer;
       color: #f8fafc;
       border: 1px solid rgba(168, 85, 247, 0.2);
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -216,6 +209,126 @@
       justify-content: center;
       border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
+
+    /* ------------------------------------------- */
+    /* ESTILOS DE LA VENTANA EMERGENTE (MODAL FICHA) */
+    /* ------------------------------------------- */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      padding: 15px;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #140326;
+      border: 1px solid rgba(168, 85, 247, 0.5);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 500px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+      position: relative;
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      border: none;
+      color: #fff;
+      font-size: 20px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-poster {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      overflow: hidden;
+    }
+
+    .modal-poster img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-bottom: 8px;
+    }
+
+    .modal-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--purple-main);
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .modal-description {
+      font-size: 14px;
+      color: #cbd5e1;
+      line-height: 1.5;
+      margin-bottom: 22px;
+    }
+
+    .play-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+      color: #fff;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .play-btn:active {
+      transform: scale(0.98);
+    }
   </style>
 </head>
 <body>
@@ -233,9 +346,28 @@
     <!-- El catálogo se cargará aquí desde el JSON -->
   </div>
 
+  <!-- VENTANA EMERGENTE (MODAL) -->
+  <div class="modal-overlay" id="movieModal" onclick="closeModal(event)">
+    <div class="modal-card">
+      <button class="modal-close" onclick="forceCloseModal()">✕</button>
+      <div class="modal-poster">
+        <img id="mPoster" src="" alt="Portada">
+      </div>
+      <div class="modal-body">
+        <h2 class="modal-title" id="mTitle">Título</h2>
+        <div class="modal-meta">
+          <span id="mAno"></span>
+          <span id="mDuracion"></span>
+        </div>
+        <p class="modal-description" id="mSinopsis">Sinopsis...</p>
+        <a href="#" id="mPlayLink" class="play-btn">▶ Reproducir Película</a>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ⬇️ REEMPLAZA ÚNICAMENTE LO QUE ESTÁ ENTRE COMILLAS POR TU ENLACE RAW DE GITHUB ⬇️
-    const JSON_URL = 'https://raw.githubusercontent.com/JeissoNxP182/Peliculas/refs/heads/main/peliculas.json';
+    const JSON_URL = 'PEGA_AQUI_TU_URL_RAW';
 
     let movieData = [];
 
@@ -265,6 +397,23 @@
         detailsEl.className = 'folder';
         if (folder.abierta) detailsEl.setAttribute('open', 'true');
 
+        // Construcción de la lista de películas
+        let moviesHTML = folder.peliculas.map((movie, index) => {
+          // Escapar comillas para evitar errores en JS
+          const safeMovie = JSON.stringify(movie).replace(/'/g, "&apos;");
+          return `
+            <div class="movie-card" onclick='openModal(${safeMovie})'>
+              <div class="poster-wrapper">
+                <img src="${movie.portada}" alt="${movie.titulo}" onerror="this.style.display='none'">
+                <span class="no-poster">🎬</span>
+              </div>
+              <div class="card-info">
+                <span>${movie.titulo}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+
         detailsEl.innerHTML = `
           <summary class="folder-title">
             <div class="folder-icon">
@@ -275,17 +424,7 @@
             </svg>
           </summary>
           <div class="movie-grid">
-            ${folder.peliculas.map(movie => `
-              <a href="${movie.url}" class="movie-card">
-                <div class="poster-wrapper">
-                  <img src="${movie.portada}" alt="${movie.titulo}" onerror="this.style.display='none'">
-                  <span class="no-poster">🎬</span>
-                </div>
-                <div class="card-info">
-                  <span>${movie.titulo}</span>
-                </div>
-              </a>
-            `).join('')}
+            ${moviesHTML}
           </div>
         `;
         container.appendChild(detailsEl);
@@ -309,6 +448,28 @@
       }).filter(folder => folder.peliculas.length > 0);
 
       renderCatalog(filteredData);
+    }
+
+    // FUNCIONES PARA LA VENTANA EMERGENTE (MODAL)
+    function openModal(movie) {
+      document.getElementById('mPoster').src = movie.portada || '';
+      document.getElementById('mTitle').textContent = movie.titulo || '';
+      document.getElementById('mAno').textContent = movie.ano ? `📅 ${movie.ano}` : '';
+      document.getElementById('mDuracion').textContent = movie.duracion ? `⏱️ ${movie.duracion}` : '';
+      document.getElementById('mSinopsis').textContent = movie.sinopsis || 'Sin sinopsis disponible.';
+      document.getElementById('mPlayLink').href = movie.url || '#';
+
+      document.getElementById('movieModal').classList.add('active');
+    }
+
+    function closeModal(event) {
+      if (event.target.classList.contains('modal-overlay')) {
+        document.getElementById('movieModal').classList.remove('active');
+      }
+    }
+
+    function forceCloseModal() {
+      document.getElementById('movieModal').classList.remove('active');
     }
 
     window.onload = loadCatalog;
