@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catálogo de Películas - JeissoNxP182</title>
+  <title>Colección de Películas - JeissoNxP182</title>
   <style>
     :root {
       --purple-main: #a855f7;
@@ -34,6 +34,7 @@
       text-align: center;
       margin-bottom: 25px;
       margin-top: 10px;
+      width: 100%;
     }
 
     h1 {
@@ -49,6 +50,34 @@
     p.subtitle {
       font-size: 13px;
       color: #94a3b8;
+    }
+
+    /* BARRA DE BÚSQUEDA */
+    .search-box {
+      margin-top: 15px;
+      width: 100%;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 25px;
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      background: rgba(15, 3, 28, 0.8);
+      color: #f8fafc;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .search-box input:focus {
+      border-color: var(--purple-main);
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+      background: rgba(20, 3, 38, 0.95);
     }
 
     .container {
@@ -107,15 +136,14 @@
       transform: rotate(180deg);
     }
 
-    /* 1. CUADRÍCULA UN POCO MÁS ANCHA PARA PORTADAS HORIZONTALES */
+    /* CUADRÍCULA HORIZONTAL 16:9 */
     .movie-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Aumentamos el ancho mínimo */
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: 16px;
       padding: 18px;
     }
 
-    /* TARJETA DE CADA PELÍCULA */
     .movie-card {
       position: relative;
       background: rgba(20, 3, 38, 0.8);
@@ -135,11 +163,10 @@
       box-shadow: 0 10px 25px rgba(168, 85, 247, 0.35);
     }
 
-    /* CONTENEDOR 16:9 HORIZONTAL */
     .poster-wrapper {
       width: 100%;
       aspect-ratio: 16 / 9;
-      background: #0f031c; /* Fondo oscuro ajustado al tema */
+      background: #0f031c;
       position: relative;
       overflow: hidden;
       display: flex;
@@ -150,20 +177,18 @@
     .poster-wrapper img {
       width: 100%;
       height: 100%;
-      object-fit: contain; /* ¡Clave! Muestra la imagen ENTERA sin cortar nada */
+      object-fit: contain;
       position: relative;
-      z-index: 2; /* Pone la imagen por encima del icono para ocultarlo */
+      z-index: 2;
     }
 
-    /* SILUETA/ICONO SOLO SI NO HAY IMAGEN */
     .no-poster {
       position: absolute;
       font-size: 32px;
       opacity: 0.4;
-      z-index: 1; /* Queda detrás de la imagen */
+      z-index: 1;
     }
 
-    /* TÍTULO DE LA PELÍCULA BAJO EL PÓSTER */
     .card-info {
       padding: 10px 8px;
       background: rgba(15, 3, 28, 0.95);
@@ -182,11 +207,98 @@
 <body>
 
   <header>
-    <h1>Mis Peliculas</h1>
+    <h1>Colección de Películas</h1>
     <p class="subtitle">JeissoNxP182</p>
+    
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="🔍 Buscar película..." onkeyup="filterMovies()">
+    </div>
   </header>
 
-  <div class="container">
+  <div class="container" id="catalogContainer">
+    <!-- El catálogo se cargará aquí desde el JSON -->
+  </div>
+
+  <script>
+    // ⬇️ REEMPLAZA ÚNICAMENTE LO QUE ESTÁ ENTRE COMILLAS POR TU ENLACE RAW DE GITHUB ⬇️
+    const JSON_URL = 'PEGA_AQUI_TU_URL_RAW';
+
+    let movieData = [];
+
+    async function loadCatalog() {
+      const container = document.getElementById('catalogContainer');
+      container.innerHTML = '<p style="text-align:center; opacity:0.5; margin-top:20px;">Cargando catálogo...</p>';
+
+      try {
+        const response = await fetch(JSON_URL);
+        if (!response.ok) throw new Error('Error al cargar JSON');
+        movieData = await response.json();
+        renderCatalog(movieData);
+      } catch (error) {
+        console.error(error);
+        container.innerHTML = `<p style="text-align:center; color:#ef4444; margin-top:20px;">Error al cargar el catálogo. Verifica la dirección JSON_URL.</p>`;
+      }
+    }
+
+    function renderCatalog(data) {
+      const container = document.getElementById('catalogContainer');
+      container.innerHTML = '';
+
+      data.forEach(folder => {
+        if (!folder.peliculas || folder.peliculas.length === 0) return;
+
+        const detailsEl = document.createElement('details');
+        detailsEl.className = 'folder';
+        if (folder.abierta) detailsEl.setAttribute('open', 'true');
+
+        detailsEl.innerHTML = `
+          <summary class="folder-title">
+            <div class="folder-icon">
+              📁 <span>${folder.saga}</span>
+            </div>
+            <svg class="arrow-icon" width="20" height="20" viewBox="0 0 24 24">
+              <path d="M7 10l5 5 5-5z"/>
+            </svg>
+          </summary>
+          <div class="movie-grid">
+            ${folder.peliculas.map(movie => `
+              <a href="${movie.url}" class="movie-card">
+                <div class="poster-wrapper">
+                  <img src="${movie.portada}" alt="${movie.titulo}" onerror="this.style.display='none'">
+                  <span class="no-poster">🎬</span>
+                </div>
+                <div class="card-info">
+                  <span>${movie.titulo}</span>
+                </div>
+              </a>
+            `).join('')}
+          </div>
+        `;
+        container.appendChild(detailsEl);
+      });
+    }
+
+    function filterMovies() {
+      const input = document.getElementById('searchInput');
+      const filter = input.value.toLowerCase().trim();
+
+      if (filter === '') {
+        renderCatalog(movieData);
+        return;
+      }
+
+      const filteredData = movieData.map(folder => {
+        const matchingMovies = folder.peliculas.filter(movie => 
+          movie.titulo.toLowerCase().includes(filter)
+        );
+        return { ...folder, peliculas: matchingMovies, abierta: true };
+      }).filter(folder => folder.peliculas.length > 0);
+
+      renderCatalog(filteredData);
+    }
+
+    window.onload = loadCatalog;
+  </script>
 
 </body>
 </html>
