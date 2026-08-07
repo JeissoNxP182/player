@@ -107,10 +107,10 @@
       transform: rotate(180deg);
     }
 
-    /* CUADRÍCULA DE PÓSTERS (GRID) */
+    /* 1. CUADRÍCULA UN POCO MÁS ANCHA PARA PORTADAS HORIZONTALES */
     .movie-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Aumentamos el ancho mínimo */
       gap: 16px;
       padding: 18px;
     }
@@ -135,10 +135,10 @@
       box-shadow: 0 10px 25px rgba(168, 85, 247, 0.35);
     }
 
-    /* CONTENEDOR DEL PÓSTER (RELACIÓN 2:3) */
+    /* 2. CONTENEDOR DEL PÓSTER (RELACIÓN 16:9 HORIZONTAL) */
     .poster-wrapper {
       width: 100%;
-      aspect-ratio: 2 / 3;
+      aspect-ratio: 16 / 9; /* Formato horizontal perfecto */
       background: #17072b;
       position: relative;
       overflow: hidden;
@@ -150,7 +150,7 @@
     .poster-wrapper img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: cover; /* Garantiza que la imagen llene todo sin deformarse */
       transition: transform 0.3s ease;
     }
 
