@@ -1,1 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estadísticas del Catálogo</title>
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 { text-align: center; color: #58a6ff; margin-bottom: 30px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .stat-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #3fb950;
+      margin: 10px 0;
+    }
+    .stat-label { font-size: 0.9rem; color: #8b949e; }
+  </style>
+</head>
+<body>
+
+  <h1>📊 Estadísticas de la Videoteca</h1>
+
+  <div class="grid">
+    <div class="stat-card">
+      <div class="stat-label">Total de Películas</div>
+      <div class="stat-number" id="totalPelis">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total de Sagas</div>
+      <div class="stat-number" id="totalSagas">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Tiempo Total Contenido</div>
+      <div class="stat-number" id="tiempoTotal" style="font-size: 1.5rem; margin-top: 20px;">0h 0m</div>
+    </div>
+  </div>
+
+  <script>
+    // Conexión a tu JSON público
+    fetch('https://jeissonxp182.github.io/peliculas/peliculas.json')
+      .then(res => res.json())
+      .then(data => {
+        let countPelis = 0;
+        let countSagas = data.length;
+        let minutosTotales = 0;
+
+        data.forEach(saga => {
+          if (saga.peliculas) {
+            countPelis += saga.peliculas.length;
+            saga.peliculas.forEach(p => {
+              if (p.duracion) {
+                // Extraer horas y minutos (Ej: 01h56m)
+                const match = p.duracion.match(/(?:(\d+)h)?(?:(\d+)m)?/);
+                if (match) {
+                  const horas = parseInt(match[1] || 0);
+                  const mins = parseInt(match[2] || 0);
+                  minutosTotales += (horas * 60) + mins;
+                }
+              }
+            });
+          }
+        });
+
+        document.getElementById('totalPelis').innerText = countPelis;
+        document.getElementById('totalSagas').innerText = countSagas;
+
+        const horasFinales = Math.floor(minutosTotales / 60);
+        const minsFinales = minutosTotales % 60;
+        document.getElementById('tiempoTotal').innerText = `${horasFinales}h ${minsFinales}m`;
+      })
+      .catch(err => console.error(err));
+  </script>
+</body>
+</html>
 
