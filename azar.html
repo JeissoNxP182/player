@@ -65,10 +65,11 @@
   </div>
 
   <script>
-    const JSON_URL = 'peliculas.json';
+    // URL exacta de tu JSON en el repositorio 'peliculas'
+    const JSON_URL = 'https://jeissonxp182.github.io/peliculas/peliculas.json';
     let peliculasLista = [];
 
-    // Cargar JSON existente
+    // Cargar JSON desde el otro repositorio
     fetch(JSON_URL)
       .then(res => res.json())
       .then(data => {
