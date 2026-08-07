@@ -135,11 +135,11 @@
       box-shadow: 0 10px 25px rgba(168, 85, 247, 0.35);
     }
 
-    /* 2. CONTENEDOR DEL PÓSTER (RELACIÓN 16:9 HORIZONTAL) */
+    /* CONTENEDOR 16:9 HORIZONTAL */
     .poster-wrapper {
       width: 100%;
-      aspect-ratio: 16 / 9; /* Formato horizontal perfecto */
-      background: #17072b;
+      aspect-ratio: 16 / 9;
+      background: #0f031c; /* Fondo oscuro ajustado al tema */
       position: relative;
       overflow: hidden;
       display: flex;
@@ -150,18 +150,17 @@
     .poster-wrapper img {
       width: 100%;
       height: 100%;
-      object-fit: cover; /* Garantiza que la imagen llene todo sin deformarse */
-      transition: transform 0.3s ease;
+      object-fit: contain; /* ¡Clave! Muestra la imagen ENTERA sin cortar nada */
+      position: relative;
+      z-index: 2; /* Pone la imagen por encima del icono para ocultarlo */
     }
 
-    .movie-card:hover .poster-wrapper img {
-      transform: scale(1.05);
-    }
-
-    /* SILUETA/ICONO SI NO HAY IMAGEN */
+    /* SILUETA/ICONO SOLO SI NO HAY IMAGEN */
     .no-poster {
+      position: absolute;
       font-size: 32px;
       opacity: 0.4;
+      z-index: 1; /* Queda detrás de la imagen */
     }
 
     /* TÍTULO DE LA PELÍCULA BAJO EL PÓSTER */
