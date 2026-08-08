@@ -3,14 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mi Cine en Casa</title>
+  <title>Mis Peliculas</title>
   <style>
     :root {
-      --bg-color: #0b0c10;
-      --card-bg: #1f2833;
-      --accent: #e50914;
-      --text-main: #ffffff;
-      --text-muted: #c5c6c7;
+      --bg-dark: #09070f;
+      --card-bg: #130f1e;
+      --card-hover: #1c162e;
+      --accent-purple: #a855f7;
+      --accent-glow: #7e22ce;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --border-purple: rgba(168, 85, 247, 0.2);
     }
 
     * {
@@ -20,126 +23,166 @@
     }
 
     body {
-      background-color: var(--bg-color);
+      background-color: var(--bg-dark);
       color: var(--text-main);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 20px;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      padding-bottom: 50px;
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(126, 34, 206, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
     }
 
-    /* Header y Buscador */
+    /* HEADER & SEARCH */
     header {
+      padding: 30px 5%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 15px;
-      margin-bottom: 30px;
+      gap: 20px;
+      border-bottom: 1px solid var(--border-purple);
+      background: rgba(9, 7, 15, 0.8);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    h1 {
-      color: var(--accent);
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand h1 {
       font-size: 2.2rem;
+      font-weight: 800;
       letter-spacing: 1px;
+      background: linear-gradient(135deg, #ffffff 30%, var(--accent-purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    .search-container {
+    .search-box {
       width: 100%;
-      max-width: 500px;
+      max-width: 550px;
+      position: relative;
     }
 
     .search-input {
       width: 100%;
-      padding: 12px 20px;
-      border-radius: 25px;
-      border: 2px solid #333;
-      background-color: #121212;
+      padding: 14px 22px;
+      border-radius: 30px;
+      border: 1px solid var(--border-purple);
+      background: rgba(19, 15, 30, 0.8);
       color: var(--text-main);
       font-size: 1rem;
       outline: none;
-      transition: border-color 0.3s;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
 
     .search-input:focus {
-      border-color: var(--accent);
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.35);
+      background: var(--card-bg);
     }
 
-    /* Contenedor de Sagas */
+    /* CATALOG CONTAINER */
+    main {
+      padding: 40px 5%;
+    }
+
     .saga-section {
-      margin-bottom: 40px;
+      margin-bottom: 50px;
     }
 
     .saga-title {
       font-size: 1.6rem;
-      margin-bottom: 20px;
-      border-left: 4px solid var(--accent);
-      padding-left: 10px;
+      font-weight: 700;
+      margin-bottom: 25px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    /* Grid de Tarjetas */
+    .saga-title::before {
+      content: '';
+      width: 5px;
+      height: 24px;
+      background: linear-gradient(to bottom, var(--accent-purple), var(--accent-glow));
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    /* GRID & CARDS */
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 25px;
     }
 
     .card {
-      background-color: var(--card-bg);
-      border-radius: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-purple);
+      border-radius: 14px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       cursor: pointer;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
     }
 
     .card:hover {
-      transform: translateY(-7px);
-      box-shadow: 0 10px 20px rgba(229, 9, 20, 0.3);
+      transform: translateY(-8px) scale(1.02);
+      border-color: var(--accent-purple);
+      box-shadow: 0 12px 30px rgba(126, 34, 206, 0.35);
+      background: var(--card-hover);
+    }
+
+    .poster-wrapper {
+      width: 100%;
+      height: 280px;
+      overflow: hidden;
+      position: relative;
     }
 
     .card img {
       width: 100%;
-      height: 260px;
+      height: 100%;
       object-fit: cover;
+      transition: transform 0.4s ease;
     }
 
-    .card-content {
-      padding: 12px;
+    .card:hover img {
+      transform: scale(1.06);
+    }
+
+    .card-info {
+      padding: 15px;
       display: flex;
       flex-direction: column;
       flex-grow: 1;
     }
 
     .card-title {
-      font-size: 0.95rem;
-      font-weight: bold;
+      font-size: 1rem;
+      font-weight: 700;
       margin-bottom: 6px;
-      line-height: 1.2;
+      color: var(--text-main);
+      line-height: 1.3;
     }
 
     .card-meta {
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       color: var(--text-muted);
-      margin-bottom: 10px;
-    }
-
-    .card-btn {
       margin-top: auto;
-      background-color: var(--accent);
-      color: white;
-      text-align: center;
-      padding: 8px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 0.85rem;
-      transition: background 0.2s;
     }
 
-    .card-btn:hover {
-      background-color: #b80710;
-    }
-
-    /* Modal de Detalles / Sinopsis */
+    /* CINEMATIC MODAL */
     .modal {
       display: none;
       position: fixed;
@@ -147,7 +190,8 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.85);
+      background: rgba(5, 3, 10, 0.88);
+      backdrop-filter: blur(10px);
       z-index: 1000;
       justify-content: center;
       align-items: center;
@@ -155,16 +199,37 @@
     }
 
     .modal-content {
-      background-color: #181a1b;
-      max-width: 600px;
+      background: #120d1f;
+      border: 1px solid var(--border-purple);
+      border-radius: 18px;
+      max-width: 800px;
       width: 100%;
-      border-radius: 12px;
       overflow: hidden;
       position: relative;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 40px rgba(126, 34, 206, 0.25);
+      display: flex;
+      flex-direction: row;
+      max-height: 85vh;
+    }
+
+    .modal-banner {
+      width: 40%;
+      min-width: 250px;
+      position: relative;
+    }
+
+    .modal-banner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .modal-details {
+      width: 60%;
+      padding: 30px;
       display: flex;
       flex-direction: column;
-      max-height: 90vh;
+      overflow-y: auto;
     }
 
     .modal-close {
@@ -172,63 +237,111 @@
       top: 15px;
       right: 15px;
       background: rgba(0, 0, 0, 0.6);
-      color: white;
-      border: none;
-      font-size: 1.5rem;
-      width: 35px;
-      height: 35px;
+      border: 1px solid var(--border-purple);
+      color: #ffffff;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
+      font-size: 1.2rem;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
       z-index: 10;
     }
 
-    .modal-body {
-      padding: 20px;
-      overflow-y: auto;
+    .modal-close:hover {
+      background: var(--accent-purple);
+      transform: scale(1.1);
     }
 
     .modal-title {
-      font-size: 1.5rem;
-      margin-bottom: 8px;
-      color: var(--accent);
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: #ffffff;
     }
 
-    .modal-meta {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 15px;
-    }
-
-    .modal-sinopsis {
-      font-size: 0.95rem;
-      line-height: 1.5;
-      color: #ddd;
-      margin-bottom: 20px;
-    }
-
-    .modal-actions {
+    .modal-tags {
       display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+    }
+
+    .tag {
+      background: rgba(168, 85, 247, 0.15);
+      color: var(--accent-purple);
+      border: 1px solid var(--border-purple);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .modal-description {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text-muted);
+      margin-bottom: 30px;
+    }
+
+    .btn-play {
+      margin-top: auto;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-glow));
+      color: #ffffff;
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       gap: 10px;
     }
 
-    .modal-play-btn {
-      flex: 1;
-      background-color: var(--accent);
-      color: white;
-      text-align: center;
-      padding: 12px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: bold;
+    .btn-play:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(168, 85, 247, 0.6);
+      filter: brightness(1.1);
+    }
+
+    /* RESPONSIVE DESIGN */
+    @media (max-width: 768px) {
+      .modal-content {
+        flex-direction: column;
+        max-height: 90vh;
+      }
+      .modal-banner {
+        width: 100%;
+        height: 220px;
+      }
+      .modal-details {
+        width: 100%;
+        padding: 20px;
+      }
+      .grid-container {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 15px;
+      }
+      .poster-wrapper {
+        height: 210px;
+      }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>🎬 Mi Videoteca</h1>
-    <div class="search-container">
-      <input type="text" id="searchInput" class="search-input" placeholder="Buscar por título, año o saga..." oninput="filterMovies()">
+    <div class="brand">
+      <h1>🍿 STREAMVERSE</h1>
+    </div>
+    <div class="search-box">
+      <input type="text" id="searchInput" class="search-input" placeholder="Buscar por título, año o saga..." oninput="filterCatalog()">
     </div>
   </header>
 
@@ -236,22 +349,27 @@
     <!-- Carga dinámica de películas -->
   </main>
 
-  <!-- Modal para ver Detalles / Sinopsis -->
+  <!-- MODAL DE DETALLES -->
   <div id="movieModal" class="modal" onclick="closeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal()">&times;</button>
-      <div class="modal-body">
+      <div class="modal-banner">
+        <img id="modalImg" src="" alt="Portada">
+      </div>
+      <div class="modal-details">
         <h2 id="modalTitle" class="modal-title"></h2>
-        <div id="modalMeta" class="modal-meta"></div>
-        <p id="modalSinopsis" class="modal-sinopsis"></p>
-        <div class="modal-actions">
-          <a id="modalPlayBtn" href="#" class="modal-play-btn">▶ Ver Película</a>
+        <div class="modal-tags">
+          <span id="modalYear" class="tag"></span>
+          <span id="modalDuration" class="tag"></span>
         </div>
+        <p id="modalSinopsis" class="modal-description"></p>
+        <a id="modalPlayBtn" href="#" class="btn-play">▶ REPRODUCIR AHORA</a>
       </div>
     </div>
   </div>
 
   <script>
+    // URLs de tus archivos JSON
     const JSON_URLS = [
       'https://jeissonxp182.github.io/peliculas/vhs.json',
       'https://jeissonxp182.github.io/peliculas/invicto.json'
@@ -259,29 +377,29 @@
 
     let allSagasData = [];
 
-    // Cargar los archivos JSON
+    // Cargar los archivos JSON simultáneamente
     Promise.all(JSON_URLS.map(url => fetch(url).then(res => res.json())))
       .then(resultados => {
         allSagasData = resultados.flat();
         renderCatalog(allSagasData);
       })
       .catch(err => {
-        console.error('Error cargando las películas:', err);
+        console.error('Error cargando los JSONs:', err);
         document.getElementById('catalogContainer').innerHTML = 
-          '<p style="text-align:center; color:var(--accent);">Error al cargar el catálogo de películas.</p>';
+          '<p style="text-align:center; color:var(--accent-purple); font-weight:bold; margin-top:50px;"> Hubo un inconveniente al cargar las películas. Revisa tu conexión.</p>';
       });
 
-    // Renderizar Catálogo
+    // Renderizar las sagas y películas en el DOM
     function renderCatalog(sagas) {
       const container = document.getElementById('catalogContainer');
       container.innerHTML = '';
 
-      let foundAny = false;
+      let hasContent = false;
 
       sagas.forEach(saga => {
         if (!saga.peliculas || saga.peliculas.length === 0) return;
 
-        foundAny = true;
+        hasContent = true;
         const sagaSection = document.createElement('div');
         sagaSection.className = 'saga-section';
 
@@ -299,11 +417,12 @@
           card.onclick = () => openModal(peli);
 
           card.innerHTML = `
-            <img src="${peli.portada}" alt="${peli.titulo}" loading="lazy">
-            <div class="card-content">
+            <div class="poster-wrapper">
+              <img src="${peli.portada}" alt="${peli.titulo}" loading="lazy">
+            </div>
+            <div class="card-info">
               <div class="card-title">${peli.titulo}</div>
               <div class="card-meta">${peli.ano || ''} ${peli.duracion ? '• ' + peli.duracion : ''}</div>
-              <a href="${peli.url}" class="card-btn" onclick="event.stopPropagation()">▶ Ver</a>
             </div>
           `;
 
@@ -314,13 +433,13 @@
         container.appendChild(sagaSection);
       });
 
-      if (!foundAny) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top: 40px;">No se encontraron películas.</p>';
+      if (!hasContent) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">No se encontraron películas para tu búsqueda.</p>';
       }
     }
 
-    // Filtro de Búsqueda
-    function filterMovies() {
+    // Buscador interactivo
+    function filterCatalog() {
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
 
       if (!query) {
@@ -328,29 +447,27 @@
         return;
       }
 
-      const filteredSagas = allSagasData.map(saga => {
-        const matchesSagaName = saga.saga.toLowerCase().includes(query);
-        
+      const filtered = allSagasData.map(saga => {
+        const matchesSaga = saga.saga.toLowerCase().includes(query);
         const filteredPelis = saga.peliculas.filter(peli => {
           const matchesTitle = peli.titulo.toLowerCase().includes(query);
           const matchesYear = peli.ano ? peli.ano.toString().includes(query) : false;
-          return matchesTitle || matchesYear || matchesSagaName;
+          return matchesTitle || matchesYear || matchesSaga;
         });
 
-        return {
-          ...saga,
-          peliculas: filteredPelis
-        };
+        return { ...saga, peliculas: filteredPelis };
       }).filter(saga => saga.peliculas.length > 0);
 
-      renderCatalog(filteredSagas);
+      renderCatalog(filtered);
     }
 
-    // Funciones para el Modal de Detalles (Sinopsis, Duración, Año)
+    // Lógica del Modal
     function openModal(peli) {
+      document.getElementById('modalImg').src = peli.portada;
       document.getElementById('modalTitle').innerText = peli.titulo;
-      document.getElementById('modalMeta').innerText = `${peli.ano || ''} ${peli.duracion ? '• ' + peli.duracion : ''}`;
-      document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible.';
+      document.getElementById('modalYear').innerText = peli.ano ? `Año: ${peli.ano}` : 'S/A';
+      document.getElementById('modalDuration').innerText = peli.duracion ? `Duración: ${peli.duracion}` : 'N/A';
+      document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible para esta película.';
       document.getElementById('modalPlayBtn').href = peli.url;
 
       document.getElementById('movieModal').style.display = 'flex';
@@ -360,6 +477,5 @@
       document.getElementById('movieModal').style.display = 'none';
     }
   </script>
-
 </body>
 </html>
