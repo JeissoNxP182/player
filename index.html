@@ -63,19 +63,18 @@
       line-height: 1;
     }
 
-.brand-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
+    .brand-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
 
-.alien-emoji {
-  font-size: 2.2rem;
-  line-height: 1;
-  /* Efecto de resplandor morado para acoplarlo al diseño */
-  filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.7));
-}
+    .alien-emoji {
+      font-size: 2.2rem;
+      line-height: 1;
+      filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.7));
+    }
     
     .brand p {
       font-size: 0.85rem;
@@ -86,32 +85,28 @@
       font-weight: 600;
     }
 
-    /* BOTONES DE NAVEGACIÓN */
-    .nav-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 5px;
-    }
-
-    .nav-btn {
-      background: rgba(19, 15, 30, 0.8);
+    /* DESPLEGABLE */
+    .nav-select {
+      background: rgba(19, 15, 30, 0.9);
       color: var(--text-main);
       border: 1px solid var(--border-purple);
-      padding: 8px 18px;
+      padding: 8px 16px;
       border-radius: 20px;
       font-size: 0.9rem;
       font-weight: 600;
+      outline: none;
       cursor: pointer;
       transition: all 0.3s ease;
     }
 
-    .nav-btn:hover, .nav-btn.active {
-      background: linear-gradient(135deg, var(--accent-purple), var(--accent-glow));
-      color: #ffffff;
+    .nav-select:focus, .nav-select:hover {
       border-color: var(--accent-purple);
       box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+    }
+
+    .nav-select option {
+      background: #120d1f;
+      color: #ffffff;
     }
 
     /* BUSCADOR */
@@ -136,29 +131,6 @@
     .search-input:focus {
       border-color: var(--accent-purple);
       box-shadow: 0 0 18px rgba(168, 85, 247, 0.35);
-    }
-
-    .nav-select {
-      background: rgba(19, 15, 30, 0.9);
-      color: var(--text-main);
-      border: 1px solid var(--border-purple);
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      outline: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .nav-select:focus, .nav-select:hover {
-      border-color: var(--accent-purple);
-      box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
-    }
-
-    .nav-select option {
-      background: #120d1f;
-      color: #ffffff;
     }
     
     /* CONTENEDOR PRINCIPAL */
@@ -261,7 +233,7 @@
     .card img {
       width: 100%;
       height: 100%;
-      object-fit: contain; /* Encaja exacta sin cortarse */
+      object-fit: contain;
       transition: transform 0.3s ease;
     }
 
@@ -334,7 +306,7 @@
     .modal-banner img {
       width: 100%;
       height: 100%;
-      object-fit: contain; /* Sin imagen cortada en el modal */
+      object-fit: contain;
     }
 
     .modal-details {
@@ -429,16 +401,15 @@
 <body>
 
   <header>
-    
     <div class="brand">
-  <div class="brand-title">
-    <span class="alien-emoji">👽</span>
-    <h1>JeissoNxP</h1>
-  </div>
-  <p>películas, series y vídeos</p>
+      <div class="brand-title">
+        <span class="alien-emoji">👽</span>
+        <h1>JeissoNxP</h1>
+      </div>
+      <p>películas, series y vídeos</p>
     </div>
     
-        <div class="nav-dropdown-container">
+    <div class="nav-dropdown-container">
       <select class="nav-select" id="sectionSelect">
         <option value="sagas" selected>📁 Sagas</option>
         <option value="peliculas">🎬 Películas</option>
@@ -446,7 +417,7 @@
         <option value="anime">⛩️ Anime</option>
         <option value="videos">📹 Videos</option>
       </select>
-        </div>
+    </div>
   
     <div class="search-box">
       <input type="text" id="searchInput" class="search-input" placeholder="Buscar título, año o saga..." oninput="filterCatalog()">
@@ -471,51 +442,95 @@
           <span id="modalDuration" class="tag"></span>
         </div>
         <p id="modalSinopsis" class="modal-description"></p>
-        <a id="modalPlayBtn" href="#" class="btn-play">▶ REPRODUCIR AHORA</a>
+        <a id="modalPlayBtn" href="#" class="btn-play" target="_blank">▶ REPRODUCIR AHORA</a>
       </div>
     </div>
   </div>
 
   <script>
-    const JSON_URLS = [
-      'https://jeissonxp182.github.io/peliculas/vhs.json',
-      'https://jeissonxp182.github.io/peliculas/invicto.json'
-    ];
+    // Diccionario con las rutas exactas de tus archivos JSON
+    const CATALOG_SOURCES = {
+      sagas: [
+        'https://jeissonxp182.github.io/peliculas/vhs.json',
+        'https://jeissonxp182.github.io/peliculas/invicto.json'
+      ],
+      peliculas: [
+        'https://jeissonxp182.github.io/peliculas/pelis.json'
+      ],
+      series: [
+        'https://jeissonxp182.github.io/peliculas/series.json'
+      ],
+      anime: [
+        'https://jeissonxp182.github.io/peliculas/anime.json'
+      ],
+      videos: [
+        'https://jeissonxp182.github.io/peliculas/videos.json'
+      ]
+    };
 
-    let allSagasData = [];
+    let currentSagasData = [];
 
-    // Helper para formato de duración: "01h34m" -> "01h:34m"
+    // Formateador de duración: "01h33m" -> "01h:33m"
     function formatDuration(dur) {
       if (!dur) return '';
       return dur.replace(/(\d+h)(\d+m)/, '$1:$2');
     }
 
-    Promise.all(JSON_URLS.map(url => fetch(url).then(res => res.json())))
-      .then(resultados => {
-        allSagasData = resultados.flat();
-        renderCatalog(allSagasData);
-      })
-      .catch(err => {
-        console.error('Error cargando JSONs:', err);
-        document.getElementById('catalogContainer').innerHTML = 
-          '<p style="text-align:center; color:var(--accent-purple); font-weight:bold; margin-top:40px;">Error al conectar con los catálogos.</p>';
-      });
+    // Carga segura que evita errores si un archivo está vacío
+    async function fetchJSONSafely(url) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return [];
+        const data = await res.json();
+        return Array.isArray(data) ? data : [];
+      } catch (err) {
+        console.warn('No se pudo leer el archivo:', url, err);
+        return [];
+      }
+    }
 
+    // Cargar sección según la opción del menú
+    async function loadSection(sectionKey) {
+      const urls = CATALOG_SOURCES[sectionKey] || [];
+      const container = document.getElementById('catalogContainer');
+
+      if (urls.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px;">Próximamente más contenido en esta sección 🚀</p>';
+        currentSagasData = [];
+        return;
+      }
+
+      container.innerHTML = '<p style="text-align:center; color:var(--accent-purple); margin-top:50px;">Cargando contenido...</p>';
+
+      const resultados = await Promise.all(urls.map(url => fetchJSONSafely(url)));
+      currentSagasData = resultados.flat();
+
+      renderCatalog(currentSagasData);
+    }
+
+    // Escuchar cambios en el menú desplegable
+    document.getElementById('sectionSelect').addEventListener('change', (e) => {
+      loadSection(e.target.value);
+    });
+
+    // Carga inicial (Sagas)
+    loadSection('sagas');
+
+    // RENDERIZAR CATÁLOGO
     function renderCatalog(sagas) {
       const container = document.getElementById('catalogContainer');
       container.innerHTML = '';
 
       let hasContent = false;
 
-      sagas.forEach((saga, index) => {
+      sagas.forEach(saga => {
         if (!saga.peliculas || saga.peliculas.length === 0) return;
 
         hasContent = true;
-        
+
         const sagaSection = document.createElement('div');
         sagaSection.className = 'saga-section';
 
-        // Cabecera Acordeón
         const sagaHeader = document.createElement('div');
         sagaHeader.className = 'saga-header';
         sagaHeader.onclick = () => sagaSection.classList.toggle('collapsed');
@@ -530,7 +545,6 @@
 
         sagaSection.appendChild(sagaHeader);
 
-        // Contenido desplegable
         const sagaContent = document.createElement('div');
         sagaContent.className = 'saga-content';
 
@@ -562,181 +576,51 @@
         container.appendChild(sagaSection);
       });
 
-      <script>
-  // Diccionario con las rutas exactas de tus archivos JSON
-  const CATALOG_SOURCES = {
-    sagas: [
-      'https://jeissonxp182.github.io/peliculas/vhs.json',
-      'https://jeissonxp182.github.io/peliculas/invicto.json'
-    ],
-    peliculas: [
-      'https://jeissonxp182.github.io/peliculas/pelis.json'
-    ],
-    series: [
-      'https://jeissonxp182.github.io/peliculas/series.json'
-    ],
-    anime: [
-      'https://jeissonxp182.github.io/peliculas/anime.json'
-    ],
-    videos: [
-      'https://jeissonxp182.github.io/peliculas/videos.json'
-    ]
-  };
-
-  let currentSagasData = [];
-
-  // Formateador de duración: "01h33m" -> "01h:33m"
-  function formatDuration(dur) {
-    if (!dur) return '';
-    return dur.replace(/(\d+h)(\d+m)/, '$1:$2');
-  }
-
-  // Función segura para descargar cada JSON individual sin romper los demás
-  async function fetchJSONSafely(url) {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) return [];
-      const data = await res.json();
-      return Array.isArray(data) ? data : [];
-    } catch (err) {
-      console.warn('No se pudo leer el archivo:', url, err);
-      return [];
-    }
-  }
-
-  // Cargar sección según la opción del menú
-  async function loadSection(sectionKey) {
-    const urls = CATALOG_SOURCES[sectionKey] || [];
-    const container = document.getElementById('catalogContainer');
-
-    if (urls.length === 0) {
-      container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px;">Próximamente más contenido en esta sección 🚀</p>';
-      currentSagasData = [];
-      return;
+      if (!hasContent) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">No hay títulos disponibles en esta sección aún 🎬</p>';
+      }
     }
 
-    container.innerHTML = '<p style="text-align:center; color:var(--accent-purple); margin-top:50px;">Cargando contenido...</p>';
+    // BUSCADOR
+    function filterCatalog() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
 
-    // Carga todos los JSONs de la sección en paralelo
-    const resultados = await Promise.all(urls.map(url => fetchJSONSafely(url)));
-    currentSagasData = resultados.flat();
+      if (!query) {
+        renderCatalog(currentSagasData);
+        return;
+      }
 
-    renderCatalog(currentSagasData);
-  }
+      const filtered = currentSagasData.map(saga => {
+        const matchesSaga = saga.saga.toLowerCase().includes(query);
+        const filteredPelis = saga.peliculas.filter(peli => {
+          const matchesTitle = peli.titulo.toLowerCase().includes(query);
+          const matchesYear = peli.ano ? peli.ano.toString().includes(query) : false;
+          return matchesTitle || matchesYear || matchesSaga;
+        });
 
-  // Escuchar el menú desplegable
-  document.getElementById('sectionSelect').addEventListener('change', (e) => {
-    loadSection(e.target.value);
-  });
+        return { ...saga, peliculas: filteredPelis };
+      }).filter(saga => saga.peliculas.length > 0);
 
-  // Carga inicial al entrar a la página (Sagas)
-  loadSection('sagas');
-
-  // RENDERIZAR EN PANTALLA
-  function renderCatalog(sagas) {
-    const container = document.getElementById('catalogContainer');
-    container.innerHTML = '';
-
-    let hasContent = false;
-
-    sagas.forEach(saga => {
-      if (!saga.peliculas || saga.peliculas.length === 0) return;
-
-      hasContent = true;
-
-      const sagaSection = document.createElement('div');
-      sagaSection.className = 'saga-section';
-
-      const sagaHeader = document.createElement('div');
-      sagaHeader.className = 'saga-header';
-      sagaHeader.onclick = () => sagaSection.classList.toggle('collapsed');
-
-      sagaHeader.innerHTML = `
-        <div class="saga-title-content">
-          <span class="folder-icon">📁</span>
-          <span>${saga.saga}</span>
-        </div>
-        <span class="arrow-icon">▼</span>
-      `;
-
-      sagaSection.appendChild(sagaHeader);
-
-      const sagaContent = document.createElement('div');
-      sagaContent.className = 'saga-content';
-
-      const grid = document.createElement('div');
-      grid.className = 'grid-container';
-
-      saga.peliculas.forEach(peli => {
-        const formattedDur = formatDuration(peli.duracion);
-
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.onclick = () => openModal(peli);
-
-        card.innerHTML = `
-          <div class="poster-wrapper">
-            <img src="${peli.portada}" alt="${peli.titulo}" loading="lazy">
-          </div>
-          <div class="card-info">
-            <div class="card-title">${peli.titulo}</div>
-            <div class="card-meta">${peli.ano || ''} ${formattedDur ? '• ' + formattedDur : ''}</div>
-          </div>
-        `;
-
-        grid.appendChild(card);
-      });
-
-      sagaContent.appendChild(grid);
-      sagaSection.appendChild(sagaContent);
-      container.appendChild(sagaSection);
-    });
-
-    if (!hasContent) {
-      container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">No hay títulos disponibles en esta sección aún 🎬</p>';
-    }
-  }
-
-  // BUSCADOR
-  function filterCatalog() {
-    const query = document.getElementById('searchInput').value.toLowerCase().trim();
-
-    if (!query) {
-      renderCatalog(currentSagasData);
-      return;
+      renderCatalog(filtered);
     }
 
-    const filtered = currentSagasData.map(saga => {
-      const matchesSaga = saga.saga.toLowerCase().includes(query);
-      const filteredPelis = saga.peliculas.filter(peli => {
-        const matchesTitle = peli.titulo.toLowerCase().includes(query);
-        const matchesYear = peli.ano ? peli.ano.toString().includes(query) : false;
-        return matchesTitle || matchesYear || matchesSaga;
-      });
+    // MODAL DETALLES
+    function openModal(peli) {
+      const formattedDur = formatDuration(peli.duracion);
 
-      return { ...saga, peliculas: filteredPelis };
-    }).filter(saga => saga.peliculas.length > 0);
+      document.getElementById('modalImg').src = peli.portada;
+      document.getElementById('modalTitle').innerText = peli.titulo;
+      document.getElementById('modalYear').innerHTML = `📅 ${peli.ano || 'S/A'}`;
+      document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
+      document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible.';
+      document.getElementById('modalPlayBtn').href = peli.url;
 
-    renderCatalog(filtered);
-  }
+      document.getElementById('movieModal').style.display = 'flex';
+    }
 
-  // MODAL DE DETALLES
-  function openModal(peli) {
-    const formattedDur = formatDuration(peli.duracion);
-
-    document.getElementById('modalImg').src = peli.portada;
-    document.getElementById('modalTitle').innerText = peli.titulo;
-    document.getElementById('modalYear').innerHTML = `📅 ${peli.ano || 'S/A'}`;
-    document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
-    document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible.';
-    document.getElementById('modalPlayBtn').href = peli.url;
-
-    document.getElementById('movieModal').style.display = 'flex';
-  }
-
-  function closeModal(event) {
-    document.getElementById('movieModal').style.display = 'none';
-  }
-</script>
+    function closeModal(event) {
+      document.getElementById('movieModal').style.display = 'none';
+    }
+  </script>
 </body>
 </html>
