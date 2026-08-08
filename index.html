@@ -366,26 +366,24 @@
   </div>
 
   <script>
-    // ⬇️ REEMPLAZA ÚNICAMENTE LO QUE ESTÁ ENTRE COMILLAS POR TU ENLACE RAW DE GITHUB ⬇️
-    const JSON_URL = 'https://raw.githubusercontent.com/JeissoNxP182/Peliculas/refs/heads/main/peliculas.json';
+    const JSON_URLS = [
+  'https://jeissonxp182.github.io/peliculas/vhs.json',
+  'https://jeissonxp182.github.io/peliculas/invicto.json'
+];
 
-    let movieData = [];
+let peliculasLista = [];
 
-    async function loadCatalog() {
-      const container = document.getElementById('catalogContainer');
-      container.innerHTML = '<p style="text-align:center; opacity:0.5; margin-top:20px;">Cargando catálogo...</p>';
-
-      try {
-        const response = await fetch(JSON_URL);
-        if (!response.ok) throw new Error('Error al cargar JSON');
-        movieData = await response.json();
-        renderCatalog(movieData);
-      } catch (error) {
-        console.error(error);
-        container.innerHTML = `<p style="text-align:center; color:#ef4444; margin-top:20px;">Error al cargar el catálogo. Verifica la dirección JSON_URL.</p>`;
+Promise.all(JSON_URLS.map(url => fetch(url).then(res => res.json())))
+  .then(resultados => {
+    const todasLasSagas = resultados.flat();
+    todasLasSagas.forEach(saga => {
+      if (saga.peliculas) {
+        peliculasLista.push(...saga.peliculas);
       }
-    }
-
+    });
+  })
+  .catch(err => console.error('Error en azar.html:', err));
+    
     function renderCatalog(data) {
       const container = document.getElementById('catalogContainer');
       container.innerHTML = '';
