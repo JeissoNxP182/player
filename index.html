@@ -516,12 +516,20 @@
     // Carga inicial (Sagas)
     loadSection('sagas');
 
-    // RENDERIZAR CATÁLOGO
+        // RENDERIZAR CATÁLOGO CON ICONOS DINÁMICOS
     function renderCatalog(sagas) {
       const container = document.getElementById('catalogContainer');
+      const currentSection = document.getElementById('sectionSelect').value;
       container.innerHTML = '';
 
       let hasContent = false;
+
+      // Definir icono según la sección seleccionada
+      let folderIcon = '📁';
+      if (currentSection === 'peliculas') folderIcon = '🎭';
+      if (currentSection === 'videos') folderIcon = '📽️';
+      if (currentSection === 'series') folderIcon = '👀';
+      if (currentSection === 'anime') folderIcon = '🇯🇵';
 
       sagas.forEach(saga => {
         if (!saga.peliculas || saga.peliculas.length === 0) return;
@@ -537,7 +545,7 @@
 
         sagaHeader.innerHTML = `
           <div class="saga-title-content">
-            <span class="folder-icon">📁</span>
+            <span class="folder-icon">${folderIcon}</span>
             <span>${saga.saga}</span>
           </div>
           <span class="arrow-icon">▼</span>
