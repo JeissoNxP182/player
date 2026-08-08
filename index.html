@@ -366,30 +366,28 @@
   </div>
 
     <script>
-    // 1. Lista de URLs de todas tus sagas
-    const JSON_URLS = [
-      'https://jeissonxp182.github.io/peliculas/vhs.json',
-      'https://jeissonxp182.github.io/peliculas/invicto.json'
-    ];
+  const JSON_URLS = [
+    'https://jeissonxp182.github.io/peliculas/vhs.json',
+    'https://jeissonxp182.github.io/peliculas/invicto.json'
+  ];
 
-    // 2. Cargar todos los archivos JSON juntos
-    Promise.all(JSON_URLS.map(url => fetch(url).then(res => res.json())))
-      .then(resultados => {
-        // Unir las sagas de todos los archivos JSON en un solo arreglo
-        const todasLasSagas = resultados.flat();
-        
-        // MOSTRAR EN PANTALLA: Llamamos a tu función con los datos combinados
-        renderCatalog(todasLasSagas);
-      })
-      .catch(err => {
-        console.error('Error cargando los JSONs:', err);
-      });
+  Promise.all(JSON_URLS.map(url => fetch(url).then(res => res.json())))
+    .then(resultados => {
+      // Unimos ambas sagas en una sola lista
+      const todasLasSagas = resultados.flat();
+      
+      // Dibujamos todo en pantalla con tu función
+      renderCatalog(todasLasSagas);
+    })
+    .catch(err => console.error('Error cargando las sagas:', err));
 
-    // Tu función original para dibujar el catálogo
-    function renderCatalog(data) {
-      const container = document.getElementById('catalogContainer');
-      container.innerHTML = '';
+  function renderCatalog(data) {
+    const container = document.getElementById('catalogContainer');
+    container.innerHTML = '';
     
+    // ... aquí sigue tu código original para dibujar las tarjetas ...
+    </script>
+
     function renderCatalog(data) {
       const container = document.getElementById('catalogContainer');
       container.innerHTML = '';
