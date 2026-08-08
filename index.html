@@ -562,8 +562,8 @@
         container.appendChild(sagaSection);
       });
 
-<script>
-  // Diccionario que vincula cada opción del menú con sus JSONs
+      <script>
+  // Diccionario con las rutas exactas de tus archivos JSON
   const CATALOG_SOURCES = {
     sagas: [
       'https://jeissonxp182.github.io/peliculas/vhs.json',
@@ -585,45 +585,54 @@
 
   let currentSagasData = [];
 
-  // Helper para formato de duración: "01h34m" -> "01h:34m"
+  // Formateador de duración: "01h33m" -> "01h:33m"
   function formatDuration(dur) {
     if (!dur) return '';
     return dur.replace(/(\d+h)(\d+m)/, '$1:$2');
   }
 
-  // Cargar catálogo según la sección seleccionada
-  function loadSection(sectionKey) {
+  // Función segura para descargar cada JSON individual sin romper los demás
+  async function fetchJSONSafely(url) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    } catch (err) {
+      console.warn('No se pudo leer el archivo:', url, err);
+      return [];
+    }
+  }
+
+  // Cargar sección según la opción del menú
+  async function loadSection(sectionKey) {
     const urls = CATALOG_SOURCES[sectionKey] || [];
     const container = document.getElementById('catalogContainer');
 
     if (urls.length === 0) {
-      container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Próximamente más contenido en esta sección 🚀</p>';
+      container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px;">Próximamente más contenido en esta sección 🚀</p>';
       currentSagasData = [];
       return;
     }
 
     container.innerHTML = '<p style="text-align:center; color:var(--accent-purple); margin-top:50px;">Cargando contenido...</p>';
 
-    Promise.all(urls.map(url => fetch(url).then(res => res.json())))
-      .then(resultados => {
-        currentSagasData = resultados.flat();
-        renderCatalog(currentSagasData);
-      })
-      .catch(err => {
-        console.error('Error al cargar JSONs:', err);
-        container.innerHTML = '<p style="text-align:center; color:var(--accent-purple); font-weight:bold; margin-top:40px;">Error al conectar con los catálogos.</p>';
-      });
+    // Carga todos los JSONs de la sección en paralelo
+    const resultados = await Promise.all(urls.map(url => fetchJSONSafely(url)));
+    currentSagasData = resultados.flat();
+
+    renderCatalog(currentSagasData);
   }
 
-  // Escuchar cambios en el menú desplegable
+  // Escuchar el menú desplegable
   document.getElementById('sectionSelect').addEventListener('change', (e) => {
     loadSection(e.target.value);
   });
 
-  // Carga inicial (Sagas por defecto)
+  // Carga inicial al entrar a la página (Sagas)
   loadSection('sagas');
 
-  // RENDERIZAR CATÁLOGO EN PANTALLA
+  // RENDERIZAR EN PANTALLA
   function renderCatalog(sagas) {
     const container = document.getElementById('catalogContainer');
     container.innerHTML = '';
@@ -634,11 +643,10 @@
       if (!saga.peliculas || saga.peliculas.length === 0) return;
 
       hasContent = true;
-      
+
       const sagaSection = document.createElement('div');
       sagaSection.className = 'saga-section';
 
-      // Cabecera de la colección
       const sagaHeader = document.createElement('div');
       sagaHeader.className = 'saga-header';
       sagaHeader.onclick = () => sagaSection.classList.toggle('collapsed');
@@ -685,7 +693,7 @@
     });
 
     if (!hasContent) {
-      container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:40px;">No hay títulos disponibles en esta sección.</p>';
+      container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">No hay títulos disponibles en esta sección aún 🎬</p>';
     }
   }
 
@@ -712,7 +720,7 @@
     renderCatalog(filtered);
   }
 
-  // MODAL
+  // MODAL DE DETALLES
   function openModal(peli) {
     const formattedDur = formatDuration(peli.duracion);
 
