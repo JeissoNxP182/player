@@ -562,49 +562,169 @@
         container.appendChild(sagaSection);
       });
 
-      if (!hasContent) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:40px;">No se encontraron títulos.</p>';
-      }
+<script>
+  // Diccionario que vincula cada opción del menú con sus JSONs
+  const CATALOG_SOURCES = {
+    sagas: [
+      'https://jeissonxp182.github.io/peliculas/vhs.json',
+      'https://jeissonxp182.github.io/peliculas/invicto.json'
+    ],
+    peliculas: [
+      'https://jeissonxp182.github.io/peliculas/peliculas.json'
+    ],
+    series: [
+      // 'https://jeissonxp182.github.io/peliculas/series.json' (cuando lo crees)
+    ],
+    anime: [],
+    videos: []
+  };
+
+  let currentSagasData = [];
+
+  // Helper para formato de duración: "01h34m" -> "01h:34m"
+  function formatDuration(dur) {
+    if (!dur) return '';
+    return dur.replace(/(\d+h)(\d+m)/, '$1:$2');
+  }
+
+  // Cargar catálogo según la sección seleccionada
+  function loadSection(sectionKey) {
+    const urls = CATALOG_SOURCES[sectionKey] || [];
+    const container = document.getElementById('catalogContainer');
+
+    if (urls.length === 0) {
+      container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Próximamente más contenido en esta sección 🚀</p>';
+      currentSagasData = [];
+      return;
     }
 
-    function filterCatalog() {
-      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+    container.innerHTML = '<p style="text-align:center; color:var(--accent-purple); margin-top:50px;">Cargando contenido...</p>';
 
-      if (!query) {
-        renderCatalog(allSagasData);
-        return;
-      }
+    Promise.all(urls.map(url => fetch(url).then(res => res.json())))
+      .then(resultados => {
+        currentSagasData = resultados.flat();
+        renderCatalog(currentSagasData);
+      })
+      .catch(err => {
+        console.error('Error al cargar JSONs:', err);
+        container.innerHTML = '<p style="text-align:center; color:var(--accent-purple); font-weight:bold; margin-top:40px;">Error al conectar con los catálogos.</p>';
+      });
+  }
 
-      const filtered = allSagasData.map(saga => {
-        const matchesSaga = saga.saga.toLowerCase().includes(query);
-        const filteredPelis = saga.peliculas.filter(peli => {
-          const matchesTitle = peli.titulo.toLowerCase().includes(query);
-          const matchesYear = peli.ano ? peli.ano.toString().includes(query) : false;
-          return matchesTitle || matchesYear || matchesSaga;
-        });
+  // Escuchar cambios en el menú desplegable
+  document.getElementById('sectionSelect').addEventListener('change', (e) => {
+    loadSection(e.target.value);
+  });
 
-        return { ...saga, peliculas: filteredPelis };
-      }).filter(saga => saga.peliculas.length > 0);
+  // Carga inicial (Sagas por defecto)
+  loadSection('sagas');
 
-      renderCatalog(filtered);
+  // RENDERIZAR CATÁLOGO EN PANTALLA
+  function renderCatalog(sagas) {
+    const container = document.getElementById('catalogContainer');
+    container.innerHTML = '';
+
+    let hasContent = false;
+
+    sagas.forEach(saga => {
+      if (!saga.peliculas || saga.peliculas.length === 0) return;
+
+      hasContent = true;
+      
+      const sagaSection = document.createElement('div');
+      sagaSection.className = 'saga-section';
+
+      // Cabecera de la colección
+      const sagaHeader = document.createElement('div');
+      sagaHeader.className = 'saga-header';
+      sagaHeader.onclick = () => sagaSection.classList.toggle('collapsed');
+
+      sagaHeader.innerHTML = `
+        <div class="saga-title-content">
+          <span class="folder-icon">📁</span>
+          <span>${saga.saga}</span>
+        </div>
+        <span class="arrow-icon">▼</span>
+      `;
+
+      sagaSection.appendChild(sagaHeader);
+
+      const sagaContent = document.createElement('div');
+      sagaContent.className = 'saga-content';
+
+      const grid = document.createElement('div');
+      grid.className = 'grid-container';
+
+      saga.peliculas.forEach(peli => {
+        const formattedDur = formatDuration(peli.duracion);
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.onclick = () => openModal(peli);
+
+        card.innerHTML = `
+          <div class="poster-wrapper">
+            <img src="${peli.portada}" alt="${peli.titulo}" loading="lazy">
+          </div>
+          <div class="card-info">
+            <div class="card-title">${peli.titulo}</div>
+            <div class="card-meta">${peli.ano || ''} ${formattedDur ? '• ' + formattedDur : ''}</div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+
+      sagaContent.appendChild(grid);
+      sagaSection.appendChild(sagaContent);
+      container.appendChild(sagaSection);
+    });
+
+    if (!hasContent) {
+      container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:40px;">No hay títulos disponibles en esta sección.</p>';
+    }
+  }
+
+  // BUSCADOR
+  function filterCatalog() {
+    const query = document.getElementById('searchInput').value.toLowerCase().trim();
+
+    if (!query) {
+      renderCatalog(currentSagasData);
+      return;
     }
 
-    function openModal(peli) {
-      const formattedDur = formatDuration(peli.duracion);
+    const filtered = currentSagasData.map(saga => {
+      const matchesSaga = saga.saga.toLowerCase().includes(query);
+      const filteredPelis = saga.peliculas.filter(peli => {
+        const matchesTitle = peli.titulo.toLowerCase().includes(query);
+        const matchesYear = peli.ano ? peli.ano.toString().includes(query) : false;
+        return matchesTitle || matchesYear || matchesSaga;
+      });
 
-      document.getElementById('modalImg').src = peli.portada;
-      document.getElementById('modalTitle').innerText = peli.titulo;
-      document.getElementById('modalYear').innerHTML = `📅 ${peli.ano || 'S/A'}`;
-      document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
-      document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible.';
-      document.getElementById('modalPlayBtn').href = peli.url;
+      return { ...saga, peliculas: filteredPelis };
+    }).filter(saga => saga.peliculas.length > 0);
 
-      document.getElementById('movieModal').style.display = 'flex';
-    }
+    renderCatalog(filtered);
+  }
 
-    function closeModal(event) {
-      document.getElementById('movieModal').style.display = 'none';
-    }
-  </script>
+  // MODAL
+  function openModal(peli) {
+    const formattedDur = formatDuration(peli.duracion);
+
+    document.getElementById('modalImg').src = peli.portada;
+    document.getElementById('modalTitle').innerText = peli.titulo;
+    document.getElementById('modalYear').innerHTML = `📅 ${peli.ano || 'S/A'}`;
+    document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
+    document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible.';
+    document.getElementById('modalPlayBtn').href = peli.url;
+
+    document.getElementById('movieModal').style.display = 'flex';
+  }
+
+  function closeModal(event) {
+    document.getElementById('movieModal').style.display = 'none';
+  }
+</script>
 </body>
 </html>
