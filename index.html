@@ -397,14 +397,16 @@
       <p>películas, series y vídeos</p>
     </div>
 
-    <div class="nav-buttons">
-      <button class="nav-btn active">Películas</button>
-      <button class="nav-btn">Series</button>
-      <button class="nav-btn">Sagas</button>
-      <button class="nav-btn">Anime</button>
-      <button class="nav-btn">Videos</button>
-    </div>
-
+        <div class="nav-dropdown-container">
+      <select class="nav-select" id="sectionSelect">
+        <option value="sagas" selected>📁 Sagas</option>
+        <option value="peliculas">🎬 Películas</option>
+        <option value="series">📺 Series</option>
+        <option value="anime">⛩️ Anime</option>
+        <option value="videos">📹 Videos</option>
+      </select>
+        </div>
+  
     <div class="search-box">
       <input type="text" id="searchInput" class="search-input" placeholder="Buscar título, año o saga..." oninput="filterCatalog()">
     </div>
