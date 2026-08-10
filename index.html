@@ -463,12 +463,13 @@
   </div>
 
   <script>
+    // RUTAS ACTUALIZADAS A CADA REPOSITORIO INDEPENDIENTE
     const CATALOG_SOURCES = {
-      sagas: 'https://jeissonxp182.github.io/peliculas/sagas.json',
+      sagas: 'https://jeissonxp182.github.io/sagas/sagas.json',
       peliculas: 'https://jeissonxp182.github.io/peliculas/peliculas.json',
-      series: 'https://jeissonxp182.github.io/peliculas/series.json',
-      anime: 'https://jeissonxp182.github.io/peliculas/anime.json',
-      videos: 'https://jeissonxp182.github.io/peliculas/videos.json'
+      series: 'https://jeissonxp182.github.io/series/series.json',
+      anime: 'https://jeissonxp182.github.io/anime/anime.json',
+      videos: 'https://jeissonxp182.github.io/videos/videos.json'
     };
 
     let currentData = [];
@@ -541,7 +542,6 @@
         document.body.style.backgroundImage = 'none';
         document.body.style.backgroundColor = '#000000';
 
-        // Corrección definitiva: Decodificación limpia sin corromper los espacios en la URL
         let videoUrl = videoUrlToPlay;
         try {
           videoUrl = decodeURIComponent(videoUrlToPlay);
