@@ -491,7 +491,6 @@
       }
     }
 
-    // Cargar la sección seleccionada y actualizar el historial/URL del navegador de forma limpia
     async function loadSection(sectionKey, updateHistory = true) {
       const url = CATALOG_SOURCES[sectionKey];
       const container = document.getElementById('catalogContainer');
@@ -513,13 +512,11 @@
       renderCatalog(currentData);
     }
 
-    // Evento del selector de secciones
     document.getElementById('sectionSelect').addEventListener('change', (e) => {
       document.getElementById('searchInput').value = '';
       loadSection(e.target.value, true);
     });
 
-    // Soporte para los botones de Atrás / Adelante del navegador
     window.addEventListener('popstate', (event) => {
       const urlParams = new URLSearchParams(window.location.search);
       if (!urlParams.get('play')) {
@@ -529,16 +526,14 @@
       }
     });
 
-    // INICIALIZACIÓN AL ABRIR LA PÁGINA
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
       const isPlayMode = urlParams.get('play') === 'true';
-      const legacyUrl = urlParams.get('url'); // Compatibilidad por si tenías enlaces guardados viejos
+      const legacyUrl = urlParams.get('url');
       const videoUrlToPlay = isPlayMode ? sessionStorage.getItem('player_video_url') : legacyUrl;
       const currentSection = urlParams.get('section') || 'sagas';
 
       if (videoUrlToPlay) {
-        // --- MODO REPRODUCTOR PROPIO (URL LIMPIA ?play=true) ---
         const header = document.getElementById('mainHeader');
         if (header) header.style.display = 'none';
 
@@ -546,15 +541,12 @@
         document.body.style.backgroundImage = 'none';
         document.body.style.backgroundColor = '#000000';
 
+        // Corrección definitiva: Decodificación limpia sin corromper los espacios en la URL
         let videoUrl = videoUrlToPlay;
         try {
-          videoUrl = decodeURIComponent(decodeURIComponent(videoUrlToPlay));
-        } catch (e) {
           videoUrl = decodeURIComponent(videoUrlToPlay);
-        }
-
-        if (videoUrl.includes('archive.org/embed/')) {
-          videoUrl = videoUrl.replace('archive.org/embed/', 'archive.org/download/') + '.mp4';
+        } catch (e) {
+          videoUrl = videoUrlToPlay;
         }
 
         const mainContainer = document.getElementById('catalogContainer');
@@ -581,7 +573,6 @@
           `;
         }
       } else {
-        // --- MODO CATÁLOGO NORMAL ---
         const sectionSelect = document.getElementById('sectionSelect');
         if (sectionSelect) {
           sectionSelect.value = currentSection;
@@ -717,13 +708,11 @@
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
       document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible.';
 
-      // Guardamos la URL del video de forma interna para evitar enlaces largos en la barra de direcciones
       selectedVideoUrl = peli.url_video || peli.link || peli.iframe || peli.url || '';
 
       document.getElementById('movieModal').style.display = 'flex';
     }
 
-    // LANZAR EL REPRODUCTOR USANDO SESSIONSTORAGE (URL LIMPIA)
     function launchPlayer() {
       if (!selectedVideoUrl) return;
       sessionStorage.setItem('player_video_url', selectedVideoUrl);
