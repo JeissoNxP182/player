@@ -658,7 +658,7 @@
 
       if (esEstructuraSagas) {
         const filtered = currentData.map(saga => {
-          const matchesSaga = saga.saga.toLowerCase().includes(query);
+          const matchesSaga = saga.saga ? saga.saga.toLowerCase().includes(query) : false;
           const filteredPelis = saga.peliculas.filter(peli => {
             const matchesTitle = peli.titulo ? peli.titulo.toLowerCase().includes(query) : false;
             const matchesYear = peli.ano ? peli.ano.toString().includes(query) : false;
@@ -690,11 +690,11 @@
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
       document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible.';
 
-      // Extraer enlace directo
-      const videoSource = peli.url_video || peli.link || peli.iframe || peli.url;
+      // Extraer enlace directo con fallback
+      const videoSource = peli.url_video || peli.link || peli.iframe || peli.url || '';
       
-      // Usamos encodeURI para mantener la estructura pero sin codificar doble los caracteres ya codificados
-      document.getElementById('modalPlayBtn').href = `index.html?url=${encodeURI(videoSource)}`;
+      // USO DE encodeURIComponent PARA EVITAR CORRUPCIÓN DE PARÁMETROS EN URLs COMPLEJAS
+      document.getElementById('modalPlayBtn').href = `index.html?url=${encodeURIComponent(videoSource)}`;
 
       document.getElementById('movieModal').style.display = 'flex';
     }
