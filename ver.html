@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cargando... | Reproductor</title>
+  <style>
+    :root {
+      --bg-color: #0f0c1b;
+      --card-bg: #1a162b;
+      --accent-purple: #8b5cf6;
+      --text-color: #ffffff;
+      --text-muted: #a1a1aa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .container { width: 100%; max-width: 1000px; }
+    .btn-back {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: var(--accent-purple);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .btn-back:hover { text-decoration: underline; }
+    .player-box {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background-color: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.25);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      position: relative;
+    }
+    iframe { width: 100%; height: 100%; border: none; }
+    .movie-info {
+      margin-top: 20px;
+      display: flex;
+      gap: 20px;
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .poster {
+      width: 120px; height: 180px;
+      object-fit: cover; border-radius: 8px;
+      background-color: #2a243d; flex-shrink: 0;
+    }
+    .details { display: flex; flex-direction: column; gap: 8px; }
+    .badge {
+      display: inline-block; background: var(--accent-purple);
+      color: #fff; padding: 4px 10px; font-size: 0.8rem;
+      border-radius: 20px; width: fit-content; text-transform: uppercase; font-weight: bold;
+    }
+    .description { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; }
+    .status-msg {
+      position: absolute; inset: 0; display: flex;
+      align-items: center; justify-content: center; color: var(--text-muted); text-align: center; padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <a href="index.html" class="btn-back">← Volver al catálogo</a>
+
+    <!-- Pantalla del Reproductor -->
+    <div class="player-box" id="playerContainer">
+      <div class="status-msg" id="statusMsg">Cargando película...</div>
+    </div>
+
+    <!-- Ficha de Información -->
+    <div class="movie-info" id="movieInfo" style="display: none;">
+      <img id="moviePoster" class="poster" src="" alt="Póster">
+      <div class="details">
+        <span id="movieCategory" class="badge">Película</span>
+        <h1 id="movieTitle">Título</h1>
+        <p id="movieDescription" class="description"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ⚠️ CAMBIA "TU-USUARIO" POR TU NOMBRE DE USUARIO REAL DE GITHUB
+    const REPO_PELICULAS_URL = "https://raw.githubusercontent.com/jeissonxp182/peliculas/main/";
+
+    // Capturamos los datos de la URL (ej: ver.html?cat=vhs&id=vhs-1)
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoriaJson = urlParams.get('cat'); // Ej: "vhs", "invicto", "pelis"
+    const peliculaUrlBuscada = urlParams.get('id'); // Ej: "vhs-1.html" o el identificador que uses
+
+    const playerContainer = document.getElementById('playerContainer');
+    const statusMsg = document.getElementById('statusMsg');
+    const movieInfo = document.getElementById('movieInfo');
+
+    // Ajusta automáticamente enlaces de Google Drive si llegan a usarse
+    flujoUrl = (url) => {
+      if (!url) return '';
+      if (url.includes('drive.google.com')) {
+        return url.replace(/\/view(\?.*)?$/, '/preview');
+      }
+      return url; // Funciona directo con Archive.org u otros links web
+    }
+
+    async function cargarPelicula() {
+      if (!categoriaJson || !peliculaUrlBuscada) {
+        statusMsg.textContent = "⚠️ Faltan datos en la URL (ejecuta con ?cat=nombre&id=archivodevideo).";
+        return;
+      }
+
+      try {
+        // Descarga el archivo JSON masivo correspondiente (Ej: vhs.json o pelis.json)
+        const respuesta = await fetch(`${REPO_PELICULAS_URL}${categoriaJson}.json`);
+        
+        if (!respuesta.ok) {
+          throw new Error("No se pudo descargar el archivo JSON de la categoría.");
+        }
+
+        const data = await respuesta.json();
+
+        // Como tus JSON tienen una estructura de Sagas/Categorías con un array de "peliculas":
+        // Buscamos dentro de la lista de películas la que coincida con su "url" o identificador.
+        let peliculaEncontrada = null;
+
+        data.forEach(grupo => {
+          if (grupo.peliculas) {
+            const encontrada = grupo.peliculas.find(p => p.url === peliculaUrlBuscada || p.url.includes(peliculaUrlBuscada));
+            if (encontrada) peliculaEncontrada = encontrada;
+          }
+        });
+
+        if (!peliculaEncontrada) {
+          throw new Error("No se encontró la película dentro del archivo JSON.");
+        }
+
+        // Título de la pestaña
+        document.title = `${peliculaEncontrada.titulo} | Reproductor`;
+
+        // Monta el iframe (compatible con Archive.org, Google Drive, etc.)
+        const linkFinal = flujoUrl(peliculaEncontrada.url_video || peliculaEncontrada.link || peliculaEncontrada.url);
+        
+        // Si tu JSON guarda el enlace de reproducción en otra propiedad (ej: "url_video" o "embed"), asegúrate de adaptarlo.
+        // Usaremos la propiedad iframe/link si existe, o el enlace web general.
+        playerContainer.innerHTML = `
+          <iframe 
+            src="${linkFinal}" 
+            allow="autoplay; encrypted-media; picture-in-picture" 
+            allowfullscreen>
+          </iframe>
+        `;
+
+        // Rellena la información visual
+        document.getElementById('movieTitle').textContent = peliculaEncontrada.titulo || 'Sin título';
+        document.getElementById('movieCategory').textContent = categoriaJson.toUpperCase();
+        document.getElementById('movieDescription').textContent = peliculaEncontrada.sinopsis || 'Sin descripción disponible.';
+        
+        if (peliculaEncontrada.portada) {
+          document.getElementById('moviePoster').src = peliculaEncontrada.portada;
+        } else {
+          document.getElementById('moviePoster').style.display = 'none';
+        }
+
+        movieInfo.style.display = 'flex';
+
+      } catch (error) {
+        console.error(error);
+        statusMsg.textContent = "❌ Error al cargar la película. Revisa que el JSON y el ID coincidan.";
+      }
+    }
+
+    cargarPelicula();
+  </script>
+</body>
+</html>
