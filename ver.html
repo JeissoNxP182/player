@@ -93,76 +93,85 @@
 
   <script>
     // ⚠️ CAMBIA "TU-USUARIO" POR TU NOMBRE DE USUARIO REAL DE GITHUB
-    const REPO_PELICULAS_URL = "https://raw.githubusercontent.com/jeissonxp182/peliculas/main/";
+    const BASE_URL_JSON = "https://raw.githubusercontent.com/jeissonxp182/peliculas/main/";
 
-    // Capturamos los datos de la URL (ej: ver.html?cat=vhs&id=vhs-1)
+    // 📋 LISTA DE TODOS TUS ARCHIVOS JSON EN EL REPOSITORIO "PELÍCULAS"
+    // Agrega aquí cualquier otro JSON que crees a futuro
+    const ARCHIVOS_JSON = ["vhs.json", "invicto.json", "pelis.json", "anime.json"];
+
     const urlParams = new URLSearchParams(window.location.search);
-    const categoriaJson = urlParams.get('cat'); // Ej: "vhs", "invicto", "pelis"
-    const peliculaUrlBuscada = urlParams.get('id'); // Ej: "vhs-1.html" o el identificador que uses
+    const peliculaBuscada = urlParams.get('id');
 
     const playerContainer = document.getElementById('playerContainer');
     const statusMsg = document.getElementById('statusMsg');
     const movieInfo = document.getElementById('movieInfo');
 
-    // Ajusta automáticamente enlaces de Google Drive si llegan a usarse
-    flujoUrl = (url) => {
+    // Transforma enlaces de Google Drive si aplican, o deja intactos los de Archive.org u otros
+    function procesarUrlVideo(url) {
       if (!url) return '';
       if (url.includes('drive.google.com')) {
         return url.replace(/\/view(\?.*)?$/, '/preview');
       }
-      return url; // Funciona directo con Archive.org u otros links web
+      return url;
     }
 
     async function cargarPelicula() {
-      if (!categoriaJson || !peliculaUrlBuscada) {
-        statusMsg.textContent = "⚠️ Faltan datos en la URL (ejecuta con ?cat=nombre&id=archivodevideo).";
+      if (!peliculaBuscada) {
+        statusMsg.textContent = "⚠️ No se especificó ninguna película (falta ?id= en la URL).";
         return;
       }
 
       try {
-        // Descarga el archivo JSON masivo correspondiente (Ej: vhs.json o pelis.json)
-        const respuesta = await fetch(`${REPO_PELICULAS_URL}${categoriaJson}.json`);
-        
-        if (!respuesta.ok) {
-          throw new Error("No se pudo descargar el archivo JSON de la categoría.");
-        }
-
-        const data = await respuesta.json();
-
-        // Como tus JSON tienen una estructura de Sagas/Categorías con un array de "peliculas":
-        // Buscamos dentro de la lista de películas la que coincida con su "url" o identificador.
         let peliculaEncontrada = null;
+        let categoriaDetectada = "Película";
 
-        data.forEach(grupo => {
-          if (grupo.peliculas) {
-            const encontrada = grupo.peliculas.find(p => p.url === peliculaUrlBuscada || p.url.includes(peliculaUrlBuscada));
-            if (encontrada) peliculaEncontrada = encontrada;
+        // BÚSQUEDA AUTOMÁTICA EN TODOS LOS ARCHIVOS JSON
+        for (const archivo of ARCHIVOS_JSON) {
+          try {
+            const respuesta = await fetch(`${BASE_URL_JSON}${archivo}`);
+            if (!respuesta.ok) continue;
+
+            const data = await respuesta.json();
+
+            // Buscar dentro de las sagas / listas de cada JSON
+            for (const grupo of data) {
+              if (grupo.peliculas) {
+                const coincide = grupo.peliculas.find(p => p.url === peliculaBuscada || p.url.includes(peliculaBuscada));
+                if (coincide) {
+                  peliculaEncontrada = coincide;
+                  categoriaDetectada = grupo.saga || archivo.replace('.json', '');
+                  break;
+                }
+              }
+            }
+          } catch (e) {
+            console.warn(`No se pudo leer ${archivo}:`, e);
           }
-        });
+
+          if (peliculaEncontrada) break; // Si ya la encontró, deja de buscar en los demás JSON
+        }
 
         if (!peliculaEncontrada) {
-          throw new Error("No se encontró la película dentro del archivo JSON.");
+          throw new Error("No se encontró la película en ningún archivo JSON.");
         }
 
-        // Título de la pestaña
+        // Título del navegador
         document.title = `${peliculaEncontrada.titulo} | Reproductor`;
 
-        // Monta el iframe (compatible con Archive.org, Google Drive, etc.)
-        const linkFinal = flujoUrl(peliculaEncontrada.url_video || peliculaEncontrada.link || peliculaEncontrada.url);
-        
-        // Si tu JSON guarda el enlace de reproducción en otra propiedad (ej: "url_video" o "embed"), asegúrate de adaptarlo.
-        // Usaremos la propiedad iframe/link si existe, o el enlace web general.
+        // Obtener el enlace real del video (iframe/embed/drive/archive)
+        const linkVideo = procesarUrlVideo(peliculaEncontrada.url_video || peliculaEncontrada.link || peliculaEncontrada.iframe || peliculaEncontrada.url);
+
         playerContainer.innerHTML = `
           <iframe 
-            src="${linkFinal}" 
+            src="${linkVideo}" 
             allow="autoplay; encrypted-media; picture-in-picture" 
             allowfullscreen>
           </iframe>
         `;
 
-        // Rellena la información visual
+        // Llenar información visual
         document.getElementById('movieTitle').textContent = peliculaEncontrada.titulo || 'Sin título';
-        document.getElementById('movieCategory').textContent = categoriaJson.toUpperCase();
+        document.getElementById('movieCategory').textContent = categoriaDetectada.toUpperCase();
         document.getElementById('movieDescription').textContent = peliculaEncontrada.sinopsis || 'Sin descripción disponible.';
         
         if (peliculaEncontrada.portada) {
@@ -175,7 +184,7 @@
 
       } catch (error) {
         console.error(error);
-        statusMsg.textContent = "❌ Error al cargar la película. Revisa que el JSON y el ID coincidan.";
+        statusMsg.textContent = "❌ Error al cargar la película. Verifica que la URL del ID sea correcta.";
       }
     }
 
