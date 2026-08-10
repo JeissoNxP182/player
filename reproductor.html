@@ -304,6 +304,72 @@
       font-size: 12px;
     }
 
+    /* MODAL DE ATAJOS DE TECLADO */
+    .shortcuts-panel {
+      position: absolute;
+      inset: 0;
+      background: rgba(14, 2, 28, 0.95);
+      z-index: 45;
+      display: none;
+      flex-direction: column;
+      padding: 16px;
+      backdrop-filter: blur(8px);
+      overflow-y: auto;
+    }
+
+    .shortcuts-panel.active { display: flex; }
+
+    .shortcuts-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(168, 85, 247, 0.4);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+
+    .shortcuts-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--purple-main);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .shortcut-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .shortcut-key {
+      background: var(--purple-dark);
+      border: 1px solid var(--purple-main);
+      color: #fff;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 11px;
+      min-width: 28px;
+      text-align: center;
+    }
+
+    .shortcut-desc {
+      color: #e2e8f0;
+    }
+
     /* BLOQUEO DE PANTALLA */
     .lock-overlay {
       position: absolute;
@@ -406,6 +472,10 @@
       
       <!-- ARRIBA A LA DERECHA -->
       <div class="top-controls">
+        <button class="icon-btn" id="btnShortcuts" title="Atajos de teclado">
+          <svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-3 0h2v2H5v-2zm0-3h2v2H5V8zm11 10H8v-2h8v2zm1-3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
+        </button>
+
         <button class="icon-btn" id="btnCast" title="Transmitir">
           <svg viewBox="0 0 24 24"><path d="M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
         </button>
@@ -508,6 +578,50 @@
       </div>
     </div>
 
+    <!-- PANEL MODAL DE ATAJOS DE TECLADO -->
+    <div class="shortcuts-panel" id="shortcutsPanel">
+      <div class="shortcuts-header">
+        <span class="shortcuts-title">⌨️ Atajos de Teclado</span>
+        <button class="icon-btn" id="btnCloseShortcuts" style="width:28px;height:28px;">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+      <div class="shortcuts-grid">
+        <div class="shortcut-card">
+          <span class="shortcut-key">Espacio / K</span>
+          <span class="shortcut-desc">Pausar / Reproducir</span>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-key">⬆️ Arriba</span>
+          <span class="shortcut-desc">Subir Volumen (+5%)</span>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-key">⬇️ Abajo</span>
+          <span class="shortcut-desc">Bajar Volumen (-5%)</span>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-key">⬅️ Izquierda / J</span>
+          <span class="shortcut-desc">Retroceder 10s</span>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-key">➡️ Derecha / L</span>
+          <span class="shortcut-desc">Adelantar 10s</span>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-key">M</span>
+          <span class="shortcut-desc">Silenciar / Activar sonido</span>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-key">F</span>
+          <span class="shortcut-desc">Pantalla Completa</span>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-key">P</span>
+          <span class="shortcut-desc">Modo PiP (Vídeo flotante)</span>
+        </div>
+      </div>
+    </div>
+
     <!-- CAPA DE DESBLOQUEO -->
     <div class="lock-overlay" id="lockOverlay">
       <button class="icon-btn" id="btnUnlock" style="background:rgba(20,3,38,0.8); border:1px solid var(--purple-main);">
@@ -559,6 +673,10 @@
       const optLockScreen = document.getElementById('optLockScreen');
       const lockOverlay = document.getElementById('lockOverlay');
       const btnUnlock = document.getElementById('btnUnlock');
+
+      const btnShortcuts = document.getElementById('btnShortcuts');
+      const shortcutsPanel = document.getElementById('shortcutsPanel');
+      const btnCloseShortcuts = document.getElementById('btnCloseShortcuts');
 
       const btnCopyLink = document.getElementById('btnCopyLink');
       const btnDownload = document.getElementById('btnDownload');
@@ -668,7 +786,7 @@
       }
 
       playerWrapper.addEventListener('click', (e) => {
-        if (e.target.closest('.controls-overlay') || e.target.closest('.settings-panel') || e.target.closest('.lock-overlay')) {
+        if (e.target.closest('.controls-overlay') || e.target.closest('.settings-panel') || e.target.closest('.shortcuts-panel') || e.target.closest('.lock-overlay')) {
           if (e.target === controlsOverlay) {
             controlsOverlay.classList.remove('active');
             settingsPanel.classList.remove('active');
@@ -810,6 +928,18 @@
       btnSettings.addEventListener('click', (e) => {
         e.stopPropagation();
         settingsPanel.classList.toggle('active');
+        shortcutsPanel.classList.remove('active');
+      });
+
+      btnShortcuts.addEventListener('click', (e) => {
+        e.stopPropagation();
+        shortcutsPanel.classList.toggle('active');
+        settingsPanel.classList.remove('active');
+      });
+
+      btnCloseShortcuts.addEventListener('click', (e) => {
+        e.stopPropagation();
+        shortcutsPanel.classList.remove('active');
       });
 
       selectSpeed.addEventListener('change', (e) => {
@@ -821,6 +951,7 @@
 
       optLockScreen.addEventListener('click', () => {
         settingsPanel.classList.remove('active');
+        shortcutsPanel.classList.remove('active');
         controlsOverlay.classList.remove('active');
         lockOverlay.classList.add('active');
         showToast('Pantalla bloqueada');
@@ -961,6 +1092,7 @@
       function loadVideo(rawUrl) {
         if (!rawUrl) return;
         currentUrl = rawUrl;
+        urlInput.value = rawUrl;
 
         // Limpiar HLS
         if (hlsInstance) {
@@ -1005,6 +1137,7 @@
             `;
             playerWrapper.appendChild(controlsOverlay);
             playerWrapper.appendChild(settingsPanel);
+            playerWrapper.appendChild(shortcutsPanel);
             playerWrapper.appendChild(lockOverlay);
             playerWrapper.appendChild(toastMsg);
             video = document.getElementById('mainVideo');
@@ -1061,6 +1194,13 @@
       urlInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') loadVideo(urlInput.value.trim());
       });
+
+      // --- DETECCIÓN AUTOMÁTICA DE PARÁMETROS URL (Para integración con la web principal) ---
+      const urlParams = new URLSearchParams(window.location.search);
+      const videoParam = urlParams.get('url');
+      if (videoParam) {
+        loadVideo(decodeURIComponent(videoParam));
+      }
     });
   </script>
 </body>
