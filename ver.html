@@ -13,7 +13,9 @@
       --text-color: #ffffff;
       --text-muted: #a1a1aa;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       background-color: var(--bg-color);
       color: var(--text-color);
@@ -24,7 +26,9 @@
       align-items: center;
       padding: 20px;
     }
+
     .container { width: 100%; max-width: 1000px; }
+
     .btn-back {
       display: inline-block;
       margin-bottom: 15px;
@@ -33,7 +37,12 @@
       font-weight: 600;
       transition: color 0.2s;
     }
-    .btn-back:hover { color: var(--accent-purple-hover); text-decoration: underline; }
+
+    .btn-back:hover { 
+      color: var(--accent-purple-hover); 
+      text-decoration: underline; 
+    }
+
     .player-box {
       width: 100%;
       aspect-ratio: 16 / 9;
@@ -44,7 +53,9 @@
       border: 1px solid rgba(139, 92, 246, 0.3);
       position: relative;
     }
+
     iframe { width: 100%; height: 100%; border: none; }
+
     .movie-info {
       margin-top: 20px;
       display: flex;
@@ -54,21 +65,50 @@
       border-radius: 12px;
       border: 1px solid rgba(255, 255, 255, 0.05);
     }
+
     .poster {
-      width: 120px; height: 180px;
-      object-fit: cover; border-radius: 8px;
-      background-color: #2a243d; flex-shrink: 0;
+      width: 120px; 
+      height: 180px;
+      object-fit: cover; 
+      border-radius: 8px;
+      background-color: #2a243d; 
+      flex-shrink: 0;
     }
+
     .details { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+
     .badge {
-      display: inline-block; background: var(--accent-purple);
-      color: #fff; padding: 4px 10px; font-size: 0.8rem;
-      border-radius: 20px; width: fit-content; text-transform: uppercase; font-weight: bold;
+      display: inline-block; 
+      background: var(--accent-purple);
+      color: #fff; 
+      padding: 4px 10px; 
+      font-size: 0.8rem;
+      border-radius: 20px; 
+      width: fit-content; 
+      text-transform: uppercase; 
+      font-weight: bold;
     }
+
     .description { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; }
+
     .status-msg {
-      position: absolute; inset: 0; display: flex;
-      align-items: center; justify-content: center; color: var(--text-muted); text-align: center; padding: 20px;
+      position: absolute; 
+      inset: 0; 
+      display: flex;
+      align-items: center; 
+      justify-content: center; 
+      color: var(--text-muted); 
+      text-align: center; 
+      padding: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .movie-info {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .badge { margin: 0 auto; }
     }
   </style>
 </head>
@@ -96,8 +136,7 @@
   <script>
     const BASE_URL_JSON = "https://raw.githubusercontent.com/jeissonxp182/peliculas/main/";
     
-    // ⚠️ RUTA DE TU REPRODUCTOR CUSTOM EN GITHUB PAGES
-    // Ajusta el nombre si tu archivo no es index.html dentro de 'player'
+    // RUTA DEL REPRODUCTOR PRINCIPAL
     const URL_TU_PLAYER = "https://jeissonxp182.github.io/player/";
 
     const ARCHIVOS_SECCIONES = [
@@ -123,7 +162,7 @@
         return url.replace(/\/view(\?.*)?$/, '/preview');
       }
       
-      // Archive.org: Convertir detalles a reproductor embebido si viene la URL nativa
+      // Archive.org: Convertir enlace de página de detalles a incrustado
       if (url.includes('archive.org/details/')) {
         return url.replace('archive.org/details/', 'archive.org/embed/');
       }
@@ -137,30 +176,41 @@
         return;
       }
 
+      const idBuscadoNormalizado = decodeURIComponent(peliculaBuscada).toLowerCase().trim();
+
       try {
         let peliculaEncontrada = null;
         let categoriaDetectada = "Película";
 
         for (const archivo of ARCHIVOS_SECCIONES) {
           try {
-            const respuesta = await fetch(`${BASE_URL_JSON}${archivo}`);
+            // Evitar problemas de caché agregando timestamp
+            const respuesta = await fetch(`${BASE_URL_JSON}${archivo}?v=${Date.now()}`);
             if (!respuesta.ok) continue;
 
             const data = await respuesta.json();
 
             for (const item of data) {
-              // CASO 1: Sagas o grupos
+              // CASO 1: Grupos o Sagas con arreglo interno de películas
               if (item.peliculas && Array.isArray(item.peliculas)) {
-                const coincide = item.peliculas.find(p => p.url === peliculaBuscada || p.url.includes(peliculaBuscada));
+                const coincide = item.peliculas.find(p => {
+                  const pUrl = (p.url || p.id || '').toLowerCase();
+                  const pTitulo = (p.titulo || '').toLowerCase();
+                  return pUrl.includes(idBuscadoNormalizado) || pTitulo === idBuscadoNormalizado;
+                });
+
                 if (coincide) {
                   peliculaEncontrada = coincide;
                   categoriaDetectada = item.saga || "Saga";
                   break;
                 }
               }
-              // CASO 2: Películas sueltas
-              else if (item.url) {
-                if (item.url === peliculaBuscada || item.url.includes(peliculaBuscada)) {
+              // CASO 2: Películas / Elementos sueltos
+              else {
+                const itemUrl = (item.url || item.id || '').toLowerCase();
+                const itemTitulo = (item.titulo || '').toLowerCase();
+
+                if (itemUrl.includes(idBuscadoNormalizado) || itemTitulo === idBuscadoNormalizado) {
                   peliculaEncontrada = item;
                   categoriaDetectada = archivo.replace('.json', '');
                   break;
@@ -175,12 +225,12 @@
         }
 
         if (!peliculaEncontrada) {
-          throw new Error("No se encontró la película en tus JSON de secciones.");
+          throw new Error("No se encontró la película en los archivos JSON.");
         }
 
-        document.title = `${peliculaEncontrada.titulo} | Reproductor`;
+        document.title = `${peliculaEncontrada.titulo || 'Reproductor'} | JeissoNxP`;
 
-        // Extrae la fuente real del video
+        // Extraer la URL real del video con respaldos
         let fuenteVideo = peliculaEncontrada.url_video || peliculaEncontrada.link || peliculaEncontrada.iframe;
 
         if (!fuenteVideo && peliculaEncontrada.url && !peliculaEncontrada.url.includes('ver.html')) {
@@ -188,14 +238,13 @@
         }
 
         if (!fuenteVideo) {
-          statusMsg.textContent = "⚠️ Esta película no tiene configurada una ruta de video (falta 'url_video' en el JSON).";
+          statusMsg.textContent = "⚠️ Esta película no tiene configurada una ruta de video válida.";
           return;
         }
 
         const linkVideoProcesado = procesarUrlVideo(fuenteVideo);
 
-        // 🚀 AQUÍ ESTÁ EL CAMBIO CLAVE:
-        // En lugar de meter Archive directo al iframe, se lo enviamos a TU reproductor del repo 'player'
+        // Construir la URL final codificando correctamente para el iframe del reproductor
         const iframeSrc = `${URL_TU_PLAYER}?url=${encodeURIComponent(linkVideoProcesado)}`;
 
         playerContainer.innerHTML = `
@@ -206,21 +255,24 @@
           </iframe>
         `;
 
+        // Rellenar Ficha de Información
         document.getElementById('movieTitle').textContent = peliculaEncontrada.titulo || 'Sin título';
         document.getElementById('movieCategory').textContent = categoriaDetectada.toUpperCase();
         document.getElementById('movieDescription').textContent = peliculaEncontrada.sinopsis || 'Sin descripción disponible.';
         
+        const posterImg = document.getElementById('moviePoster');
         if (peliculaEncontrada.portada) {
-          document.getElementById('moviePoster').src = peliculaEncontrada.portada;
+          posterImg.src = peliculaEncontrada.portada;
+          posterImg.style.display = 'block';
         } else {
-          document.getElementById('moviePoster').style.display = 'none';
+          posterImg.style.display = 'none';
         }
 
         movieInfo.style.display = 'flex';
 
       } catch (error) {
         console.error(error);
-        statusMsg.textContent = "❌ No se encontró la película. Revisa que el ID esté bien escrito en la URL.";
+        statusMsg.textContent = "❌ No se encontró la película. Verifica que el parámetro ?id= esté bien configurado.";
       }
     }
 
