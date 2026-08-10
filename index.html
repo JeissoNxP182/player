@@ -1,4 +1,14 @@
 <!DOCTYPE html>
+<html langEntiendo perfectamente la situación. El problema de que el reproductor se vea tan pequeño en tu celular ocurre porque, como todo se está cargando dentro del mismo archivo `index.html`, **el encabezado gigante de la página (el título, el alien y el buscador) sigue apareciendo en la parte superior**. Esto ocupa la mitad de la pantalla y "aplasta" el video, dejándole muy poco espacio.
+
+Como trabajas exclusivamente desde el teléfono celular y necesitas algo rápido y sin complicaciones, he modificado la lógica del código. Ahora, **cuando el sistema detecta que vas a ver una película, oculta automáticamente el menú superior, quita los márgenes y activa un "Modo Cine"**, donde el video ocupa el 100% del ancho de la pantalla sobre un fondo totalmente negro, dejando únicamente un botón flotante para "Volver".
+
+*(Nota: Como en el código que me pasaste el botón de reproducir apunta a `index.html?url=...`, esta solución unifica todo en un solo archivo. Ya no necesitas usar `ver.html`, todo funcionará perfectamente desde `index.html`).*
+
+Simplemente **selecciona todo, borra tu código actual y pega este de abajo al completo**:
+
+```html
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -8,14 +18,14 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="JeissoNxP | Películas, Series y Vídeos 👽">
   <meta property="og:description" content="Mi Librería Personal">
-  <meta property="og:image" content="https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80">
-  <meta property="og:url" content="https://jeissonxp182.github.io/player/">
+  <meta property="og:image" content="[https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80](https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80)">
+  <meta property="og:url" content="[https://jeissonxp182.github.io/player/](https://jeissonxp182.github.io/player/)">
 
   <!-- TARJETAS PARA X (TWITTER) Y DISCORD -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="JeissoNxP | Películas, Series y Vídeos 👽">
   <meta name="twitter:description" content="Mi Libreria Personal">
-  <meta name="twitter:image" content="https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80">
+  <meta name="twitter:image" content="[https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80](https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80)">
   
   <style>
     :root {
@@ -413,7 +423,7 @@
 </head>
 <body>
 
-  <header>
+  <header id="mainHeader">
     <div class="brand">
       <div class="brand-title">
         <span class="alien-emoji">👽</span>
@@ -463,11 +473,11 @@
   <script>
     // 📁 MAPPING DE TUS NUEVOS ARCHIVOS JSON UNIFICADOS
     const CATALOG_SOURCES = {
-      sagas: 'https://jeissonxp182.github.io/peliculas/sagas.json',
-      peliculas: 'https://jeissonxp182.github.io/peliculas/peliculas.json',
-      series: 'https://jeissonxp182.github.io/peliculas/series.json',
-      anime: 'https://jeissonxp182.github.io/peliculas/anime.json',
-      videos: 'https://jeissonxp182.github.io/peliculas/videos.json'
+      sagas: '[https://jeissonxp182.github.io/peliculas/sagas.json](https://jeissonxp182.github.io/peliculas/sagas.json)',
+      peliculas: '[https://jeissonxp182.github.io/peliculas/peliculas.json](https://jeissonxp182.github.io/peliculas/peliculas.json)',
+      series: '[https://jeissonxp182.github.io/peliculas/series.json](https://jeissonxp182.github.io/peliculas/series.json)',
+      anime: '[https://jeissonxp182.github.io/peliculas/anime.json](https://jeissonxp182.github.io/peliculas/anime.json)',
+      videos: '[https://jeissonxp182.github.io/peliculas/videos.json](https://jeissonxp182.github.io/peliculas/videos.json)'
     };
 
     let currentData = [];
@@ -520,7 +530,17 @@
       let rawUrl = urlParams.get('url');
 
       if (rawUrl) {
-        // 1. Aplicamos doble decode para resolver %2520 -> %20 -> espacio
+        // --- AQUÍ ESTÁ LA MAGIA PARA EL CELULAR ---
+        // 1. Ocultar el encabezado superior para liberar espacio visual
+        const header = document.getElementById('mainHeader');
+        if (header) header.style.display = 'none';
+
+        // 2. Limpiar estilos del fondo para el "Modo Cine"
+        document.body.style.paddingBottom = '0';
+        document.body.style.backgroundImage = 'none';
+        document.body.style.backgroundColor = '#000000';
+
+        // 3. Aplicamos doble decode para resolver %2520 -> %20 -> espacio
         let videoUrl = rawUrl;
         try {
           videoUrl = decodeURIComponent(decodeURIComponent(rawUrl));
@@ -528,7 +548,7 @@
           videoUrl = decodeURIComponent(rawUrl);
         }
 
-        // 2. Convertimos iframe de archive a MP4 si hiciera falta
+        // 4. Convertimos iframe de archive a MP4 si hiciera falta
         if (videoUrl.includes('archive.org/embed/')) {
           videoUrl = videoUrl.replace('archive.org/embed/', 'archive.org/download/') + '.mp4';
         }
@@ -536,17 +556,27 @@
         const mainContainer = document.getElementById('catalogContainer');
 
         if (mainContainer) {
+          // Preparamos el main para que sea un lienzo negro completo sin márgenes
+          mainContainer.style.padding = '0';
+          mainContainer.style.margin = '0';
+          mainContainer.style.height = '100vh';
+          mainContainer.style.display = 'flex';
+          mainContainer.style.flexDirection = 'column';
+          mainContainer.style.justifyContent = 'center';
+          mainContainer.style.alignItems = 'center';
+
+          // playsinline añadido para que no haga cosas raras en navegadores móviles
           mainContainer.innerHTML = `
-            <div style="max-width: 1000px; margin: 20px auto; width: 100%;">
-              <a href="index.html" style="display:inline-block; margin-bottom:15px; color:var(--accent-purple); text-decoration:none; font-weight:600; font-size:1rem;">← Volver al catálogo</a>
-              
-              <div style="width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-purple); box-shadow: 0 10px 30px rgba(126, 34, 206, 0.4);">
-                <video controls autoplay style="width:100%; height:100%; outline:none; background:#000;">
-                  <source src="${videoUrl}" type="video/mp4">
-                  Tu navegador no soporta el reproductor de video HTML5.
-                </video>
-              </div>
+            <div style="position: absolute; top: 20px; left: 20px; z-index: 1000;">
+              <a href="index.html" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(168, 85, 247, 0.85); backdrop-filter: blur(8px); padding: 10px 20px; border-radius: 30px; color: white; text-decoration: none; font-weight: 700; font-size: 0.95rem; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.6);">
+                ← Volver al catálogo
+              </a>
             </div>
+            
+            <video controls autoplay playsinline style="width: 100%; max-height: 100vh; background: #000; outline: none;">
+              <source src="${videoUrl}" type="video/mp4">
+              Tu navegador no soporta el reproductor de video HTML5.
+            </video>
           `;
         }
       } else {
