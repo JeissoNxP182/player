@@ -59,6 +59,11 @@
       object-fit: contain;
     }
 
+    iframe {
+      display: none;
+      z-index: 5;
+    }
+
     /* MARCA PERSONAL Y TITULO */
     .brand-watermark {
       position: absolute;
@@ -464,8 +469,9 @@
   <div class="player-wrapper" id="playerWrapper">
     <div class="brand-watermark">JeissoNxP182</div>
 
-    <!-- CONTENEDOR DINÁMICO DE VIDEO O IFRAME -->
+    <!-- ELEMENTOS DE VIDEO E IFRAME PERSISTENTES -->
     <video id="mainVideo" preload="metadata" playsinline webkit-playsinline></video>
+    <iframe id="mainIframe" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
 
     <!-- CAPA DE CONTROLES GENERALES -->
     <div class="controls-overlay" id="controlsOverlay">
@@ -643,7 +649,8 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      let video = document.getElementById('mainVideo');
+      const video = document.getElementById('mainVideo');
+      const mainIframe = document.getElementById('mainIframe');
       const playerWrapper = document.getElementById('playerWrapper');
       const controlsOverlay = document.getElementById('controlsOverlay');
       
@@ -695,6 +702,7 @@
       let controlsTimer = null;
       let isSeeking = false;
       let timeMode = 0;
+      let isEmbedMode = false;
 
       function showToast(txt) {
         toastMsg.textContent = txt;
@@ -704,16 +712,16 @@
 
       function resetAutoHide() {
         clearTimeout(controlsTimer);
-        if (video && video.tagName === 'VIDEO' && !video.paused) {
+        if (!isEmbedMode && !video.paused) {
           controlsTimer = setTimeout(() => {
             controlsOverlay.classList.remove('active');
             settingsPanel.classList.remove('active');
-          }, 10000);
+          }, 4000);
         }
       }
 
       function togglePlay() {
-        if (!video || video.tagName !== 'VIDEO') return;
+        if (isEmbedMode) return;
         if (video.paused) {
           video.play().catch(() => showToast('Toca Play'));
         } else {
@@ -724,60 +732,44 @@
       btnCenterPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); resetAutoHide(); });
       btnBottomPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); resetAutoHide(); });
 
-      function attachVideoEvents() {
-        if (!video || video.tagName !== 'VIDEO') return;
+      // EVENTOS NATIVOS DE VIDEO
+      video.addEventListener('play', () => {
+        centerIconPlay.style.display = 'none';
+        centerIconPause.style.display = 'block';
+        bottomIconPlay.style.display = 'none';
+        bottomIconPause.style.display = 'block';
+        resetAutoHide();
+      });
 
-        video.addEventListener('play', () => {
-          centerIconPlay.style.display = 'none';
-          centerIconPause.style.display = 'block';
-          bottomIconPlay.style.display = 'none';
-          bottomIconPause.style.display = 'block';
-          resetAutoHide();
-        });
+      video.addEventListener('pause', () => {
+        centerIconPlay.style.display = 'block';
+        centerIconPause.style.display = 'none';
+        bottomIconPlay.style.display = 'block';
+        bottomIconPause.style.display = 'none';
+        clearTimeout(controlsTimer);
+        controlsOverlay.classList.add('active');
+      });
 
-        video.addEventListener('pause', () => {
-          centerIconPlay.style.display = 'block';
-          centerIconPause.style.display = 'none';
-          bottomIconPlay.style.display = 'block';
-          bottomIconPause.style.display = 'none';
-          clearTimeout(controlsTimer);
-          controlsOverlay.classList.add('active');
-        });
+      video.addEventListener('timeupdate', () => {
+        if (!isSeeking) updateUI();
+      });
 
-        video.addEventListener('timeupdate', () => {
-          if (!animFrameId) updateUI();
-        });
-
-        video.addEventListener('progress', updateUI);
-
-        video.addEventListener('play', () => {
-          if (animFrameId) cancelAnimationFrame(animFrameId);
-          animFrameId = requestAnimationFrame(scheduleUpdate);
-        });
-
-        video.addEventListener('pause', () => {
-          if (animFrameId) cancelAnimationFrame(animFrameId);
-          animFrameId = null;
-          updateUI();
-        });
-      }
-
-      attachVideoEvents();
+      video.addEventListener('progress', updateUI);
 
       btnRewind.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (video && video.tagName === 'VIDEO') seekVideo(Math.max(0, video.currentTime - 10));
+        if (!isEmbedMode) seekVideo(Math.max(0, video.currentTime - 10));
         resetAutoHide();
       });
 
       btnForward.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (video && video.tagName === 'VIDEO') seekVideo(Math.min(video.duration || 0, video.currentTime + 10));
+        if (!isEmbedMode) seekVideo(Math.min(video.duration || 0, video.currentTime + 10));
         resetAutoHide();
       });
 
       function seekVideo(timeSec) {
-        if (!video || video.tagName !== 'VIDEO') return;
+        if (isEmbedMode) return;
         if (video.fastSeek) {
           video.fastSeek(timeSec);
         } else {
@@ -786,6 +778,7 @@
       }
 
       playerWrapper.addEventListener('click', (e) => {
+        if (isEmbedMode) return;
         if (e.target.closest('.controls-overlay') || e.target.closest('.settings-panel') || e.target.closest('.shortcuts-panel') || e.target.closest('.lock-overlay')) {
           if (e.target === controlsOverlay) {
             controlsOverlay.classList.remove('active');
@@ -806,20 +799,20 @@
 
       btnCast.addEventListener('click', async (e) => {
         e.stopPropagation();
-        if (video && video.remote && typeof video.remote.prompt === 'function') {
+        if (!isEmbedMode && video.remote && typeof video.remote.prompt === 'function') {
           try {
             await video.remote.prompt();
           } catch(err) {
             showToast('Dispositivo Cast no seleccionado');
           }
         } else {
-          showToast('Buscando Smart TV / Cast...');
+          showToast('Cast no disponible en este modo');
         }
       });
 
       volumeSlider.addEventListener('input', (e) => {
         e.stopPropagation();
-        if (video && video.tagName === 'VIDEO') {
+        if (!isEmbedMode) {
           video.volume = parseFloat(e.target.value);
           video.muted = (video.volume === 0);
         }
@@ -828,7 +821,7 @@
 
       btnMute.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (video && video.tagName === 'VIDEO') {
+        if (!isEmbedMode) {
           video.muted = !video.muted;
           volumeSlider.value = video.muted ? 0 : (video.volume || 1);
         }
@@ -836,7 +829,6 @@
       });
 
       function updateVolIcons() {
-        if (!video || video.tagName !== 'VIDEO') return;
         if (video.muted || video.volume === 0) {
           iconVolHigh.style.display = 'none';
           iconVolMute.style.display = 'block';
@@ -861,10 +853,8 @@
         resetAutoHide();
       });
 
-      let animFrameId = null;
-
       function updateUI() {
-        if (!video || video.tagName !== 'VIDEO') return;
+        if (isEmbedMode) return;
         const dur = video.duration || 0;
         const cur = video.currentTime || 0;
 
@@ -895,13 +885,6 @@
         videoScrubber.style.background = `linear-gradient(to right, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) ${bufPct}%, rgba(255, 255, 255, 0.2) ${bufPct}%, rgba(255, 255, 255, 0.2) 100%)`;
       }
 
-      function scheduleUpdate() {
-        updateUI();
-        if (video && video.tagName === 'VIDEO' && !video.paused && !video.ended) {
-          animFrameId = requestAnimationFrame(scheduleUpdate);
-        }
-      }
-
       videoScrubber.addEventListener('pointerdown', (e) => {
         e.stopPropagation();
         isSeeking = true;
@@ -909,7 +892,7 @@
 
       videoScrubber.addEventListener('input', (e) => {
         e.stopPropagation();
-        if (!video || video.tagName !== 'VIDEO') return;
+        if (isEmbedMode) return;
         isSeeking = true;
         const targetTime = (parseFloat(videoScrubber.value) / 100) * (video.duration || 0);
         if (timeMode === 0) currTimeElem.textContent = formatHMS(targetTime);
@@ -918,7 +901,7 @@
 
       videoScrubber.addEventListener('change', (e) => {
         e.stopPropagation();
-        if (video && video.tagName === 'VIDEO' && video.duration) {
+        if (!isEmbedMode && video.duration) {
           seekVideo((parseFloat(videoScrubber.value) / 100) * video.duration);
         }
         isSeeking = false;
@@ -943,7 +926,7 @@
       });
 
       selectSpeed.addEventListener('change', (e) => {
-        if (video && video.tagName === 'VIDEO') {
+        if (!isEmbedMode) {
           video.playbackRate = parseFloat(e.target.value);
           showToast(`Velocidad: ${e.target.value}x`);
         }
@@ -990,7 +973,7 @@
 
       btnPip.addEventListener('click', async (e) => {
         e.stopPropagation();
-        if (video && video.tagName === 'VIDEO') {
+        if (!isEmbedMode) {
           if (document.pictureInPictureElement) {
             await document.exitPictureInPicture();
           } else if (document.pictureInPictureEnabled) {
@@ -1012,14 +995,11 @@
         }
       });
 
-      // --- TECLAS DE ACCESO RÁPIDO (SHORTCUTS) ---
+      // KEYBOARD SHORTCUTS
       document.addEventListener('keydown', (e) => {
-        // Ignorar shortcuts si el usuario está escribiendo en el campo de texto
         if (document.activeElement === urlInput) return;
-        // Ignorar si la pantalla está bloqueada
         if (lockOverlay.classList.contains('active')) return;
-        // Solo aplicar si hay reproductor de vídeo nativo cargado
-        if (!video || video.tagName !== 'VIDEO') return;
+        if (isEmbedMode) return;
 
         const key = e.key.toLowerCase();
 
@@ -1088,26 +1068,27 @@
         }
       });
 
-      // --- FUNCIÓN DE CARGA HÍBRIDA (SOPORTA MP4, M3U8, YOUTUBE Y DRIVE) ---
+      // CARGA DE FUENTES DE VÍDEO CON MUTEX Y CONMUTACIÓN DE CAPAS
       function loadVideo(rawUrl) {
         if (!rawUrl) return;
         currentUrl = rawUrl;
         urlInput.value = rawUrl;
 
-        // Limpiar HLS
+        // Limpiar recursos previos
         if (hlsInstance) {
           hlsInstance.destroy();
           hlsInstance = null;
         }
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
 
         const cleanUrl = rawUrl.toLowerCase();
-        const isEmbed = cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be') || cleanUrl.includes('embed') || cleanUrl.includes('drive.google.com');
+        isEmbedMode = cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be') || cleanUrl.includes('embed') || cleanUrl.includes('drive.google.com');
 
-        if (isEmbed) {
-          // MODO IFRAME (YouTube / Drive / Embeds)
+        if (isEmbedMode) {
+          // CONMUTAR A MODO EMBED (YouTube / Drive)
           let finalEmbedUrl = rawUrl;
-          
-          // Formatear YouTube corto (youtu.be)
           if (rawUrl.includes('youtu.be/')) {
             const ytId = rawUrl.split('youtu.be/')[1].split('?')[0];
             finalEmbedUrl = `https://www.youtube.com/embed/${ytId}?autoplay=1`;
@@ -1116,39 +1097,21 @@
             finalEmbedUrl = `https://www.youtube.com/embed/${ytId}?autoplay=1`;
           }
 
-          playerWrapper.innerHTML = `
-            <div class="brand-watermark">JeissoNxP182</div>
-            <iframe src="${finalEmbedUrl}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="width:100%; height:100%; border:none;"></iframe>
-          `;
-
-          // Ocultar capa de controles morados cuando sea Iframe (YouTube trae sus propios controles)
+          video.style.display = 'none';
+          mainIframe.style.display = 'block';
+          mainIframe.src = finalEmbedUrl;
+          
           controlsOverlay.style.display = 'none';
           showToast('Cargando reproductor de YouTube...');
 
         } else {
-          // MODO NATIVO VIDEO (MP4 / M3U8)
-          controlsOverlay.style.display = 'flex';
+          // CONMUTAR A MODO VIDEO NATIVO (MP4 / M3U8)
+          mainIframe.style.display = 'none';
+          mainIframe.src = 'about:blank';
           
-          let existingVideo = document.getElementById('mainVideo');
-          if (!existingVideo) {
-            playerWrapper.innerHTML = `
-              <div class="brand-watermark">JeissoNxP182</div>
-              <video id="mainVideo" preload="metadata" playsinline webkit-playsinline></video>
-            `;
-            playerWrapper.appendChild(controlsOverlay);
-            playerWrapper.appendChild(settingsPanel);
-            playerWrapper.appendChild(shortcutsPanel);
-            playerWrapper.appendChild(lockOverlay);
-            playerWrapper.appendChild(toastMsg);
-            video = document.getElementById('mainVideo');
-            attachVideoEvents();
-          } else {
-            video = existingVideo;
-          }
-
-          video.pause();
-          video.removeAttribute('src');
-          video.load();
+          video.style.display = 'block';
+          controlsOverlay.style.display = 'flex';
+          controlsOverlay.classList.add('active');
 
           const isHls = cleanUrl.includes('.m3u8') || cleanUrl.includes('m3u8');
 
@@ -1187,6 +1150,7 @@
           }
 
           showToast('Cargando vídeo...');
+          resetAutoHide();
         }
       }
 
@@ -1195,7 +1159,7 @@
         if (e.key === 'Enter') loadVideo(urlInput.value.trim());
       });
 
-      // --- DETECCIÓN AUTOMÁTICA DE PARÁMETROS URL (Para integración con la web principal) ---
+      // DETECCIÓN DE PARÁMETROS URL
       const urlParams = new URLSearchParams(window.location.search);
       const videoParam = urlParams.get('url');
       if (videoParam) {
