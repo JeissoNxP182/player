@@ -92,12 +92,17 @@
   </div>
 
   <script>
-    // ⚠️ CAMBIA "TU-USUARIO" POR TU NOMBRE DE USUARIO REAL DE GITHUB
+    // ⚠️ REEMPLAZA CON TU USUARIO REAL DE GITHUB
     const BASE_URL_JSON = "https://raw.githubusercontent.com/jeissonxp182/peliculas/main/";
 
-    // 📋 LISTA DE TODOS TUS ARCHIVOS JSON EN EL REPOSITORIO "PELÍCULAS"
-    // Agrega aquí cualquier otro JSON que crees a futuro
-    const ARCHIVOS_JSON = ["vhs.json", "invicto.json", "pelis.json", "anime.json"];
+    // 📁 ARCHIVOS PRINCIPALES CORRESPONDIENTES A TUS SECCIONES
+    const ARCHIVOS_SECCIONES = [
+      "sagas.json",
+      "peliculas.json",
+      "series.json",
+      "anime.json",
+      "videos.json"
+    ];
 
     const urlParams = new URLSearchParams(window.location.search);
     const peliculaBuscada = urlParams.get('id');
@@ -106,7 +111,6 @@
     const statusMsg = document.getElementById('statusMsg');
     const movieInfo = document.getElementById('movieInfo');
 
-    // Transforma enlaces de Google Drive si aplican, o deja intactos los de Archive.org u otros
     function procesarUrlVideo(url) {
       if (!url) return '';
       if (url.includes('drive.google.com')) {
@@ -125,21 +129,29 @@
         let peliculaEncontrada = null;
         let categoriaDetectada = "Película";
 
-        // BÚSQUEDA AUTOMÁTICA EN TODOS LOS ARCHIVOS JSON
-        for (const archivo of ARCHIVOS_JSON) {
+        // Busca a través de tus archivos de sección
+        for (const archivo of ARCHIVOS_SECCIONES) {
           try {
             const respuesta = await fetch(`${BASE_URL_JSON}${archivo}`);
             if (!respuesta.ok) continue;
 
             const data = await respuesta.json();
 
-            // Buscar dentro de las sagas / listas de cada JSON
-            for (const grupo of data) {
-              if (grupo.peliculas) {
-                const coincide = grupo.peliculas.find(p => p.url === peliculaBuscada || p.url.includes(peliculaBuscada));
+            for (const item of data) {
+              // CASO 1: Es un JSON con sagas/grupos (ej. sagas.json)
+              if (item.peliculas && Array.isArray(item.peliculas)) {
+                const coincide = item.peliculas.find(p => p.url === peliculaBuscada || p.url.includes(peliculaBuscada));
                 if (coincide) {
                   peliculaEncontrada = coincide;
-                  categoriaDetectada = grupo.saga || archivo.replace('.json', '');
+                  categoriaDetectada = item.saga || "Saga";
+                  break;
+                }
+              }
+              // CASO 2: Es un JSON plano de películas sueltas (ej. peliculas.json)
+              else if (item.url) {
+                if (item.url === peliculaBuscada || item.url.includes(peliculaBuscada)) {
+                  peliculaEncontrada = item;
+                  categoriaDetectada = archivo.replace('.json', '');
                   break;
                 }
               }
@@ -148,17 +160,15 @@
             console.warn(`No se pudo leer ${archivo}:`, e);
           }
 
-          if (peliculaEncontrada) break; // Si ya la encontró, deja de buscar en los demás JSON
+          if (peliculaEncontrada) break;
         }
 
         if (!peliculaEncontrada) {
-          throw new Error("No se encontró la película en ningún archivo JSON.");
+          throw new Error("No se encontró la película en tus JSON de secciones.");
         }
 
-        // Título del navegador
         document.title = `${peliculaEncontrada.titulo} | Reproductor`;
 
-        // Obtener el enlace real del video (iframe/embed/drive/archive)
         const linkVideo = procesarUrlVideo(peliculaEncontrada.url_video || peliculaEncontrada.link || peliculaEncontrada.iframe || peliculaEncontrada.url);
 
         playerContainer.innerHTML = `
@@ -169,7 +179,6 @@
           </iframe>
         `;
 
-        // Llenar información visual
         document.getElementById('movieTitle').textContent = peliculaEncontrada.titulo || 'Sin título';
         document.getElementById('movieCategory').textContent = categoriaDetectada.toUpperCase();
         document.getElementById('movieDescription').textContent = peliculaEncontrada.sinopsis || 'Sin descripción disponible.';
@@ -184,7 +193,7 @@
 
       } catch (error) {
         console.error(error);
-        statusMsg.textContent = "❌ Error al cargar la película. Verifica que la URL del ID sea correcta.";
+        statusMsg.textContent = "❌ No se encontró la película. Revisa que el ID esté bien escrito en la URL.";
       }
     }
 
