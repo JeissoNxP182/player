@@ -514,13 +514,25 @@
       loadSection(e.target.value);
     });
 
-    // DETECTOR DE PARÁMETRO EN URL (REPRODUCTOR PROPIO HTML5)
+    // DETECTOR DE PARÁMETRO EN URL (REPRODUCTOR PROPIO HTML5 CON DECODE DOBLE)
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const videoUrl = urlParams.get('url');
+      let rawUrl = urlParams.get('url');
 
-      if (videoUrl) {
-        const finalVideoSrc = decodeURIComponent(videoUrl);
+      if (rawUrl) {
+        // 1. Aplicamos doble decode para resolver %2520 -> %20 -> espacio
+        let videoUrl = rawUrl;
+        try {
+          videoUrl = decodeURIComponent(decodeURIComponent(rawUrl));
+        } catch (e) {
+          videoUrl = decodeURIComponent(rawUrl);
+        }
+
+        // 2. Convertimos iframe de archive a MP4 si hiciera falta
+        if (videoUrl.includes('archive.org/embed/')) {
+          videoUrl = videoUrl.replace('archive.org/embed/', 'archive.org/download/') + '.mp4';
+        }
+
         const mainContainer = document.getElementById('catalogContainer');
 
         if (mainContainer) {
@@ -530,7 +542,7 @@
               
               <div style="width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-purple); box-shadow: 0 10px 30px rgba(126, 34, 206, 0.4);">
                 <video controls autoplay style="width:100%; height:100%; outline:none; background:#000;">
-                  <source src="${finalVideoSrc}" type="video/mp4">
+                  <source src="${videoUrl}" type="video/mp4">
                   Tu navegador no soporta el reproductor de video HTML5.
                 </video>
               </div>
@@ -680,7 +692,9 @@
 
       // Extraer enlace directo
       const videoSource = peli.url_video || peli.link || peli.iframe || peli.url;
-      document.getElementById('modalPlayBtn').href = `?url=${encodeURIComponent(videoSource)}`;
+      
+      // Usamos encodeURI para mantener la estructura pero sin codificar doble los caracteres ya codificados
+      document.getElementById('modalPlayBtn').href = `index.html?url=${encodeURI(videoSource)}`;
 
       document.getElementById('movieModal').style.display = 'flex';
     }
