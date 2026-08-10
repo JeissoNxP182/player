@@ -397,6 +397,8 @@
       box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
       transition: all 0.2s ease;
       display: block;
+      cursor: pointer;
+      border: none;
     }
 
     .btn-play:hover {
@@ -438,7 +440,7 @@
   </header>
 
   <main id="catalogContainer">
-    <!-- Se cargan dinámicamente las películas -->
+    <!-- Se cargan dinámicamente -->
   </main>
 
   <!-- MODAL -->
@@ -455,13 +457,12 @@
           <span id="modalDuration" class="tag"></span>
         </div>
         <p id="modalSinopsis" class="modal-description"></p>
-        <a id="modalPlayBtn" href="#" class="btn-play">▶ REPRODUCIR AHORA</a>
+        <button id="modalPlayBtn" class="btn-play" onclick="launchPlayer()">▶ REPRODUCIR AHORA</button>
       </div>
     </div>
   </div>
 
   <script>
-    // 📁 MAPPING DE TUS NUEVOS ARCHIVOS JSON UNIFICADOS
     const CATALOG_SOURCES = {
       sagas: 'https://jeissonxp182.github.io/peliculas/sagas.json',
       peliculas: 'https://jeissonxp182.github.io/peliculas/peliculas.json',
@@ -471,14 +472,13 @@
     };
 
     let currentData = [];
+    let selectedVideoUrl = '';
 
-    // Formateador de duración: "01h33m" -> "01h:33m"
     function formatDuration(dur) {
       if (!dur) return '';
       return dur.replace(/(\d+h)(\d+m)/, '$1:$2');
     }
 
-    // Carga un archivo JSON evitando problemas de caché
     async function fetchJSONSafely(url) {
       try {
         const res = await fetch(`${url}?v=${Math.random()}`);
@@ -491,12 +491,17 @@
       }
     }
 
-    // Cargar la sección seleccionada desde el desplegable
-    async function loadSection(sectionKey) {
+    // Cargar la sección seleccionada y actualizar el historial/URL del navegador de forma limpia
+    async function loadSection(sectionKey, updateHistory = true) {
       const url = CATALOG_SOURCES[sectionKey];
       const container = document.getElementById('catalogContainer');
 
       container.innerHTML = '<p style="text-align:center; color:var(--accent-purple); margin-top:50px;">Cargando contenido...</p>';
+
+      if (updateHistory) {
+        const newUrl = sectionKey === 'sagas' ? window.location.pathname : `?section=${sectionKey}`;
+        window.history.pushState({ section: sectionKey }, '', newUrl);
+      }
 
       if (!url) {
         container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px;">Próximamente más contenido en esta sección 🚀</p>';
@@ -508,45 +513,52 @@
       renderCatalog(currentData);
     }
 
-    // Escuchar cambios en el selector
+    // Evento del selector de secciones
     document.getElementById('sectionSelect').addEventListener('change', (e) => {
-      document.getElementById('searchInput').value = ''; // Limpiar la barra de búsqueda al cambiar
-      loadSection(e.target.value);
+      document.getElementById('searchInput').value = '';
+      loadSection(e.target.value, true);
     });
 
-    // DETECTOR DE PARÁMETRO EN URL (REPRODUCTOR PROPIO HTML5 CON DECODE DOBLE)
+    // Soporte para los botones de Atrás / Adelante del navegador
+    window.addEventListener('popstate', (event) => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (!urlParams.get('play')) {
+        const section = urlParams.get('section') || 'sagas';
+        document.getElementById('sectionSelect').value = section;
+        loadSection(section, false);
+      }
+    });
+
+    // INICIALIZACIÓN AL ABRIR LA PÁGINA
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
-      let rawUrl = urlParams.get('url');
+      const isPlayMode = urlParams.get('play') === 'true';
+      const legacyUrl = urlParams.get('url'); // Compatibilidad por si tenías enlaces guardados viejos
+      const videoUrlToPlay = isPlayMode ? sessionStorage.getItem('player_video_url') : legacyUrl;
+      const currentSection = urlParams.get('section') || 'sagas';
 
-      if (rawUrl) {
-        // --- AQUÍ ESTÁ LA MAGIA PARA EL CELULAR ---
-        // 1. Ocultar el encabezado superior para liberar espacio visual
+      if (videoUrlToPlay) {
+        // --- MODO REPRODUCTOR PROPIO (URL LIMPIA ?play=true) ---
         const header = document.getElementById('mainHeader');
         if (header) header.style.display = 'none';
 
-        // 2. Limpiar estilos del fondo para el "Modo Cine"
         document.body.style.paddingBottom = '0';
         document.body.style.backgroundImage = 'none';
         document.body.style.backgroundColor = '#000000';
 
-        // 3. Aplicamos doble decode para resolver %2520 -> %20 -> espacio
-        let videoUrl = rawUrl;
+        let videoUrl = videoUrlToPlay;
         try {
-          videoUrl = decodeURIComponent(decodeURIComponent(rawUrl));
+          videoUrl = decodeURIComponent(decodeURIComponent(videoUrlToPlay));
         } catch (e) {
-          videoUrl = decodeURIComponent(rawUrl);
+          videoUrl = decodeURIComponent(videoUrlToPlay);
         }
 
-        // 4. Convertimos iframe de archive a MP4 si hiciera falta
         if (videoUrl.includes('archive.org/embed/')) {
           videoUrl = videoUrl.replace('archive.org/embed/', 'archive.org/download/') + '.mp4';
         }
 
         const mainContainer = document.getElementById('catalogContainer');
-
         if (mainContainer) {
-          // Preparamos el main para que sea un lienzo negro completo sin márgenes
           mainContainer.style.padding = '0';
           mainContainer.style.margin = '0';
           mainContainer.style.height = '100vh';
@@ -555,7 +567,6 @@
           mainContainer.style.justifyContent = 'center';
           mainContainer.style.alignItems = 'center';
 
-          // playsinline añadido para que no haga cosas raras en navegadores móviles
           mainContainer.innerHTML = `
             <div style="position: absolute; top: 20px; left: 20px; z-index: 1000;">
               <a href="index.html" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(168, 85, 247, 0.85); backdrop-filter: blur(8px); padding: 10px 20px; border-radius: 30px; color: white; text-decoration: none; font-weight: 700; font-size: 0.95rem; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.6);">
@@ -570,12 +581,15 @@
           `;
         }
       } else {
-        // Carga inicial normal del catálogo
-        loadSection('sagas');
+        // --- MODO CATÁLOGO NORMAL ---
+        const sectionSelect = document.getElementById('sectionSelect');
+        if (sectionSelect) {
+          sectionSelect.value = currentSection;
+        }
+        loadSection(currentSection, false);
       }
     });
 
-    // DIBUJAR TARJETA INDIVIDUAL
     function createCardElement(peli) {
       const formattedDur = formatDuration(peli.duracion);
       const card = document.createElement('div');
@@ -595,7 +609,6 @@
       return card;
     }
 
-    // RENDERIZAR TODO EL CATÁLOGO (Maneja tanto sagas como items sueltos)
     function renderCatalog(items) {
       const container = document.getElementById('catalogContainer');
       const currentSection = document.getElementById('sectionSelect').value;
@@ -606,18 +619,15 @@
         return;
       }
 
-      // Iconos dinámicos
       let folderIcon = '📁';
       if (currentSection === 'peliculas') folderIcon = '🎭';
       if (currentSection === 'videos') folderIcon = '📽️';
       if (currentSection === 'series') folderIcon = '👀';
       if (currentSection === 'anime') folderIcon = '🇯🇵';
 
-      // Verificar si los datos tienen estructura de SAGAS (con el arreglo de peliculas dentro)
       const esEstructuraSagas = items.some(item => item.peliculas && Array.isArray(item.peliculas));
 
       if (esEstructuraSagas) {
-        // --- VISTA DE SAGAS CON ACORDEONES ---
         items.forEach(saga => {
           if (!saga.peliculas || saga.peliculas.length === 0) return;
 
@@ -653,7 +663,6 @@
           container.appendChild(sagaSection);
         });
       } else {
-        // --- VISTA DIRECTA DE PELÍCULAS/VIDEOS SUELTOS EN PARRILLA ---
         const grid = document.createElement('div');
         grid.className = 'grid-container';
 
@@ -665,7 +674,6 @@
       }
     }
 
-    // BUSCADOR INTELIGENTE
     function filterCatalog() {
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
 
@@ -700,7 +708,6 @@
       }
     }
 
-    // MODAL DETALLES
     function openModal(peli) {
       const formattedDur = formatDuration(peli.duracion);
 
@@ -710,13 +717,17 @@
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
       document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible.';
 
-      // Extraer enlace directo con fallback
-      const videoSource = peli.url_video || peli.link || peli.iframe || peli.url || '';
-      
-      // USO DE encodeURIComponent PARA EVITAR CORRUPCIÓN DE PARÁMETROS EN URLs COMPLEJAS
-      document.getElementById('modalPlayBtn').href = `./index.html?url=${encodeURIComponent(videoSource)}`;
+      // Guardamos la URL del video de forma interna para evitar enlaces largos en la barra de direcciones
+      selectedVideoUrl = peli.url_video || peli.link || peli.iframe || peli.url || '';
 
       document.getElementById('movieModal').style.display = 'flex';
+    }
+
+    // LANZAR EL REPRODUCTOR USANDO SESSIONSTORAGE (URL LIMPIA)
+    function launchPlayer() {
+      if (!selectedVideoUrl) return;
+      sessionStorage.setItem('player_video_url', selectedVideoUrl);
+      window.location.href = 'index.html?play=true';
     }
 
     function closeModal(event) {
