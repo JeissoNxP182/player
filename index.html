@@ -651,7 +651,11 @@
       document.getElementById('modalYear').innerHTML = `📅 ${peli.ano || 'S/A'}`;
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
       document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible.';
-      document.getElementById('modalPlayBtn').href = peli.url || '#';
+
+      // 🛠️ CORRECCIÓN APLICADA: 
+      // Busca la fuente real del video y la redirige a tu reproductor personalizado
+      const videoSource = peli.url_video || peli.link || peli.iframe || peli.url;
+      document.getElementById('modalPlayBtn').href = `https://jeissonxp182.github.io/player/?url=${encodeURIComponent(videoSource)}`;
 
       document.getElementById('movieModal').style.display = 'flex';
     }
