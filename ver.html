@@ -54,7 +54,15 @@
       position: relative;
     }
 
-    iframe { width: 100%; height: 100%; border: none; }
+    /* Estilos directos para reproductor de video e iframe */
+    .player-box video, 
+    .player-box iframe { 
+      width: 100%; 
+      height: 100%; 
+      border: none; 
+      outline: none;
+      object-fit: contain;
+    }
 
     .movie-info {
       margin-top: 20px;
@@ -135,9 +143,6 @@
 
   <script>
     const BASE_URL_JSON = "https://raw.githubusercontent.com/jeissonxp182/peliculas/main/";
-    
-    // RUTA DEL REPRODUCTOR PRINCIPAL
-    const URL_TU_PLAYER = "https://jeissonxp182.github.io/player/";
 
     const ARCHIVOS_SECCIONES = [
       "sagas.json",
@@ -157,12 +162,12 @@
     function procesarUrlVideo(url) {
       if (!url) return '';
       
-      // Google Drive
+      // Google Drive: convierte a vista previa embebida
       if (url.includes('drive.google.com')) {
         return url.replace(/\/view(\?.*)?$/, '/preview');
       }
       
-      // Archive.org: Convertir enlace de página de detalles a incrustado
+      // Archive.org: Si es un enlace de página de detalles (no mp4 directo), lo pasa a reproductor incrustado
       if (url.includes('archive.org/details/')) {
         return url.replace('archive.org/details/', 'archive.org/embed/');
       }
@@ -184,17 +189,16 @@
 
         for (const archivo of ARCHIVOS_SECCIONES) {
           try {
-            // Evitar problemas de caché agregando timestamp
             const respuesta = await fetch(`${BASE_URL_JSON}${archivo}?v=${Date.now()}`);
             if (!respuesta.ok) continue;
 
             const data = await respuesta.json();
 
             for (const item of data) {
-              // CASO 1: Grupos o Sagas con arreglo interno de películas
+              // CASO 1: Sagas o grupos
               if (item.peliculas && Array.isArray(item.peliculas)) {
                 const coincide = item.peliculas.find(p => {
-                  const pUrl = (p.url || p.id || '').toLowerCase();
+                  const pUrl = (p.url || '').toLowerCase();
                   const pTitulo = (p.titulo || '').toLowerCase();
                   return pUrl.includes(idBuscadoNormalizado) || pTitulo === idBuscadoNormalizado;
                 });
@@ -205,9 +209,9 @@
                   break;
                 }
               }
-              // CASO 2: Películas / Elementos sueltos
+              // CASO 2: Películas sueltas
               else {
-                const itemUrl = (item.url || item.id || '').toLowerCase();
+                const itemUrl = (item.url || '').toLowerCase();
                 const itemTitulo = (item.titulo || '').toLowerCase();
 
                 if (itemUrl.includes(idBuscadoNormalizado) || itemTitulo === idBuscadoNormalizado) {
@@ -230,7 +234,7 @@
 
         document.title = `${peliculaEncontrada.titulo || 'Reproductor'} | JeissoNxP`;
 
-        // Extraer la URL real del video con respaldos
+        // Extraer la ruta directa del video
         let fuenteVideo = peliculaEncontrada.url_video || peliculaEncontrada.link || peliculaEncontrada.iframe;
 
         if (!fuenteVideo && peliculaEncontrada.url && !peliculaEncontrada.url.includes('ver.html')) {
@@ -242,20 +246,29 @@
           return;
         }
 
-        const linkVideoProcesado = procesarUrlVideo(fuenteVideo);
+        const videoFinal = procesarUrlVideo(fuenteVideo);
 
-        // Construir la URL final codificando correctamente para el iframe del reproductor
-        const iframeSrc = `${URL_TU_PLAYER}?url=${encodeURIComponent(linkVideoProcesado)}`;
+        // RENDERIZADO DIRECTO
+        // Si es un archivo .mp4 directo (como los de Archive.org en tu JSON), usa la etiqueta <video>
+        if (videoFinal.toLowerCase().includes('.mp4')) {
+          playerContainer.innerHTML = `
+            <video controls autoplay style="width: 100%; height: 100%; background: #000;">
+              <source src="${videoFinal}" type="video/mp4">
+              Tu navegador no soporta el reproductor de video HTML5.
+            </video>
+          `;
+        } else {
+          // Para servidores externos o embeds (YouTube, Drive, etc.)
+          playerContainer.innerHTML = `
+            <iframe 
+              src="${videoFinal}" 
+              allow="autoplay; encrypted-media; picture-in-picture" 
+              allowfullscreen>
+            </iframe>
+          `;
+        }
 
-        playerContainer.innerHTML = `
-          <iframe 
-            src="${iframeSrc}" 
-            allow="autoplay; encrypted-media; picture-in-picture" 
-            allowfullscreen>
-          </iframe>
-        `;
-
-        // Rellenar Ficha de Información
+        // Rellenar la Ficha de Información inferior
         document.getElementById('movieTitle').textContent = peliculaEncontrada.titulo || 'Sin título';
         document.getElementById('movieCategory').textContent = categoriaDetectada.toUpperCase();
         document.getElementById('movieDescription').textContent = peliculaEncontrada.sinopsis || 'Sin descripción disponible.';
@@ -272,7 +285,7 @@
 
       } catch (error) {
         console.error(error);
-        statusMsg.textContent = "❌ No se encontró la película. Verifica que el parámetro ?id= esté bien configurado.";
+        statusMsg.textContent = "❌ No se encontró la película. Verifica el valor del parámetro ?id= en la URL.";
       }
     }
 
