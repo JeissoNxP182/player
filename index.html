@@ -426,8 +426,8 @@
       <select class="nav-select" id="sectionSelect">
         <option value="sagas" selected>📁 Sagas</option>
         <option value="peliculas">🎭 Películas</option>
-        <option value="series">📺 Series</option>
-        <option value="anime">⛩️ Anime</option>
+        <option value="series">👀 Series</option>
+        <option value="anime">🇯🇵 Anime</option>
         <option value="videos">📽️ Videos</option>
       </select>
     </div>
@@ -455,7 +455,7 @@
           <span id="modalDuration" class="tag"></span>
         </div>
         <p id="modalSinopsis" class="modal-description"></p>
-        <a id="modalPlayBtn" href="#" class="btn-play" target="_blank">▶ REPRODUCIR AHORA</a>
+        <a id="modalPlayBtn" href="#" class="btn-play">▶ REPRODUCIR AHORA</a>
       </div>
     </div>
   </div>
@@ -514,8 +514,37 @@
       loadSection(e.target.value);
     });
 
-    // Carga inicial
-    loadSection('sagas');
+    // DETECTOR DE PARÁMETRO EN URL (REPRODUCTOR AUTOMÁTICO)
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const videoUrl = urlParams.get('url');
+
+      if (videoUrl) {
+        let finalVideoSrc = decodeURIComponent(videoUrl);
+
+        // Conversión a embed de Archive o Google Drive si aplica
+        if (finalVideoSrc.includes('archive.org/details/')) {
+          finalVideoSrc = finalVideoSrc.replace('archive.org/details/', 'archive.org/embed/');
+        } else if (finalVideoSrc.includes('drive.google.com')) {
+          finalVideoSrc = finalVideoSrc.replace(/\/view(\?.*)?$/, '/preview');
+        }
+
+        const mainContainer = document.getElementById('catalogContainer');
+        if (mainContainer) {
+          mainContainer.innerHTML = `
+            <div style="max-width: 1000px; margin: 20px auto; width: 100%;">
+              <a href="index.html" style="display:inline-block; margin-bottom:15px; color:var(--accent-purple); text-decoration:none; font-weight:600;">← Volver al catálogo</a>
+              <div style="width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-purple); box-shadow: 0 10px 30px rgba(126, 34, 206, 0.3);">
+                <iframe src="${finalVideoSrc}" style="width:100%; height:100%; border:none;" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+              </div>
+            </div>
+          `;
+        }
+      } else {
+        // Carga inicial normal si no hay video en la URL
+        loadSection('sagas');
+      }
+    });
 
     // DIBUJAR TARJETA INDIVIDUAL
     function createCardElement(peli) {
@@ -552,8 +581,8 @@
       let folderIcon = '📁';
       if (currentSection === 'peliculas') folderIcon = '🎭';
       if (currentSection === 'videos') folderIcon = '📽️';
-      if (currentSection === 'series') folderIcon = '📺';
-      if (currentSection === 'anime') folderIcon = '⛩️';
+      if (currentSection === 'series') folderIcon = '👀';
+      if (currentSection === 'anime') folderIcon = '🇯🇵';
 
       // Verificar si los datos tienen estructura de SAGAS (con el arreglo de peliculas dentro)
       const esEstructuraSagas = items.some(item => item.peliculas && Array.isArray(item.peliculas));
@@ -652,10 +681,9 @@
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
       document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible.';
 
-      // 🛠️ CORRECCIÓN APLICADA: 
-      // Busca la fuente real del video y la redirige a tu reproductor personalizado
+      // Enlace directo en la misma pestaña pasando la URL del video como parámetro
       const videoSource = peli.url_video || peli.link || peli.iframe || peli.url;
-      document.getElementById('modalPlayBtn').href = `https://jeissonxp182.github.io/player/?url=${encodeURIComponent(videoSource)}`;
+      document.getElementById('modalPlayBtn').href = `?url=${encodeURIComponent(videoSource)}`;
 
       document.getElementById('movieModal').style.display = 'flex';
     }
