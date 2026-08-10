@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JeissoNxP | Películas, Series y Vídeos</title>
-    <!-- METADATOS PARA COMPARTIR EN REDES SOCIALES (Open Graph / WhatsApp / Facebook) -->
+  <!-- METADATOS PARA COMPARTIR EN REDES SOCIALES (Open Graph / WhatsApp / Facebook) -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="JeissoNxP | Películas, Series y Vídeos 👽">
   <meta property="og:description" content="Mi Librería Personal">
@@ -425,10 +425,10 @@
     <div class="nav-dropdown-container">
       <select class="nav-select" id="sectionSelect">
         <option value="sagas" selected>📁 Sagas</option>
-        <option value="peliculas">🎬 Películas</option>
+        <option value="peliculas">🎭 Películas</option>
         <option value="series">📺 Series</option>
         <option value="anime">⛩️ Anime</option>
-        <option value="videos">📹 Videos</option>
+        <option value="videos">📽️ Videos</option>
       </select>
     </div>
   
@@ -461,27 +461,16 @@
   </div>
 
   <script>
-    // Diccionario con las rutas exactas de tus archivos JSON
+    // 📁 MAPPING DE TUS NUEVOS ARCHIVOS JSON UNIFICADOS
     const CATALOG_SOURCES = {
-      sagas: [
-        'https://jeissonxp182.github.io/peliculas/vhs.json',
-        'https://jeissonxp182.github.io/peliculas/invicto.json'
-      ],
-      peliculas: [
-        'https://jeissonxp182.github.io/peliculas/pelis.json'
-      ],
-      series: [
-        'https://jeissonxp182.github.io/peliculas/series.json'
-      ],
-      anime: [
-        'https://jeissonxp182.github.io/peliculas/anime.json'
-      ],
-      videos: [
-        'https://jeissonxp182.github.io/peliculas/videos.json'
-      ]
+      sagas: 'https://jeissonxp182.github.io/peliculas/sagas.json',
+      peliculas: 'https://jeissonxp182.github.io/peliculas/peliculas.json',
+      series: 'https://jeissonxp182.github.io/peliculas/series.json',
+      anime: 'https://jeissonxp182.github.io/peliculas/anime.json',
+      videos: 'https://jeissonxp182.github.io/peliculas/videos.json'
     };
 
-    let currentSagasData = [];
+    let currentData = [];
 
     // Formateador de duración: "01h33m" -> "01h:33m"
     function formatDuration(dur) {
@@ -489,10 +478,10 @@
       return dur.replace(/(\d+h)(\d+m)/, '$1:$2');
     }
 
-    // Carga segura que evita errores si un archivo está vacío
+    // Carga un archivo JSON evitando problemas de caché
     async function fetchJSONSafely(url) {
       try {
-        const res = await fetch(url);
+        const res = await fetch(`${url}?v=${Math.random()}`);
         if (!res.ok) return [];
         const data = await res.json();
         return Array.isArray(data) ? data : [];
@@ -502,139 +491,167 @@
       }
     }
 
-    // Cargar sección según la opción del menú
+    // Cargar la sección seleccionada desde el desplegable
     async function loadSection(sectionKey) {
-      const urls = CATALOG_SOURCES[sectionKey] || [];
+      const url = CATALOG_SOURCES[sectionKey];
       const container = document.getElementById('catalogContainer');
-
-      if (urls.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px;">Próximamente más contenido en esta sección 🚀</p>';
-        currentSagasData = [];
-        return;
-      }
 
       container.innerHTML = '<p style="text-align:center; color:var(--accent-purple); margin-top:50px;">Cargando contenido...</p>';
 
-      const resultados = await Promise.all(urls.map(url => fetchJSONSafely(url)));
-      currentSagasData = resultados.flat();
+      if (!url) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px;">Próximamente más contenido en esta sección 🚀</p>';
+        currentData = [];
+        return;
+      }
 
-      renderCatalog(currentSagasData);
+      currentData = await fetchJSONSafely(url);
+      renderCatalog(currentData);
     }
 
-    // Escuchar cambios en el menú desplegable
+    // Escuchar cambios en el selector
     document.getElementById('sectionSelect').addEventListener('change', (e) => {
+      document.getElementById('searchInput').value = ''; // Limpiar la barra de búsqueda al cambiar
       loadSection(e.target.value);
     });
 
-    // Carga inicial (Sagas)
+    // Carga inicial
     loadSection('sagas');
 
-        // RENDERIZAR CATÁLOGO CON ICONOS DINÁMICOS
-    function renderCatalog(sagas) {
+    // DIBUJAR TARJETA INDIVIDUAL
+    function createCardElement(peli) {
+      const formattedDur = formatDuration(peli.duracion);
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.onclick = () => openModal(peli);
+
+      card.innerHTML = `
+        <div class="poster-wrapper">
+          <img src="${peli.portada}" alt="${peli.titulo}" loading="lazy">
+        </div>
+        <div class="card-info">
+          <div class="card-title">${peli.titulo}</div>
+          <div class="card-meta">${peli.ano || ''} ${formattedDur ? '• ' + formattedDur : ''}</div>
+        </div>
+      `;
+
+      return card;
+    }
+
+    // RENDERIZAR TODO EL CATÁLOGO (Maneja tanto sagas como items sueltos)
+    function renderCatalog(items) {
       const container = document.getElementById('catalogContainer');
       const currentSection = document.getElementById('sectionSelect').value;
       container.innerHTML = '';
 
-      let hasContent = false;
+      if (!items || items.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">No hay títulos disponibles en esta sección aún 🎬</p>';
+        return;
+      }
 
-      // Definir icono según la sección seleccionada
+      // Iconos dinámicos
       let folderIcon = '📁';
       if (currentSection === 'peliculas') folderIcon = '🎭';
       if (currentSection === 'videos') folderIcon = '📽️';
-      if (currentSection === 'series') folderIcon = '👀';
-      if (currentSection === 'anime') folderIcon = '🇯🇵';
+      if (currentSection === 'series') folderIcon = '📺';
+      if (currentSection === 'anime') folderIcon = '⛩️';
 
-      sagas.forEach(saga => {
-        if (!saga.peliculas || saga.peliculas.length === 0) return;
+      // Verificar si los datos tienen estructura de SAGAS (con el arreglo de peliculas dentro)
+      const esEstructuraSagas = items.some(item => item.peliculas && Array.isArray(item.peliculas));
 
-        hasContent = true;
+      if (esEstructuraSagas) {
+        // --- VISTA DE SAGAS CON ACORDEONES ---
+        items.forEach(saga => {
+          if (!saga.peliculas || saga.peliculas.length === 0) return;
 
-        const sagaSection = document.createElement('div');
-        sagaSection.className = 'saga-section';
+          const sagaSection = document.createElement('div');
+          sagaSection.className = 'saga-section';
 
-        const sagaHeader = document.createElement('div');
-        sagaHeader.className = 'saga-header';
-        sagaHeader.onclick = () => sagaSection.classList.toggle('collapsed');
+          const sagaHeader = document.createElement('div');
+          sagaHeader.className = 'saga-header';
+          sagaHeader.onclick = () => sagaSection.classList.toggle('collapsed');
 
-        sagaHeader.innerHTML = `
-          <div class="saga-title-content">
-            <span class="folder-icon">${folderIcon}</span>
-            <span>${saga.saga}</span>
-          </div>
-          <span class="arrow-icon">▼</span>
-        `;
+          sagaHeader.innerHTML = `
+            <div class="saga-title-content">
+              <span class="folder-icon">${folderIcon}</span>
+              <span>${saga.saga}</span>
+            </div>
+            <span class="arrow-icon">▼</span>
+          `;
 
-        sagaSection.appendChild(sagaHeader);
+          sagaSection.appendChild(sagaHeader);
 
-        const sagaContent = document.createElement('div');
-        sagaContent.className = 'saga-content';
+          const sagaContent = document.createElement('div');
+          sagaContent.className = 'saga-content';
 
+          const grid = document.createElement('div');
+          grid.className = 'grid-container';
+
+          saga.peliculas.forEach(peli => {
+            grid.appendChild(createCardElement(peli));
+          });
+
+          sagaContent.appendChild(grid);
+          sagaSection.appendChild(sagaContent);
+          container.appendChild(sagaSection);
+        });
+      } else {
+        // --- VISTA DIRECTA DE PELÍCULAS/VIDEOS SUELTOS EN PARRILLA ---
         const grid = document.createElement('div');
         grid.className = 'grid-container';
 
-        saga.peliculas.forEach(peli => {
-          const formattedDur = formatDuration(peli.duracion);
-
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.onclick = () => openModal(peli);
-
-          card.innerHTML = `
-            <div class="poster-wrapper">
-              <img src="${peli.portada}" alt="${peli.titulo}" loading="lazy">
-            </div>
-            <div class="card-info">
-              <div class="card-title">${peli.titulo}</div>
-              <div class="card-meta">${peli.ano || ''} ${formattedDur ? '• ' + formattedDur : ''}</div>
-            </div>
-          `;
-
-          grid.appendChild(card);
+        items.forEach(item => {
+          grid.appendChild(createCardElement(item));
         });
 
-        sagaContent.appendChild(grid);
-        sagaSection.appendChild(sagaContent);
-        container.appendChild(sagaSection);
-      });
-
-      if (!hasContent) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">No hay títulos disponibles en esta sección aún 🎬</p>';
+        container.appendChild(grid);
       }
     }
 
-    // BUSCADOR
+    // BUSCADOR INTELIGENTE
     function filterCatalog() {
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
 
       if (!query) {
-        renderCatalog(currentSagasData);
+        renderCatalog(currentData);
         return;
       }
 
-      const filtered = currentSagasData.map(saga => {
-        const matchesSaga = saga.saga.toLowerCase().includes(query);
-        const filteredPelis = saga.peliculas.filter(peli => {
-          const matchesTitle = peli.titulo.toLowerCase().includes(query);
+      const esEstructuraSagas = currentData.some(item => item.peliculas && Array.isArray(item.peliculas));
+
+      if (esEstructuraSagas) {
+        const filtered = currentData.map(saga => {
+          const matchesSaga = saga.saga.toLowerCase().includes(query);
+          const filteredPelis = saga.peliculas.filter(peli => {
+            const matchesTitle = peli.titulo ? peli.titulo.toLowerCase().includes(query) : false;
+            const matchesYear = peli.ano ? peli.ano.toString().includes(query) : false;
+            return matchesTitle || matchesYear || matchesSaga;
+          });
+
+          return { ...saga, peliculas: filteredPelis };
+        }).filter(saga => saga.peliculas.length > 0);
+
+        renderCatalog(filtered);
+      } else {
+        const filtered = currentData.filter(peli => {
+          const matchesTitle = peli.titulo ? peli.titulo.toLowerCase().includes(query) : false;
           const matchesYear = peli.ano ? peli.ano.toString().includes(query) : false;
-          return matchesTitle || matchesYear || matchesSaga;
+          return matchesTitle || matchesYear;
         });
 
-        return { ...saga, peliculas: filteredPelis };
-      }).filter(saga => saga.peliculas.length > 0);
-
-      renderCatalog(filtered);
+        renderCatalog(filtered);
+      }
     }
 
     // MODAL DETALLES
     function openModal(peli) {
       const formattedDur = formatDuration(peli.duracion);
 
-      document.getElementById('modalImg').src = peli.portada;
-      document.getElementById('modalTitle').innerText = peli.titulo;
+      document.getElementById('modalImg').src = peli.portada || '';
+      document.getElementById('modalTitle').innerText = peli.titulo || 'Sin título';
       document.getElementById('modalYear').innerHTML = `📅 ${peli.ano || 'S/A'}`;
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
       document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible.';
-      document.getElementById('modalPlayBtn').href = peli.url;
+      document.getElementById('modalPlayBtn').href = peli.url || '#';
 
       document.getElementById('movieModal').style.display = 'flex';
     }
