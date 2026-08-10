@@ -95,6 +95,10 @@
 
   <script>
     const BASE_URL_JSON = "https://raw.githubusercontent.com/jeissonxp182/peliculas/main/";
+    
+    // ⚠️ RUTA DE TU REPRODUCTOR CUSTOM EN GITHUB PAGES
+    // Ajusta el nombre si tu archivo no es index.html dentro de 'player'
+    const URL_TU_PLAYER = "https://jeissonxp182.github.io/player/";
 
     const ARCHIVOS_SECCIONES = [
       "sagas.json",
@@ -113,10 +117,17 @@
 
     function procesarUrlVideo(url) {
       if (!url) return '';
-      // Si es de Google Drive, la adapta para vista previa
+      
+      // Google Drive
       if (url.includes('drive.google.com')) {
         return url.replace(/\/view(\?.*)?$/, '/preview');
       }
+      
+      // Archive.org: Convertir detalles a reproductor embebido si viene la URL nativa
+      if (url.includes('archive.org/details/')) {
+        return url.replace('archive.org/details/', 'archive.org/embed/');
+      }
+
       return url;
     }
 
@@ -169,7 +180,7 @@
 
         document.title = `${peliculaEncontrada.titulo} | Reproductor`;
 
-        // Extrae la fuente real del video evitando que use 'ver.html?id=...'
+        // Extrae la fuente real del video
         let fuenteVideo = peliculaEncontrada.url_video || peliculaEncontrada.link || peliculaEncontrada.iframe;
 
         if (!fuenteVideo && peliculaEncontrada.url && !peliculaEncontrada.url.includes('ver.html')) {
@@ -181,11 +192,15 @@
           return;
         }
 
-        const linkVideo = procesarUrlVideo(fuenteVideo);
+        const linkVideoProcesado = procesarUrlVideo(fuenteVideo);
+
+        // 🚀 AQUÍ ESTÁ EL CAMBIO CLAVE:
+        // En lugar de meter Archive directo al iframe, se lo enviamos a TU reproductor del repo 'player'
+        const iframeSrc = `${URL_TU_PLAYER}?url=${encodeURIComponent(linkVideoProcesado)}`;
 
         playerContainer.innerHTML = `
           <iframe 
-            src="${linkVideo}" 
+            src="${iframeSrc}" 
             allow="autoplay; encrypted-media; picture-in-picture" 
             allowfullscreen>
           </iframe>
