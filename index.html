@@ -1,14 +1,4 @@
 <!DOCTYPE html>
-<html langEntiendo perfectamente la situación. El problema de que el reproductor se vea tan pequeño en tu celular ocurre porque, como todo se está cargando dentro del mismo archivo `index.html`, **el encabezado gigante de la página (el título, el alien y el buscador) sigue apareciendo en la parte superior**. Esto ocupa la mitad de la pantalla y "aplasta" el video, dejándole muy poco espacio.
-
-Como trabajas exclusivamente desde el teléfono celular y necesitas algo rápido y sin complicaciones, he modificado la lógica del código. Ahora, **cuando el sistema detecta que vas a ver una película, oculta automáticamente el menú superior, quita los márgenes y activa un "Modo Cine"**, donde el video ocupa el 100% del ancho de la pantalla sobre un fondo totalmente negro, dejando únicamente un botón flotante para "Volver".
-
-*(Nota: Como en el código que me pasaste el botón de reproducir apunta a `index.html?url=...`, esta solución unifica todo en un solo archivo. Ya no necesitas usar `ver.html`, todo funcionará perfectamente desde `index.html`).*
-
-Simplemente **selecciona todo, borra tu código actual y pega este de abajo al completo**:
-
-```html
-<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -18,14 +8,14 @@ Simplemente **selecciona todo, borra tu código actual y pega este de abajo al c
   <meta property="og:type" content="website">
   <meta property="og:title" content="JeissoNxP | Películas, Series y Vídeos 👽">
   <meta property="og:description" content="Mi Librería Personal">
-  <meta property="og:image" content="[https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80](https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80)">
-  <meta property="og:url" content="[https://jeissonxp182.github.io/player/](https://jeissonxp182.github.io/player/)">
+  <meta property="og:image" content="https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80">
+  <meta property="og:url" content="https://jeissonxp182.github.io/player/">
 
   <!-- TARJETAS PARA X (TWITTER) Y DISCORD -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="JeissoNxP | Películas, Series y Vídeos 👽">
   <meta name="twitter:description" content="Mi Libreria Personal">
-  <meta name="twitter:image" content="[https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80](https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80)">
+  <meta name="twitter:image" content="https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80">
   
   <style>
     :root {
@@ -473,11 +463,11 @@ Simplemente **selecciona todo, borra tu código actual y pega este de abajo al c
   <script>
     // 📁 MAPPING DE TUS NUEVOS ARCHIVOS JSON UNIFICADOS
     const CATALOG_SOURCES = {
-      sagas: '[https://jeissonxp182.github.io/peliculas/sagas.json](https://jeissonxp182.github.io/peliculas/sagas.json)',
-      peliculas: '[https://jeissonxp182.github.io/peliculas/peliculas.json](https://jeissonxp182.github.io/peliculas/peliculas.json)',
-      series: '[https://jeissonxp182.github.io/peliculas/series.json](https://jeissonxp182.github.io/peliculas/series.json)',
-      anime: '[https://jeissonxp182.github.io/peliculas/anime.json](https://jeissonxp182.github.io/peliculas/anime.json)',
-      videos: '[https://jeissonxp182.github.io/peliculas/videos.json](https://jeissonxp182.github.io/peliculas/videos.json)'
+      sagas: 'https://jeissonxp182.github.io/peliculas/sagas.json',
+      peliculas: 'https://jeissonxp182.github.io/peliculas/peliculas.json',
+      series: 'https://jeissonxp182.github.io/peliculas/series.json',
+      anime: 'https://jeissonxp182.github.io/peliculas/anime.json',
+      videos: 'https://jeissonxp182.github.io/peliculas/videos.json'
     };
 
     let currentData = [];
