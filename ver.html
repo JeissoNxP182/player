@@ -9,6 +9,7 @@
       --bg-color: #0f0c1b;
       --card-bg: #1a162b;
       --accent-purple: #8b5cf6;
+      --accent-purple-hover: #a78bfa;
       --text-color: #ffffff;
       --text-muted: #a1a1aa;
     }
@@ -30,8 +31,9 @@
       color: var(--accent-purple);
       text-decoration: none;
       font-weight: 600;
+      transition: color 0.2s;
     }
-    .btn-back:hover { text-decoration: underline; }
+    .btn-back:hover { color: var(--accent-purple-hover); text-decoration: underline; }
     .player-box {
       width: 100%;
       aspect-ratio: 16 / 9;
@@ -57,7 +59,7 @@
       object-fit: cover; border-radius: 8px;
       background-color: #2a243d; flex-shrink: 0;
     }
-    .details { display: flex; flex-direction: column; gap: 8px; }
+    .details { display: flex; flex-direction: column; gap: 8px; width: 100%; }
     .badge {
       display: inline-block; background: var(--accent-purple);
       color: #fff; padding: 4px 10px; font-size: 0.8rem;
@@ -92,10 +94,8 @@
   </div>
 
   <script>
-    // ⚠️ REEMPLAZA CON TU USUARIO REAL DE GITHUB
     const BASE_URL_JSON = "https://raw.githubusercontent.com/jeissonxp182/peliculas/main/";
 
-    // 📁 ARCHIVOS PRINCIPALES CORRESPONDIENTES A TUS SECCIONES
     const ARCHIVOS_SECCIONES = [
       "sagas.json",
       "peliculas.json",
@@ -113,6 +113,7 @@
 
     function procesarUrlVideo(url) {
       if (!url) return '';
+      // Si es de Google Drive, la adapta para vista previa
       if (url.includes('drive.google.com')) {
         return url.replace(/\/view(\?.*)?$/, '/preview');
       }
@@ -129,7 +130,6 @@
         let peliculaEncontrada = null;
         let categoriaDetectada = "Película";
 
-        // Busca a través de tus archivos de sección
         for (const archivo of ARCHIVOS_SECCIONES) {
           try {
             const respuesta = await fetch(`${BASE_URL_JSON}${archivo}`);
@@ -138,7 +138,7 @@
             const data = await respuesta.json();
 
             for (const item of data) {
-              // CASO 1: Es un JSON con sagas/grupos (ej. sagas.json)
+              // CASO 1: Sagas o grupos
               if (item.peliculas && Array.isArray(item.peliculas)) {
                 const coincide = item.peliculas.find(p => p.url === peliculaBuscada || p.url.includes(peliculaBuscada));
                 if (coincide) {
@@ -147,7 +147,7 @@
                   break;
                 }
               }
-              // CASO 2: Es un JSON plano de películas sueltas (ej. peliculas.json)
+              // CASO 2: Películas sueltas
               else if (item.url) {
                 if (item.url === peliculaBuscada || item.url.includes(peliculaBuscada)) {
                   peliculaEncontrada = item;
@@ -169,7 +169,19 @@
 
         document.title = `${peliculaEncontrada.titulo} | Reproductor`;
 
-        const linkVideo = procesarUrlVideo(peliculaEncontrada.url_video || peliculaEncontrada.link || peliculaEncontrada.iframe || peliculaEncontrada.url);
+        // Extrae la fuente real del video evitando que use 'ver.html?id=...'
+        let fuenteVideo = peliculaEncontrada.url_video || peliculaEncontrada.link || peliculaEncontrada.iframe;
+
+        if (!fuenteVideo && peliculaEncontrada.url && !peliculaEncontrada.url.includes('ver.html')) {
+          fuenteVideo = peliculaEncontrada.url;
+        }
+
+        if (!fuenteVideo) {
+          statusMsg.textContent = "⚠️ Esta película no tiene configurada una ruta de video (falta 'url_video' en el JSON).";
+          return;
+        }
+
+        const linkVideo = procesarUrlVideo(fuenteVideo);
 
         playerContainer.innerHTML = `
           <iframe 
