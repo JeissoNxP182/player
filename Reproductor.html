@@ -881,6 +881,82 @@
         }
       });
 
+      // --- TECLAS DE ACCESO RÁPIDO (SHORTCUTS) ---
+      document.addEventListener('keydown', (e) => {
+        // Ignorar shortcuts si el usuario está escribiendo en el campo de texto
+        if (document.activeElement === urlInput) return;
+        // Ignorar si la pantalla está bloqueada
+        if (lockOverlay.classList.contains('active')) return;
+        // Solo aplicar si hay reproductor de vídeo nativo cargado
+        if (!video || video.tagName !== 'VIDEO') return;
+
+        const key = e.key.toLowerCase();
+
+        switch (key) {
+          case ' ':
+          case 'k':
+            e.preventDefault();
+            togglePlay();
+            resetAutoHide();
+            break;
+
+          case 'arrowleft':
+          case 'j':
+            e.preventDefault();
+            seekVideo(Math.max(0, video.currentTime - 10));
+            resetAutoHide();
+            showToast('-10s');
+            break;
+
+          case 'arrowright':
+          case 'l':
+            e.preventDefault();
+            seekVideo(Math.min(video.duration || 0, video.currentTime + 10));
+            resetAutoHide();
+            showToast('+10s');
+            break;
+
+          case 'arrowup':
+            e.preventDefault();
+            video.volume = Math.min(1, video.volume + 0.05);
+            video.muted = (video.volume === 0);
+            volumeSlider.value = video.volume;
+            updateVolIcons();
+            resetAutoHide();
+            showToast(`Vol: ${Math.round(video.volume * 100)}%`);
+            break;
+
+          case 'arrowdown':
+            e.preventDefault();
+            video.volume = Math.max(0, video.volume - 0.05);
+            video.muted = (video.volume === 0);
+            volumeSlider.value = video.volume;
+            updateVolIcons();
+            resetAutoHide();
+            showToast(`Vol: ${Math.round(video.volume * 100)}%`);
+            break;
+
+          case 'm':
+            e.preventDefault();
+            video.muted = !video.muted;
+            volumeSlider.value = video.muted ? 0 : (video.volume || 1);
+            updateVolIcons();
+            resetAutoHide();
+            showToast(video.muted ? 'Silenciado' : 'Sonido activado');
+            break;
+
+          case 'f':
+            e.preventDefault();
+            btnFullscreen.click();
+            break;
+
+          case 'p':
+            e.preventDefault();
+            btnPip.click();
+            break;
+        }
+      });
+
       // --- FUNCIÓN DE CARGA HÍBRIDA (SOPORTA MP4, M3U8, YOUTUBE Y DRIVE) ---
       function loadVideo(rawUrl) {
         if (!rawUrl) return;
