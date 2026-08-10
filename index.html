@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JeissoNxP | Películas, Series y Vídeos</title>
-  <!-- METADATOS PARA COMPARTIR EN REDES SOCIALES (Open Graph / WhatsApp / Facebook) -->
+  <!-- METADATOS PARA COMPARTIR EN REDES SOCIALES -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="JeissoNxP | Películas, Series y Vídeos 👽">
   <meta property="og:description" content="Mi Librería Personal">
@@ -425,7 +425,7 @@
     </div>
     
     <div class="nav-dropdown-container">
-      <select class="nav-select" id="sectionSelect">
+      <select class="nav-select" id="sectionSelect" onchange="switchSection(this.value)">
         <option value="sagas" selected>📁 Sagas</option>
         <option value="peliculas">🎭 Películas</option>
         <option value="series">👀 Series</option>
@@ -463,143 +463,74 @@
   </div>
 
   <script>
-    // RUTAS ACTUALIZADAS A TUS ARCHIVOS JSON ESPECÍFICOS EN CADA REPOSITORIO
-    const CATALOG_SOURCES = {
+    // =========================================================================
+    // CATÁLOGO LOCAL: Agrega aquí tus archivos HTML individuales por cada película o saga
+    // =========================================================================
+    const LOCAL_CATALOG = {
       sagas: [
-        'https://jeissonxp182.github.io/sagas/vhs.json'
-        // Aquí podrás agregar más archivos json de sagas en el futuro, ej: 'https://jeissonxp182.github.io/sagas/invicto.json'
+        {
+          saga: "V/H/S (Saga)",
+          abierta: true,
+          peliculas: [
+            {
+              titulo: "V/H/S: Las crónicas del miedo",
+              ano: "2012",
+              duracion: "01h:56m",
+              portada: "https://m.media-amazon.com/images/S/pv-target-images/2b1354e4eb010e86e07d4536dfa06322d07dfe41e38e51427b16a0387732467f.png",
+              sinopsis: "Un grupo de delincuentes menores es contratado para recuperar un VHS en una casa desierta. Al llegar, descubren una serie espeluznante de cintas de vídeo con metraje encontrado.",
+              url_html: "sagas/vhs.html" // <- Enlace directo a tu archivo HTML con tu reproductor
+            }
+            // Puedes agregar más películas de esta saga aquí
+          ]
+        }
+        // Puedes agregar más sagas aquí
       ],
       peliculas: [
-        'https://jeissonxp182.github.io/peliculas/peliculas.json'
+        /*
+        {
+          titulo: "Nombre de la Película",
+          ano: "2024",
+          duracion: "01h:40m",
+          portada: "url_de_la_portada.jpg",
+          sinopsis: "Sinopsis de la película...",
+          url_html: "peliculas/nombre-pelicula.html"
+        }
+        */
       ],
       series: [
-        'https://jeissonxp182.github.io/series/series.json'
+        // Tus series aquí
       ],
       anime: [
-        'https://jeissonxp182.github.io/anime/anime.json'
+        // Tus animes aquí
       ],
       videos: [
-        'https://jeissonxp182.github.io/videos/videos.json'
+        // Tus videos aquí
       ]
     };
 
-    let currentData = [];
-    let selectedVideoUrl = '';
+    let currentSectionKey = 'sagas';
+    let targetHtmlUrl = '';
 
     function formatDuration(dur) {
       if (!dur) return '';
-      // Si la duración viene como "01h:56m", la normalizamos de forma limpia
       return dur.replace(/(\d+h):?(\d+m)/, '$1:$2');
     }
 
-    async function fetchJSONSafely(url) {
-      try {
-        const res = await fetch(`${url}?v=${Math.random()}`);
-        if (!res.ok) return [];
-        const data = await res.json();
-        return Array.isArray(data) ? data : [];
-      } catch (err) {
-        console.warn('No se pudo leer el archivo:', url, err);
-        return [];
-      }
-    }
-
-    async function loadSection(sectionKey, updateHistory = true) {
-      const urls = CATALOG_SOURCES[sectionKey];
+    function loadSection(sectionKey) {
+      currentSectionKey = sectionKey;
       const container = document.getElementById('catalogContainer');
+      const items = LOCAL_CATALOG[sectionKey] || [];
 
-      container.innerHTML = '<p style="text-align:center; color:var(--accent-purple); margin-top:50px;">Cargando contenido...</p>';
-
-      if (updateHistory) {
-        const newUrl = sectionKey === 'sagas' ? window.location.pathname : `?section=${sectionKey}`;
-        window.history.pushState({ section: sectionKey }, '', newUrl);
-      }
-
-      if (!urls || urls.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px;">Próximamente más contenido en esta sección 🚀</p>';
-        currentData = [];
-        return;
-      }
-
-      // Descargamos y unimos todos los archivos JSON configurados para esta sección
-      let combinedData = [];
-      for (const url of urls) {
-        const data = await fetchJSONSafely(url);
-        if (data.length > 0) {
-          combinedData = combinedData.concat(data);
-        }
-      }
-
-      currentData = combinedData;
-      renderCatalog(currentData);
+      renderCatalog(items);
     }
 
-    document.getElementById('sectionSelect').addEventListener('change', (e) => {
+    function switchSection(sectionKey) {
       document.getElementById('searchInput').value = '';
-      loadSection(e.target.value, true);
-    });
-
-    window.addEventListener('popstate', (event) => {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (!urlParams.get('play')) {
-        const section = urlParams.get('section') || 'sagas';
-        document.getElementById('sectionSelect').value = section;
-        loadSection(section, false);
-      }
-    });
+      loadSection(sectionKey);
+    }
 
     window.addEventListener('DOMContentLoaded', () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const isPlayMode = urlParams.get('play') === 'true';
-      const legacyUrl = urlParams.get('url');
-      const videoUrlToPlay = isPlayMode ? sessionStorage.getItem('player_video_url') : legacyUrl;
-      const currentSection = urlParams.get('section') || 'sagas';
-
-      if (videoUrlToPlay) {
-        const header = document.getElementById('mainHeader');
-        if (header) header.style.display = 'none';
-
-        document.body.style.paddingBottom = '0';
-        document.body.style.backgroundImage = 'none';
-        document.body.style.backgroundColor = '#000000';
-
-        let videoUrl = videoUrlToPlay;
-        try {
-          videoUrl = decodeURIComponent(videoUrlToPlay);
-        } catch (e) {
-          videoUrl = videoUrlToPlay;
-        }
-
-        const mainContainer = document.getElementById('catalogContainer');
-        if (mainContainer) {
-          mainContainer.style.padding = '0';
-          mainContainer.style.margin = '0';
-          mainContainer.style.height = '100vh';
-          mainContainer.style.display = 'flex';
-          mainContainer.style.flexDirection = 'column';
-          mainContainer.style.justifyContent = 'center';
-          mainContainer.style.alignItems = 'center';
-
-          mainContainer.innerHTML = `
-            <div style="position: absolute; top: 20px; left: 20px; z-index: 1000;">
-              <a href="index.html" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(168, 85, 247, 0.85); backdrop-filter: blur(8px); padding: 10px 20px; border-radius: 30px; color: white; text-decoration: none; font-weight: 700; font-size: 0.95rem; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.6);">
-                ← Volver al catálogo
-              </a>
-            </div>
-            
-            <video controls autoplay playsinline style="width: 100%; max-height: 100vh; background: #000; outline: none;">
-              <source src="${videoUrl}" type="video/mp4">
-              Tu navegador no soporta el reproductor de video HTML5.
-            </video>
-          `;
-        }
-      } else {
-        const sectionSelect = document.getElementById('sectionSelect');
-        if (sectionSelect) {
-          sectionSelect.value = currentSection;
-        }
-        loadSection(currentSection, false);
-      }
+      loadSection('sagas');
     });
 
     function createCardElement(peli) {
@@ -623,19 +554,18 @@
 
     function renderCatalog(items) {
       const container = document.getElementById('catalogContainer');
-      const currentSection = document.getElementById('sectionSelect').value;
       container.innerHTML = '';
 
       if (!items || items.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">No hay títulos disponibles en esta sección aún 🎬</p>';
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Próximamente más contenido en esta sección 🚀</p>';
         return;
       }
 
       let folderIcon = '📁';
-      if (currentSection === 'peliculas') folderIcon = '🎭';
-      if (currentSection === 'videos') folderIcon = '📽️';
-      if (currentSection === 'series') folderIcon = '👀';
-      if (currentSection === 'anime') folderIcon = '🇯🇵';
+      if (currentSectionKey === 'peliculas') folderIcon = '🎭';
+      if (currentSectionKey === 'videos') folderIcon = '📽️';
+      if (currentSectionKey === 'series') folderIcon = '👀';
+      if (currentSectionKey === 'anime') folderIcon = '🇯🇵';
 
       const esEstructuraSagas = items.some(item => item.peliculas && Array.isArray(item.peliculas));
 
@@ -691,16 +621,17 @@
 
     function filterCatalog() {
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const items = LOCAL_CATALOG[currentSectionKey] || [];
 
       if (!query) {
-        renderCatalog(currentData);
+        renderCatalog(items);
         return;
       }
 
-      const esEstructuraSagas = currentData.some(item => item.peliculas && Array.isArray(item.peliculas));
+      const esEstructuraSagas = items.some(item => item.peliculas && Array.isArray(item.peliculas));
 
       if (esEstructuraSagas) {
-        const filtered = currentData.map(saga => {
+        const filtered = items.map(saga => {
           const matchesSaga = saga.saga ? saga.saga.toLowerCase().includes(query) : false;
           const filteredPelis = saga.peliculas.filter(peli => {
             const matchesTitle = peli.titulo ? peli.titulo.toLowerCase().includes(query) : false;
@@ -713,7 +644,7 @@
 
         renderCatalog(filtered);
       } else {
-        const filtered = currentData.filter(peli => {
+        const filtered = items.filter(peli => {
           const matchesTitle = peli.titulo ? peli.titulo.toLowerCase().includes(query) : false;
           const matchesYear = peli.ano ? peli.ano.toString().includes(query) : false;
           return matchesTitle || matchesYear;
@@ -732,15 +663,16 @@
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
       document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible.';
 
-      selectedVideoUrl = peli.url_video || peli.link || peli.iframe || peli.url || '';
+      // Guardamos la ruta del archivo HTML individual
+      targetHtmlUrl = peli.url_html || '';
 
       document.getElementById('movieModal').style.display = 'flex';
     }
 
     function launchPlayer() {
-      if (!selectedVideoUrl) return;
-      sessionStorage.setItem('player_video_url', selectedVideoUrl);
-      window.location.href = 'index.html?play=true';
+      if (!targetHtmlUrl) return;
+      // Redirige directamente al archivo HTML independiente con tu reproductor personalizado
+      window.location.href = targetHtmlUrl;
     }
 
     function closeModal(event) {
