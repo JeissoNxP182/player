@@ -714,7 +714,7 @@
       const videoSource = peli.url_video || peli.link || peli.iframe || peli.url || '';
       
       // USO DE encodeURIComponent PARA EVITAR CORRUPCIÓN DE PARÁMETROS EN URLs COMPLEJAS
-      document.getElementById('modalPlayBtn').href = `index.html?url=${encodeURIComponent(videoSource)}`;
+      document.getElementById('modalPlayBtn').href = `./index.html?url=${encodeURIComponent(videoSource)}`;
 
       document.getElementById('movieModal').style.display = 'flex';
     }
