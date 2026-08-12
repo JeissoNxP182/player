@@ -820,9 +820,13 @@
 
       btnLoad.addEventListener('click', () => loadVideo(urlInput.value.trim()));
       urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadVideo(urlInput.value.trim()); });
+      
+      // CONFIGURACIÓN DINÁMICA DE URL: Lee tanto 'url', 'v', o 'video' desde los parámetros
       const urlParams = new URLSearchParams(window.location.search);
-      const videoParam = urlParams.get('url');
-      if (videoParam) loadVideo(decodeURIComponent(videoParam));
+      const videoParam = urlParams.get('url') || urlParams.get('v') || urlParams.get('video');
+      if (videoParam) {
+        loadVideo(decodeURIComponent(videoParam));
+      }
     });
   </script>
 </body>
