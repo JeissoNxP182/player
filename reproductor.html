@@ -754,6 +754,20 @@
       let timeMode = 0;
       let isEmbedMode = false;
 
+      // Función para anclar el audio al perfil Multimedia (evita modo llamada/manos libres)
+      function forceMediaAudioContext() {
+        try {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            const audioCtx = new AudioContext();
+            const oscillator = audioCtx.createOscillator();
+            oscillator.connect(audioCtx.destination);
+            oscillator.start(0);
+            oscillator.stop(0.01);
+          }
+        } catch (e) {}
+      }
+
       // Gestión de historia (Botón atrás para cerrar reproductor)
       window.addEventListener('popstate', (e) => {
         if (currentUrl) {
@@ -812,6 +826,7 @@
 
       btnInitialPlay.addEventListener('click', (e) => {
         e.stopPropagation();
+        forceMediaAudioContext(); // <-- Forzar perfil multimedia aquí
         initialPlayOverlay.classList.add('hidden');
         if (pendingUrl) {
           actualLoadAndPlay(pendingUrl);
