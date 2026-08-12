@@ -517,7 +517,7 @@
       </button>
     </div>
 
-    <!-- ELEMENTOS DE VIDEO E IFRAME PERSISTENTES (AÑADIDOS ATRIBUTOS DE MEDIA ESTÁNDAR) -->
+    <!-- ELEMENTOS DE VIDEO E IFRAME PERSISTENTES -->
     <video id="mainVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline></video>
     <iframe id="mainIframe" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
 
@@ -753,17 +753,46 @@
       let isSeeking = false;
       let timeMode = 0;
       let isEmbedMode = false;
+      let audioCtx = null;
 
-      // Historial seguro para evitar cierre completo de página al dar atrás
-      window.history.pushState({ player: true }, '', window.location.href);
+      // Puente Web Audio API para forzar salida exclusiva por el Altavoz multimedia (evita earpiece / altavoz de llamada)
+      function initAudioRouting() {
+        if (!audioCtx) {
+          try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+            const source = audioCtx.createMediaElementSource(video);
+            source.connect(audioCtx.destination);
+          } catch (err) {}
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+      }
+
+      // Gestión limpia del historial (Botón atrás)
       window.addEventListener('popstate', (e) => {
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('url')) {
-          e.preventDefault();
-          history.pushState(null, '', window.location.pathname);
-          window.location.reload();
+        if (!urlParams.get('url') && currentUrl) {
+          unloadVideoInternal();
         }
       });
+
+      function unloadVideoInternal() {
+        currentUrl = '';
+        pendingUrl = '';
+        if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+        video.style.display = 'block';
+        mainIframe.style.display = 'none';
+        mainIframe.src = 'about:blank';
+        controlsOverlay.style.display = 'flex';
+        controlsOverlay.classList.remove('active');
+        initialPlayOverlay.classList.remove('hidden');
+        videoTitleDisplay.textContent = '';
+      }
 
       function getCleanTitle(url) {
         try {
@@ -792,6 +821,7 @@
 
       function togglePlay() {
         if (isEmbedMode) return;
+        initAudioRouting();
         if (video.paused) {
           video.play().catch(() => {});
         } else {
@@ -801,6 +831,7 @@
 
       btnInitialPlay.addEventListener('click', (e) => {
         e.stopPropagation();
+        initAudioRouting();
         initialPlayOverlay.classList.add('hidden');
         if (pendingUrl) {
           actualLoadAndPlay(pendingUrl);
@@ -983,6 +1014,10 @@
         urlInput.value = '';
 
         videoTitleDisplay.textContent = getCleanTitle(rawUrl);
+
+        if (!window.location.search.includes('url=')) {
+          history.pushState({ videoLoaded: true }, '', '?url=' + encodeURIComponent(rawUrl));
+        }
 
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
         video.pause();
