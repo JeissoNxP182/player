@@ -753,23 +753,6 @@
       let isSeeking = false;
       let timeMode = 0;
       let isEmbedMode = false;
-      let audioCtx = null;
-
-      // Puente Web Audio API corregido para forzar altavoz principal
-      function initAudioRouting() {
-        if (!audioCtx) {
-          try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            // { latencyHint: 'playback' } fuerza el canal multimedia en móviles
-            audioCtx = new AudioContext({ latencyHint: 'playback' });
-            const source = audioCtx.createMediaElementSource(video);
-            source.connect(audioCtx.destination);
-          } catch (err) {}
-        }
-        if (audioCtx && audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-      }
 
       // Gestión de historia (Botón atrás para cerrar reproductor)
       window.addEventListener('popstate', (e) => {
@@ -820,7 +803,6 @@
 
       function togglePlay() {
         if (isEmbedMode) return;
-        initAudioRouting();
         if (video.paused) {
           video.play().catch(() => {});
         } else {
@@ -830,7 +812,6 @@
 
       btnInitialPlay.addEventListener('click', (e) => {
         e.stopPropagation();
-        initAudioRouting();
         initialPlayOverlay.classList.add('hidden');
         if (pendingUrl) {
           actualLoadAndPlay(pendingUrl);
@@ -1013,7 +994,6 @@
 
         videoTitleDisplay.textContent = getCleanTitle(rawUrl);
 
-        // Añadimos al historial para que el botón atrás funcione
         history.pushState({ videoLoaded: true }, '');
 
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
