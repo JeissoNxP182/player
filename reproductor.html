@@ -859,7 +859,7 @@
       function loadVideo(rawUrl, isAutoLoad = false) {
         if (!rawUrl) return;
         currentUrl = rawUrl;
-        urlInput.value = rawUrl;
+        urlInput.value = ''; // Limpiamos el input después de recibir el valor
 
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
         video.pause();
@@ -887,9 +887,14 @@
           controlsOverlay.style.display = 'flex';
           controlsOverlay.classList.add('active');
 
+          // Prioridad: Archivos directos primero
+          const isDirect = cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.webm') || cleanUrl.endsWith('.ogg');
           const isHls = cleanUrl.includes('.m3u8');
 
-          if (isHls) {
+          if (isDirect) {
+            video.src = rawUrl;
+            if (!isAutoLoad) video.play().catch(() => showToast('Pulsa Play'));
+          } else if (isHls) {
             if (video.canPlayType('application/vnd.apple.mpegurl')) {
               video.src = rawUrl;
               if (!isAutoLoad) video.play().catch(() => {});
@@ -928,13 +933,11 @@
       }
 
       btnLoad.addEventListener('click', () => loadVideo(urlInput.value.trim(), false));
-      urlInput.arguments = null;
       urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadVideo(urlInput.value.trim(), false); });
       
       const urlParams = new URLSearchParams(window.location.search);
       const videoParam = urlParams.get('url');
       if (videoParam) {
-        // Se pasa directamente sin doble decode y se marca como carga automática para evitar bloqueos del navegador
         loadVideo(videoParam, true);
       }
     });
