@@ -13,7 +13,7 @@
       --purple-main: #a855f7;
       --purple-dark: #3b0764;
       --purple-deep: #140326;
-      --silver-gradient: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+      --silver-gradient: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 50%, #cbd5e1 100%);
       --text-color: #f8fafc;
     }
 
@@ -34,48 +34,14 @@
       color: var(--text-color);
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
-    }
-
-    /* BARRA SUPERIOR DE MARCA Y TÍTULO DE LA PELÍCULA */
-    .top-header-bar {
-      width: 100%;
-      padding: 12px 16px;
-      background: rgba(20, 3, 38, 0.95);
-      border-bottom: 1px solid rgba(168, 85, 247, 0.4);
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-      z-index: 100;
-    }
-
-    .brand-watermark {
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: 1.5px;
-      background: var(--silver-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 2px 10px rgba(168, 85, 247, 0.6);
-      text-transform: uppercase;
-    }
-
-    .video-title-display {
-      font-size: 15px;
-      font-weight: 600;
-      color: #e2e8f0;
-      white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis;
-      min-height: 20px;
     }
 
     /* REPRODUCTOR - CONTENEDOR PRINCIPAL */
     .player-wrapper {
       width: 100%;
-      height: 55vh;
-      max-height: 65vh;
+      height: 60vh;
+      max-height: 70vh;
       position: relative;
       background: #000;
       display: flex;
@@ -91,11 +57,6 @@
       height: 100%;
       border: none;
       object-fit: contain;
-      transition: transform 0.2s ease, object-fit 0.2s ease;
-    }
-
-    video.mirror-mode {
-      transform: scaleX(-1);
     }
 
     iframe {
@@ -103,47 +64,36 @@
       z-index: 5;
     }
 
-    /* ZONAS TÁCTILES PARA DOBLE TAP EN MÓVIL/PC */
-    .touch-zones {
+    /* MARCA PERSONAL Y TÍTULO LIMPIO DEL VÍDEO */
+    .brand-watermark {
       position: absolute;
-      inset: 0;
-      display: flex;
-      z-index: 15;
-      pointer-events: auto;
-    }
-
-    .touch-zone-left, .touch-zone-right {
-      flex: 1;
-      height: 100%;
-    }
-
-    /* FEEDBACK VISUAL DEL DOBLE TAP */
-    .tap-feedback {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: rgba(168, 85, 247, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 700;
-      color: #fff;
+      top: 12px;
+      left: 14px;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: var(--silver-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 8px rgba(168, 85, 247, 0.4);
+      z-index: 25;
       pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      z-index: 28;
     }
 
-    .tap-feedback.left { left: 15%; }
-    .tap-feedback.right { right: 15%; }
-
-    .tap-feedback.animate {
-      opacity: 1;
-      transform: translateY(-50%) scale(1.1);
+    .video-title-display {
+      position: absolute;
+      top: 36px;
+      left: 14px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #cbd5e1;
+      max-width: 70%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 25;
+      pointer-events: none;
+      opacity: 0.85;
     }
 
     /* CAPA INICIAL EXCLUSIVA (SOLO PLAY GRANDE) */
@@ -210,15 +160,16 @@
       pointer-events: auto;
     }
 
+    /* FILA SUPERIOR CONTROLES (DERECHA) */
     .top-controls {
       display: flex;
       justify-content: flex-end;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       width: 100%;
-      flex-wrap: wrap;
     }
 
+    /* CONTROLES CENTRALES (ATRASAR - PLAY - ADELANTAR) */
     .center-controls {
       position: absolute;
       top: 50%;
@@ -257,6 +208,7 @@
       border-color: #cbd5e1;
     }
 
+    /* FILA INFERIOR CONTROLES */
     .bottom-controls-wrapper {
       display: flex;
       flex-direction: column;
@@ -264,6 +216,7 @@
       width: 100%;
     }
 
+    /* BARRA DESLIZANTE CON BUFFER REAL */
     .scrubber-container {
       width: 100%;
       display: flex;
@@ -296,39 +249,6 @@
       cursor: pointer;
     }
 
-    /* RESTAURACIÓN DEL CSS QUE SE CORTÓ */
-    .scrubber-tooltip {
-      position: absolute;
-      bottom: 14px;
-      transform: translateX(-50%);
-      background: rgba(20, 3, 38, 0.95);
-      border: 1px solid var(--purple-main);
-      border-radius: 6px;
-      padding: 4px;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      z-index: 25;
-      pointer-events: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-    }
-
-    .scrubber-tooltip canvas {
-      width: 100px;
-      height: 56px;
-      border-radius: 4px;
-      background: #000;
-      object-fit: cover;
-    }
-
-    .scrubber-tooltip span {
-      font-size: 10px;
-      font-family: monospace;
-      color: #e2e8f0;
-      font-weight: 700;
-    }
-
     .bottom-row {
       display: flex;
       justify-content: space-between;
@@ -341,6 +261,7 @@
       gap: 10px;
     }
 
+    /* CONTADOR UNIFICADO CONMUTABLE */
     .time-counter {
       font-size: 11px;
       font-weight: 700;
@@ -358,6 +279,7 @@
       background: rgba(168, 85, 247, 0.4);
     }
 
+    /* ESTILO GENERAL DE BOTONES / ICONOS */
     .icon-btn {
       background: none;
       border: none;
@@ -369,12 +291,11 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: background 0.15s, color 0.15s;
+      transition: background 0.15s;
     }
 
-    .icon-btn:active, .icon-btn.active {
+    .icon-btn:active {
       background: rgba(168, 85, 247, 0.3);
-      color: var(--purple-main);
     }
 
     .icon-btn svg {
@@ -383,6 +304,7 @@
       fill: currentColor;
     }
 
+    /* SLIDER DE VOLUMEN */
     .volume-group {
       display: flex;
       align-items: center;
@@ -410,7 +332,7 @@
       cursor: pointer;
     }
 
-    /* MENÚS Y PANELES (del código antiguo) */
+    /* MENU DESPLEGABLE DE OPCIONES (TUERCA) */
     .settings-panel {
       position: absolute;
       bottom: 0;
@@ -559,6 +481,8 @@
       color: #fff;
       font-size: 13px;
       outline: none;
+      user-select: text;
+      -webkit-user-select: text;
     }
 
     .url-input:focus {
@@ -581,32 +505,19 @@
 </head>
 <body>
 
-  <!-- BARRA SUPERIOR (Nueva) -->
-  <div class="top-header-bar">
-    <div class="brand-watermark">JeissoNxP182</div>
-    <div class="video-title-display" id="videoTitleDisplay">Ningún video cargado</div>
-  </div>
-
   <!-- REPRODUCTOR -->
   <div class="player-wrapper" id="playerWrapper">
-    
-    <!-- ZONAS TÁCTILES DOBLE TAP (Nuevas) -->
-    <div class="touch-zones" id="touchZones">
-      <div class="touch-zone-left" id="zoneLeft"></div>
-      <div class="touch-zone-right" id="zoneRight"></div>
-    </div>
-    
-    <div class="tap-feedback left" id="feedbackLeft">-10s</div>
-    <div class="tap-feedback right" id="feedbackRight">+10s</div>
+    <div class="brand-watermark">JeissoNxP182</div>
+    <div class="video-title-display" id="videoTitleDisplay"></div>
 
-    <!-- CAPA INICIAL EXCLUSIVA -->
+    <!-- CAPA INICIAL EXCLUSIVA (SOLO PLAY GRANDE AL CARGAR) -->
     <div class="initial-play-overlay" id="initialPlayOverlay">
       <button class="btn-initial-play" id="btnInitialPlay" title="Reproducir">
         <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       </button>
     </div>
 
-    <!-- ELEMENTOS DE VIDEO E IFRAME -->
+    <!-- ELEMENTOS DE VIDEO E IFRAME PERSISTENTES -->
     <video id="mainVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline></video>
     <iframe id="mainIframe" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
 
@@ -615,11 +526,6 @@
       
       <!-- ARRIBA A LA DERECHA -->
       <div class="top-controls">
-        <!-- Botón Modo Espejo (Nuevo) -->
-        <button class="icon-btn" id="btnMirror" title="Modo Espejo">
-          <svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
-        </button>
-
         <button class="icon-btn" id="btnShortcuts" title="Atajos de teclado">
           <svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2H2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-3 0h2v2H5v-2zm0-3h2v2H5V8zm11 10H8v-2h8v2zm1-3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
         </button>
@@ -655,15 +561,13 @@
 
       <!-- ABAJO -->
       <div class="bottom-controls-wrapper">
-        <!-- BARRA DESLIZANTE CON BUFFER REAL Y TOOLTIP -->
+        <!-- BARRA DESLIZANTE CON BUFFER REAL -->
         <div class="scrubber-container">
           <input type="range" class="video-scrubber" id="videoScrubber" min="0" max="100" value="0" step="0.05">
-          <div class="scrubber-tooltip" id="scrubberTooltip">
-            <span id="tooltipTime">00:00</span>
-          </div>
         </div>
 
         <div class="bottom-row">
+          <!-- ABAJO A LA IZQUIERDA -->
           <div class="bottom-left">
             <button class="icon-btn" id="btnBottomPlay">
               <svg id="bottomIconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -682,6 +586,7 @@
             <div class="time-counter" id="currTime" title="Clic para cambiar modo de tiempo">0:00:00</div>
           </div>
 
+          <!-- ABAJO A LA DERECHA -->
           <div class="bottom-right">
             <button class="icon-btn" id="btnCopyLink" title="Copiar Enlace">
               <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -779,7 +684,7 @@
     </div>
   </div>
 
-  <!-- SECCIÓN INFERIOR -->
+  <!-- SECCIÓN SUPERIOR DE CARGA (DEBAJO DEL REPRODUCTOR) -->
   <div class="url-section">
     <div class="url-title">Cargar Fuente de Vídeo (.mp4 / .m3u8 / Youtube / Embed)</div>
     <div class="input-wrapper">
@@ -788,7 +693,6 @@
     </div>
   </div>
 
-  <!-- SCRIPT COMPLETO Y RESTAURADO -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const video = document.getElementById('mainVideo');
@@ -838,20 +742,9 @@
       const iconExitFS = document.getElementById('iconExitFS');
       const btnPip = document.getElementById('btnPip');
       const btnCast = document.getElementById('btnCast');
-      
-      const btnMirror = document.getElementById('btnMirror');
 
       const urlInput = document.getElementById('urlInput');
       const btnLoad = document.getElementById('btnLoad');
-
-      // Nuevos Elementos para Doble Tap y Tooltip
-      const touchZones = document.getElementById('touchZones');
-      const zoneLeft = document.getElementById('zoneLeft');
-      const zoneRight = document.getElementById('zoneRight');
-      const feedbackLeft = document.getElementById('feedbackLeft');
-      const feedbackRight = document.getElementById('feedbackRight');
-      const scrubberTooltip = document.getElementById('scrubberTooltip');
-      const tooltipTime = document.getElementById('tooltipTime');
 
       let hlsInstance = null;
       let currentUrl = '';
@@ -862,10 +755,12 @@
       let isEmbedMode = false;
       let audioCtx = null;
 
+      // Puente Web Audio API corregido para forzar altavoz principal
       function initAudioRouting() {
         if (!audioCtx) {
           try {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
+            // { latencyHint: 'playback' } fuerza el canal multimedia en móviles
             audioCtx = new AudioContext({ latencyHint: 'playback' });
             const source = audioCtx.createMediaElementSource(video);
             source.connect(audioCtx.destination);
@@ -876,12 +771,16 @@
         }
       }
 
+      // Gestión de historia (Botón atrás para cerrar reproductor)
       window.addEventListener('popstate', (e) => {
-        if (currentUrl) unloadVideoInternal();
+        if (currentUrl) {
+          unloadVideoInternal();
+        }
       });
 
       function unloadVideoInternal() {
-        currentUrl = ''; pendingUrl = '';
+        currentUrl = '';
+        pendingUrl = '';
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
         video.pause();
         video.removeAttribute('src');
@@ -891,7 +790,7 @@
         mainIframe.src = 'about:blank';
         controlsOverlay.classList.remove('active');
         initialPlayOverlay.classList.remove('hidden');
-        videoTitleDisplay.textContent = 'Ningún video cargado';
+        videoTitleDisplay.textContent = '';
       }
 
       function getCleanTitle(url) {
@@ -904,7 +803,9 @@
             return filename;
           }
           return parsed.hostname;
-        } catch { return url; }
+        } catch {
+          return url;
+        }
       }
 
       function resetAutoHide() {
@@ -920,29 +821,38 @@
       function togglePlay() {
         if (isEmbedMode) return;
         initAudioRouting();
-        if (video.paused) video.play().catch(() => {});
-        else video.pause();
+        if (video.paused) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
       }
 
       btnInitialPlay.addEventListener('click', (e) => {
         e.stopPropagation();
         initAudioRouting();
         initialPlayOverlay.classList.add('hidden');
-        if (pendingUrl) actualLoadAndPlay(pendingUrl);
+        if (pendingUrl) {
+          actualLoadAndPlay(pendingUrl);
+        }
       });
 
       btnCenterPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); resetAutoHide(); });
       btnBottomPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); resetAutoHide(); });
 
       video.addEventListener('play', () => {
-        centerIconPlay.style.display = 'none'; centerIconPause.style.display = 'block';
-        bottomIconPlay.style.display = 'none'; bottomIconPause.style.display = 'block';
+        centerIconPlay.style.display = 'none';
+        centerIconPause.style.display = 'block';
+        bottomIconPlay.style.display = 'none';
+        bottomIconPause.style.display = 'block';
         resetAutoHide();
       });
 
       video.addEventListener('pause', () => {
-        centerIconPlay.style.display = 'block'; centerIconPause.style.display = 'none';
-        bottomIconPlay.style.display = 'block'; bottomIconPause.style.display = 'none';
+        centerIconPlay.style.display = 'block';
+        centerIconPause.style.display = 'none';
+        bottomIconPlay.style.display = 'block';
+        bottomIconPause.style.display = 'none';
         clearTimeout(controlsTimer);
         controlsOverlay.classList.add('active');
       });
@@ -955,45 +865,24 @@
         updateVolIcons();
       });
 
-      // LÓGICA DE DOBLE TAP (Táctil)
-      let lastTapLeft = 0;
-      let lastTapRight = 0;
-      
-      zoneLeft.addEventListener('pointerup', (e) => {
-        const currentTime = new Date().getTime();
-        const tapLength = currentTime - lastTapLeft;
-        if (tapLength < 300 && tapLength > 0) {
-          seekVideo(Math.max(0, video.currentTime - 10));
-          showTapFeedback(feedbackLeft);
-          e.preventDefault();
-        } else {
-           handlePlayerClick(e); // Si es un toque simple, maneja la interfaz
-        }
-        lastTapLeft = currentTime;
-      });
+      btnRewind.addEventListener('click', (e) => { e.stopPropagation(); if (!isEmbedMode) seekVideo(Math.max(0, video.currentTime - 10)); resetAutoHide(); });
+      btnForward.addEventListener('click', (e) => { e.stopPropagation(); if (!isEmbedMode) seekVideo(Math.min(video.duration || 0, video.currentTime + 10)); resetAutoHide(); });
 
-      zoneRight.addEventListener('pointerup', (e) => {
-        const currentTime = new Date().getTime();
-        const tapLength = currentTime - lastTapRight;
-        if (tapLength < 300 && tapLength > 0) {
-          seekVideo(Math.min(video.duration || 0, video.currentTime + 10));
-          showTapFeedback(feedbackRight);
-          e.preventDefault();
-        } else {
-           handlePlayerClick(e); // Si es un toque simple, maneja la interfaz
-        }
-        lastTapRight = currentTime;
-      });
-
-      function showTapFeedback(element) {
-        element.classList.remove('animate');
-        void element.offsetWidth; // Trigger reflow
-        element.classList.add('animate');
-        setTimeout(() => element.classList.remove('animate'), 300);
+      function seekVideo(timeSec) {
+        if (isEmbedMode) return;
+        if (video.fastSeek) video.fastSeek(timeSec);
+        else video.currentTime = timeSec;
       }
 
-      function handlePlayerClick(e) {
+      playerWrapper.addEventListener('click', (e) => {
         if (isEmbedMode || !initialPlayOverlay.classList.contains('hidden')) return;
+        if (e.target.closest('.controls-overlay') || e.target.closest('.settings-panel') || e.target.closest('.shortcuts-panel') || e.target.closest('.lock-overlay')) {
+          if (e.target === controlsOverlay) {
+            controlsOverlay.classList.remove('active');
+            settingsPanel.classList.remove('active');
+          }
+          return;
+        }
         const isActive = controlsOverlay.classList.contains('active');
         if (isActive) {
           controlsOverlay.classList.remove('active');
@@ -1002,34 +891,13 @@
           controlsOverlay.classList.add('active');
           resetAutoHide();
         }
-      }
-
-      btnRewind.addEventListener('click', (e) => { e.stopPropagation(); seekVideo(Math.max(0, video.currentTime - 10)); resetAutoHide(); });
-      btnForward.addEventListener('click', (e) => { e.stopPropagation(); seekVideo(Math.min(video.duration || 0, video.currentTime + 10)); resetAutoHide(); });
-
-      function seekVideo(timeSec) {
-        if (isEmbedMode) return;
-        if (video.fastSeek) video.fastSeek(timeSec);
-        else video.currentTime = timeSec;
-      }
-
-      // Evitar que el clic en los controles active el doble tap
-      controlsOverlay.addEventListener('pointerdown', (e) => e.stopPropagation());
-      settingsPanel.addEventListener('pointerdown', (e) => e.stopPropagation());
+      });
 
       btnCast.addEventListener('click', async (e) => {
         e.stopPropagation();
         if (!isEmbedMode && video.remote && typeof video.remote.prompt === 'function') {
           try { await video.remote.prompt(); } catch(err) {}
         }
-      });
-
-      // MODO ESPEJO
-      btnMirror.addEventListener('click', (e) => {
-        e.stopPropagation();
-        video.classList.toggle('mirror-mode');
-        btnMirror.classList.toggle('active');
-        resetAutoHide();
       });
 
       volumeSlider.addEventListener('input', (e) => { e.stopPropagation(); if (!isEmbedMode) { video.volume = parseFloat(e.target.value); video.muted = (video.volume === 0); } updateVolIcons(); });
@@ -1070,44 +938,18 @@
         videoScrubber.style.background = `linear-gradient(to right, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) ${bufPct}%, rgba(255, 255, 255, 0.2) ${bufPct}%, rgba(255, 255, 255, 0.2) 100%)`;
       }
 
-      // TOOLTIP Y BARRA DESLIZANTE
       videoScrubber.addEventListener('pointerdown', (e) => { e.stopPropagation(); isSeeking = true; });
-      videoScrubber.addEventListener('input', (e) => { 
-        e.stopPropagation(); 
-        isSeeking = true; 
-        const targetTime = (parseFloat(videoScrubber.value) / 100) * (video.duration || 0); 
-        if (timeMode === 0) currTimeElem.textContent = formatHMS(targetTime); 
-        else if (timeMode === 1) currTimeElem.textContent = "-" + formatHMS((video.duration || 0) - targetTime); 
-      });
-      videoScrubber.addEventListener('change', (e) => { 
-        e.stopPropagation(); 
-        if (!isEmbedMode && video.duration) seekVideo((parseFloat(videoScrubber.value) / 100) * video.duration); 
-        isSeeking = false; 
-        resetAutoHide(); 
-      });
-
-      // Hover para el tooltip del tiempo
-      videoScrubber.addEventListener('mousemove', (e) => {
-        if(isEmbedMode || !video.duration) return;
-        scrubberTooltip.style.display = 'flex';
-        const rect = videoScrubber.getBoundingClientRect();
-        const pos = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-        const percentage = pos / rect.width;
-        const hoverTime = percentage * video.duration;
-        
-        scrubberTooltip.style.left = `${pos}px`;
-        tooltipTime.textContent = formatHMS(hoverTime);
-      });
-      videoScrubber.addEventListener('mouseleave', () => { scrubberTooltip.style.display = 'none'; });
+      videoScrubber.addEventListener('input', (e) => { e.stopPropagation(); isSeeking = true; const targetTime = (parseFloat(videoScrubber.value) / 100) * (video.duration || 0); if (timeMode === 0) currTimeElem.textContent = formatHMS(targetTime); else if (timeMode === 1) currTimeElem.textContent = "-" + formatHMS((video.duration || 0) - targetTime); });
+      videoScrubber.addEventListener('change', (e) => { e.stopPropagation(); if (!isEmbedMode && video.duration) seekVideo((parseFloat(videoScrubber.value) / 100) * video.duration); isSeeking = false; resetAutoHide(); });
 
       btnSettings.addEventListener('click', (e) => { e.stopPropagation(); settingsPanel.classList.toggle('active'); shortcutsPanel.classList.remove('active'); });
       btnShortcuts.addEventListener('click', (e) => { e.stopPropagation(); shortcutsPanel.classList.toggle('active'); settingsPanel.classList.remove('active'); });
       btnCloseShortcuts.addEventListener('click', (e) => { e.stopPropagation(); shortcutsPanel.classList.remove('active'); });
 
-      selectSpeed.addEventListener('change', (e) => { if (!isEmbedMode) video.playbackRate = parseFloat(e.target.value); });
+      selectSpeed.addEventListener('change', (e) => { if (!isEmbedMode) { video.playbackRate = parseFloat(e.target.value); } });
       optLockScreen.addEventListener('click', () => { settingsPanel.classList.remove('active'); shortcutsPanel.classList.remove('active'); controlsOverlay.classList.remove('active'); lockOverlay.classList.add('active'); });
       btnUnlock.addEventListener('click', () => { lockOverlay.classList.remove('active'); controlsOverlay.classList.add('active'); });
-      btnCopyLink.addEventListener('click', (e) => { e.stopPropagation(); if (currentUrl) navigator.clipboard.writeText(currentUrl); });
+      btnCopyLink.addEventListener('click', (e) => { e.stopPropagation(); if (currentUrl) { navigator.clipboard.writeText(currentUrl); } });
       btnDownload.addEventListener('click', (e) => { e.stopPropagation(); if (currentUrl) { const a = document.createElement('a'); a.href = currentUrl; a.download = ''; a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a); } });
       btnPip.addEventListener('click', async (e) => { e.stopPropagation(); if (!isEmbedMode) { if (document.pictureInPictureElement) await document.exitPictureInPicture(); else if (document.pictureInPictureEnabled) await video.requestPictureInPicture(); } });
       btnFullscreen.addEventListener('click', (e) => { e.stopPropagation(); if (!document.fullscreenElement) { playerWrapper.requestFullscreen(); iconFS.style.display = 'none'; iconExitFS.style.display = 'block'; } else { document.exitFullscreen(); iconFS.style.display = 'block'; iconExitFS.style.display = 'none'; } });
@@ -1165,14 +1007,20 @@
 
       function loadVideo(rawUrl) {
         if (!rawUrl) return;
-        currentUrl = rawUrl; pendingUrl = rawUrl;
+        currentUrl = rawUrl;
+        pendingUrl = rawUrl;
         urlInput.value = '';
 
         videoTitleDisplay.textContent = getCleanTitle(rawUrl);
+
+        // Añadimos al historial para que el botón atrás funcione
         history.pushState({ videoLoaded: true }, '');
 
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-        video.pause(); video.onerror = null; video.removeAttribute('src'); video.load();
+        video.pause();
+        video.onerror = null;
+        video.removeAttribute('src');
+        video.load();
 
         const cleanUrl = rawUrl.toLowerCase();
         isEmbedMode = cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be') || cleanUrl.includes('embed') || cleanUrl.includes('drive.google.com');
@@ -1182,11 +1030,18 @@
           if (rawUrl.includes('youtu.be/')) finalEmbedUrl = `https://www.youtube.com/embed/${rawUrl.split('youtu.be/')[1].split('?')[0]}?autoplay=1`;
           else if (rawUrl.includes('youtube.com/watch?v=')) finalEmbedUrl = `https://www.youtube.com/embed/${rawUrl.split('v=')[1].split('&')[0]}?autoplay=1`;
           
-          video.style.display = 'none'; mainIframe.style.display = 'block'; mainIframe.src = finalEmbedUrl;
-          controlsOverlay.style.display = 'none'; initialPlayOverlay.classList.add('hidden');
+          video.style.display = 'none';
+          mainIframe.style.display = 'block';
+          mainIframe.src = finalEmbedUrl;
+          controlsOverlay.style.display = 'none';
+          initialPlayOverlay.classList.add('hidden');
         } else {
-          mainIframe.style.display = 'none'; mainIframe.src = 'about:blank';
-          video.style.display = 'block'; controlsOverlay.style.display = 'flex'; controlsOverlay.classList.remove('active');
+          mainIframe.style.display = 'none';
+          mainIframe.src = 'about:blank';
+          video.style.display = 'block';
+          controlsOverlay.style.display = 'flex';
+          controlsOverlay.classList.remove('active');
+          
           initialPlayOverlay.classList.remove('hidden');
         }
       }
@@ -1196,7 +1051,9 @@
       
       const urlParams = new URLSearchParams(window.location.search);
       const videoParam = urlParams.get('url');
-      if (videoParam) loadVideo(videoParam);
+      if (videoParam) {
+        loadVideo(videoParam);
+      }
     });
   </script>
 </body>
