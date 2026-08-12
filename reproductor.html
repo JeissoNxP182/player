@@ -4,1748 +4,357 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+      content="width=device-width, initial-scale=1">
 
-<meta name="theme-color" content="#140326">
+<title>Reproductor</title>
 
-<title>Reproductor JeissoNxP182</title>
-
-<!-- =========================================================
-     PLYR
-========================================================= -->
-<link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
-
-<!-- =========================================================
-     HLS.JS
-========================================================= -->
+<!-- HLS.js -->
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17"></script>
 
 <style>
 
-:root{
-    --primary:#a855f7;
-    --primary-dark:#3b0764;
-    --primary-soft:#c084fc;
-    --background:#140326;
-    --background-2:#0c0118;
-    --panel:#1b0633;
-    --text:#f8fafc;
-    --muted:#94a3b8;
-    --danger:#ef4444;
-    --success:#22c55e;
-}
-
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-}
-
-html,
-body{
-    width:100%;
-    height:100%;
-}
-
-body{
-    background:
-        radial-gradient(
-            circle at top,
-            #260743 0%,
-            var(--background) 45%,
-            #08010e 100%
-        );
-
-    color:var(--text);
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
-    overflow:hidden;
-}
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-.video-header{
-    height:64px;
-
-    padding:10px 15px;
-
-    background:rgba(20,3,38,.96);
-
-    border-bottom:
-        1px solid rgba(168,85,247,.15);
-
-    display:flex;
-
-    flex-direction:column;
-
-    justify-content:center;
-}
-
-.brand-watermark{
-    font-size:17px;
-
-    font-weight:800;
-
-    letter-spacing:1px;
-
-    color:#e9d5ff;
-}
-
-.video-title-display{
-    margin-top:3px;
-
-    font-size:12px;
-
-    color:var(--muted);
-
-    white-space:nowrap;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
-}
-
-/* =========================================================
-   PLAYER
-========================================================= */
-
-.player-wrapper{
-    position:relative;
-
-    width:100%;
-
-    height:55vh;
-
-    max-height:68vh;
-
-    min-height:220px;
-
-    background:#000;
-
-    overflow:hidden;
-
-    box-shadow:
-        0 5px 30px rgba(0,0,0,.7),
-        inset 0 0 30px rgba(0,0,0,.4);
-}
-
-.player-wrapper .plyr{
-    width:100%;
-    height:100%;
-}
-
-.player-wrapper .plyr__video-wrapper{
-    width:100%;
-    height:100%;
-    background:#000;
-}
-
-.player-wrapper video{
-    width:100%;
-    height:100%;
-
-    object-fit:contain;
-
-    background:#000;
-}
-
-/* =========================================================
-   PLYR
-========================================================= */
-
-.plyr{
-    --plyr-color-main:var(--primary);
-    --plyr-video-control-color:#fff;
-    --plyr-video-control-color-hover:#fff;
-    --plyr-video-control-background-hover:rgba(168,85,247,.25);
-    --plyr-menu-background:#1b0633;
-    --plyr-menu-color:#fff;
-    --plyr-tooltip-background:#1b0633;
-    --plyr-tooltip-color:#fff;
-    --plyr-control-icon-size:18px;
-}
-
-.plyr--video{
-    background:#000;
-}
-
-.plyr__controls{
-    background:
-        linear-gradient(
-            transparent,
-            rgba(5,0,10,.92)
-        ) !important;
-}
-
-.plyr__control:hover{
-    background:
-        rgba(168,85,247,.25) !important;
-}
-
-.plyr__progress input[type=range]{
-    color:var(--primary);
-}
-
-/*
-   Sin preview de miniaturas.
-   No se genera ni muestra ninguna miniatura
-   al mover el cursor sobre la barra.
-*/
-
-.plyr__preview-thumb{
-    display:none !important;
-}
-
-.plyr__tooltip{
-    display:none !important;
-}
-
-/* =========================================================
-   PLAY OVERLAY
-========================================================= */
-
-.initial-play-overlay{
-    position:absolute;
-
-    inset:0;
-
-    z-index:20;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(20,3,38,.18),
-            rgba(5,0,10,.72)
-        );
-
-    transition:
-        opacity .25s ease,
-        visibility .25s ease;
-}
-
-.initial-play-overlay.hidden{
-    opacity:0;
-
-    visibility:hidden;
-
-    pointer-events:none;
-}
-
-.btn-initial-play{
-    width:82px;
-    height:82px;
-
-    border-radius:50%;
-
-    border:
-        2px solid rgba(255,255,255,.8);
-
-    background:
-        linear-gradient(
-            135deg,
-            var(--primary),
-            var(--primary-dark)
-        );
-
-    color:white;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    cursor:pointer;
-
-    box-shadow:
-        0 0 25px rgba(168,85,247,.55);
-
-    transition:
-        transform .2s ease,
-        box-shadow .2s ease;
-}
-
-.btn-initial-play:hover{
-    transform:scale(1.08);
-
-    box-shadow:
-        0 0 35px rgba(168,85,247,.8);
-}
-
-.btn-initial-play:active{
-    transform:scale(.94);
-}
-
-.btn-initial-play svg{
-    width:42px;
-    height:42px;
-
-    fill:white;
-
-    margin-left:4px;
-}
-
-/* =========================================================
-   LOADING
-========================================================= */
-
-.loading-overlay{
-    position:absolute;
-
-    inset:0;
-
-    z-index:18;
-
-    display:none;
-
-    align-items:center;
-
-    justify-content:center;
-
-    flex-direction:column;
-
-    gap:14px;
-
-    background:rgba(5,0,10,.72);
-}
-
-.loading-overlay.active{
-    display:flex;
-}
-
-.spinner{
-    width:42px;
-    height:42px;
-
-    border-radius:50%;
-
-    border:
-        4px solid rgba(255,255,255,.15);
-
-    border-top-color:var(--primary);
-
-    animation:
-        spin .8s linear infinite;
-}
-
-@keyframes spin{
-
-    to{
-        transform:rotate(360deg);
+    * {
+        box-sizing: border-box;
     }
 
-}
-
-.loading-text{
-    font-size:13px;
-
-    color:#e9d5ff;
-}
-
-/* =========================================================
-   ERROR
-========================================================= */
-
-.error-overlay{
-    position:absolute;
-
-    inset:0;
-
-    z-index:25;
-
-    display:none;
-
-    align-items:center;
-
-    justify-content:center;
-
-    padding:20px;
-
-    background:
-        rgba(5,0,10,.9);
-}
-
-.error-overlay.active{
-    display:flex;
-}
-
-.error-box{
-    width:min(500px,90%);
-
-    padding:22px;
-
-    background:
-        linear-gradient(
-            145deg,
-            #24063f,
-            #10011d
-        );
-
-    border:
-        1px solid rgba(239,68,68,.5);
-
-    border-radius:14px;
-
-    text-align:center;
-
-    box-shadow:
-        0 15px 50px rgba(0,0,0,.6);
-}
-
-.error-icon{
-    font-size:35px;
-
-    margin-bottom:10px;
-}
-
-.error-title{
-    font-size:16px;
-
-    font-weight:bold;
-
-    margin-bottom:8px;
-}
-
-.error-message{
-    font-size:12px;
-
-    color:#cbd5e1;
-
-    line-height:1.5;
-
-    word-break:break-word;
-}
-
-.error-close{
-    margin-top:15px;
-
-    padding:9px 17px;
-
-    border:
-        1px solid var(--primary);
-
-    border-radius:7px;
-
-    color:white;
-
-    background:
-        linear-gradient(
-            135deg,
-            var(--primary),
-            var(--primary-dark)
-        );
-
-    cursor:pointer;
-}
-
-/* =========================================================
-   IFRAME
-========================================================= */
-
-#mainIframe{
-    position:absolute;
-
-    inset:0;
-
-    width:100%;
-    height:100%;
-
-    border:0;
-
-    display:none;
-
-    background:#000;
-}
-
-/* =========================================================
-   URL SECTION
-========================================================= */
-
-.url-section{
-    height:calc(45vh - 64px);
-
-    min-height:150px;
-
-    padding:14px;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:8px;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(20,3,38,.96),
-            rgba(10,1,18,.98)
-        );
-}
-
-.url-title{
-    font-size:11px;
-
-    color:var(--muted);
-
-    text-transform:uppercase;
-
-    letter-spacing:.5px;
-}
-
-.input-wrapper{
-    display:flex;
-
-    gap:8px;
-}
-
-.url-input{
-    height:42px;
-
-    flex:1;
-
-    min-width:0;
-
-    background:#ffffff08;
-
-    border:
-        1px solid rgba(168,85,247,.4);
-
-    border-radius:8px;
-
-    padding:0 12px;
-
-    color:white;
-
-    font-size:13px;
-
-    outline:none;
-
-    user-select:text;
-}
-
-.url-input:focus{
-    border-color:var(--primary);
-
-    box-shadow:
-        0 0 0 2px rgba(168,85,247,.12);
-}
-
-.url-input::placeholder{
-    color:#64748b;
-}
-
-.btn-load{
-    height:42px;
-
-    padding:0 18px;
-
-    border:
-        1px solid rgba(255,255,255,.4);
-
-    border-radius:8px;
-
-    background:
-        linear-gradient(
-            135deg,
-            var(--primary),
-            var(--primary-dark)
-        );
-
-    color:white;
-
-    font-weight:bold;
-
-    cursor:pointer;
-
-    white-space:nowrap;
-}
-
-.btn-load:active{
-    transform:scale(.97);
-}
-
-/* =========================================================
-   HISTORY
-========================================================= */
-
-.history-title{
-    margin-top:3px;
-
-    font-size:10px;
-
-    color:var(--muted);
-
-    text-transform:uppercase;
-}
-
-.history-list{
-    display:flex;
-
-    flex-direction:column;
-
-    gap:5px;
-
-    overflow-y:auto;
-
-    padding-bottom:10px;
-}
-
-.history-list::-webkit-scrollbar{
-    width:4px;
-}
-
-.history-list::-webkit-scrollbar-thumb{
-    background:var(--primary-dark);
-
-    border-radius:5px;
-}
-
-.history-item{
-    min-height:34px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:8px;
-
-    padding:6px 8px;
-
-    border-radius:7px;
-
-    border:
-        1px solid rgba(168,85,247,.13);
-
-    background:#ffffff06;
-}
-
-.history-name{
-    flex:1;
-
-    min-width:0;
-
-    font-size:11px;
-
-    color:#dbeafe;
-
-    white-space:nowrap;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
-}
-
-.history-play{
-    border:
-        1px solid var(--primary);
-
-    border-radius:5px;
-
-    padding:4px 8px;
-
-    color:white;
-
-    background:var(--primary-dark);
-
-    cursor:pointer;
-}
-
-/* =========================================================
-   STATUS
-========================================================= */
-
-.status{
-    position:absolute;
-
-    top:10px;
-    left:10px;
-
-    z-index:15;
-
-    padding:5px 8px;
-
-    border-radius:5px;
-
-    background:rgba(0,0,0,.6);
-
-    color:#cbd5e1;
-
-    font-size:10px;
-
-    pointer-events:none;
-
-    opacity:0;
-
-    transition:opacity .2s;
-}
-
-.status.show{
-    opacity:1;
-}
-
-/* =========================================================
-   ASPECT RATIO
-========================================================= */
-
-.aspect-43 video{
-    object-fit:contain !important;
-    aspect-ratio:4/3;
-}
-
-.aspect-169 video{
-    object-fit:contain !important;
-    aspect-ratio:16/9;
-}
-
-.aspect-fill video{
-    object-fit:cover !important;
-}
-
-.aspect-stretch video{
-    object-fit:fill !important;
-}
-
-.mirrored video{
-    transform:scaleX(-1);
-}
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media(max-width:600px){
-
-    .video-header{
-        height:58px;
-        padding:8px 12px;
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100%;
     }
 
-    .brand-watermark{
-        font-size:15px;
+    body {
+        background: #140326;
+        color: #ffffff;
+        font-family: Arial, Helvetica, sans-serif;
     }
 
-    .video-title-display{
-        font-size:11px;
+    /* ==============================
+       CONTENEDOR
+    ============================== */
+
+    .container {
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 15px;
     }
 
-    .player-wrapper{
-        height:42vh;
-        min-height:210px;
+    /* ==============================
+       REPRODUCTOR
+    ============================== */
+
+    .player {
+        width: 100%;
+        background: #000000;
+        border: 1px solid #6b21a8;
     }
 
-    .url-section{
-        height:calc(58vh - 58px);
+    video {
+        display: block;
+        width: 100%;
+        height: auto;
+        min-height: 220px;
+        background: #000000;
     }
 
-    .btn-initial-play{
-        width:70px;
-        height:70px;
+    /* ==============================
+       CAJA URL
+    ============================== */
+
+    .url-box {
+        margin-top: 15px;
+        padding: 12px;
+        background: #1b0633;
+        border: 1px solid #6b21a8;
     }
 
-    .btn-initial-play svg{
-        width:35px;
-        height:35px;
+    .url-input {
+        width: 100%;
+        height: 42px;
+        padding: 0 10px;
+
+        background: #0c0118;
+        color: #ffffff;
+
+        border: 1px solid #7e22ce;
+        outline: none;
+
+        font-size: 14px;
     }
 
-    .input-wrapper{
-        gap:6px;
+    .url-input:focus {
+        border-color: #a855f7;
     }
 
-    .btn-load{
-        padding:0 13px;
+    .url-input::placeholder {
+        color: #8b7a99;
     }
 
-}
+    /* ==============================
+       BOTÓN
+    ============================== */
+
+    .load-button {
+        width: 100%;
+        height: 42px;
+
+        margin-top: 8px;
+
+        background: #7e22ce;
+        color: #ffffff;
+
+        border: 1px solid #a855f7;
+
+        cursor: pointer;
+
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .load-button:active {
+        background: #6b21a8;
+    }
+
+    /* ==============================
+       ESTADO
+    ============================== */
+
+    .status {
+        margin-top: 8px;
+
+        font-size: 12px;
+        color: #c084fc;
+
+        min-height: 18px;
+    }
+
+    /* ==============================
+       ERROR
+    ============================== */
+
+    .error {
+        margin-top: 8px;
+
+        font-size: 12px;
+        color: #f87171;
+
+        display: none;
+    }
+
+    .error.show {
+        display: block;
+    }
 
 </style>
 </head>
 
 <body>
 
-<!-- =========================================================
-     HEADER
-========================================================= -->
+<div class="container">
 
-<header class="video-header">
+    <!-- ==========================
+         REPRODUCTOR
+    =========================== -->
 
-    <div class="brand-watermark">
-        JeissoNxP182
-    </div>
+    <div class="player">
 
-    <div
-        class="video-title-display"
-        id="videoTitleDisplay">
-        Ningún vídeo cargado
-    </div>
-
-</header>
-
-
-<!-- =========================================================
-     PLAYER
-========================================================= -->
-
-<main
-    class="player-wrapper"
-    id="playerWrapper"
->
-
-    <!-- VIDEO NATIVO -->
-    <video
-        id="mainVideo"
-        playsinline
-        webkit-playsinline
-        preload="metadata"
-    ></video>
-
-
-    <!-- IFRAME PARA EMBEDS -->
-    <iframe
-        id="mainIframe"
-        allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-        allowfullscreen
-    ></iframe>
-
-
-    <!-- PLAY INICIAL -->
-    <div
-        class="initial-play-overlay"
-        id="initialPlayOverlay"
-    >
-
-        <button
-            class="btn-initial-play"
-            id="btnInitialPlay"
-            aria-label="Reproducir"
-        >
-
-            <svg viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-            </svg>
-
-        </button>
+        <video
+            id="video"
+            controls
+            playsinline
+            preload="metadata">
+        </video>
 
     </div>
 
 
-    <!-- LOADING -->
-    <div
-        class="loading-overlay"
-        id="loadingOverlay"
-    >
+    <!-- ==========================
+         URL
+    =========================== -->
 
-        <div class="spinner"></div>
-
-        <div
-            class="loading-text"
-            id="loadingText"
-        >
-            Cargando vídeo...
-        </div>
-
-    </div>
-
-
-    <!-- ERROR -->
-    <div
-        class="error-overlay"
-        id="errorOverlay"
-    >
-
-        <div class="error-box">
-
-            <div class="error-icon">
-                ⚠️
-            </div>
-
-            <div class="error-title">
-                No se pudo reproducir el vídeo
-            </div>
-
-            <div
-                class="error-message"
-                id="errorMessage"
-            >
-                La fuente no pudo ser reproducida.
-            </div>
-
-            <button
-                class="error-close"
-                id="errorClose"
-            >
-                Cerrar
-            </button>
-
-        </div>
-
-    </div>
-
-
-    <!-- STATUS -->
-    <div
-        class="status"
-        id="status"
-    >
-        Preparado
-    </div>
-
-</main>
-
-
-<!-- =========================================================
-     URL / HISTORY
-========================================================= -->
-
-<section class="url-section">
-
-    <div class="url-title">
-        Fuente de vídeo
-        (.mp4 / .m3u8 / embed)
-    </div>
-
-
-    <div class="input-wrapper">
+    <div class="url-box">
 
         <input
             id="urlInput"
             class="url-input"
             type="text"
+            placeholder="Pega aquí una URL .m3u8, HLS o MP4"
             autocomplete="off"
             spellcheck="false"
-            placeholder="Pega aquí la URL del vídeo..."
         >
 
         <button
-            id="btnLoad"
-            class="btn-load"
-        >
+            id="loadButton"
+            class="load-button">
             Cargar
         </button>
 
+        <div
+            id="status"
+            class="status">
+        </div>
+
+        <div
+            id="error"
+            class="error">
+        </div>
+
     </div>
 
-
-    <div class="history-title">
-        Últimas 10 películas
-    </div>
-
-
-    <div
-        class="history-list"
-        id="historyList">
-    </div>
-
-</section>
-
-
-<!-- =========================================================
-     PLYR
-========================================================= -->
-
-<script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
+</div>
 
 
 <script>
 
-document.addEventListener("DOMContentLoaded",function(){
-
 "use strict";
 
 
-/* =========================================================
-   HELPERS
-========================================================= */
-
-const $ = id =>
-    document.getElementById(id);
-
-
-/* =========================================================
+/* ==========================================
    ELEMENTOS
-========================================================= */
+========================================== */
 
 const video =
-    $("mainVideo");
-
-const iframe =
-    $("mainIframe");
-
-const wrapper =
-    $("playerWrapper");
-
-const initialOverlay =
-    $("initialPlayOverlay");
-
-const initialPlay =
-    $("btnInitialPlay");
-
-const loadingOverlay =
-    $("loadingOverlay");
-
-const loadingText =
-    $("loadingText");
-
-const errorOverlay =
-    $("errorOverlay");
-
-const errorMessage =
-    $("errorMessage");
-
-const errorClose =
-    $("errorClose");
+    document.getElementById("video");
 
 const urlInput =
-    $("urlInput");
+    document.getElementById("urlInput");
 
-const btnLoad =
-    $("btnLoad");
-
-const historyList =
-    $("historyList");
-
-const titleDisplay =
-    $("videoTitleDisplay");
+const loadButton =
+    document.getElementById("loadButton");
 
 const status =
-    $("status");
+    document.getElementById("status");
+
+const error =
+    document.getElementById("error");
 
 
-/* =========================================================
-   VARIABLES
-========================================================= */
+/* ==========================================
+   HLS
+========================================== */
 
 let hls = null;
 
-let currentUrl = "";
 
-let currentType = "";
+/* ==========================================
+   ESTADO
+========================================== */
 
-let currentPoster = "";
+function setStatus(text) {
 
-let statusTimer = null;
-
-let lastTap = 0;
-
-let tapTimer = null;
-
-let sourceGeneration = 0;
-
-
-/* =========================================================
-   PLYR
-========================================================= */
-
-const player =
-    new Plyr(
-        video,
-        {
-
-            autoplay:false,
-
-            controls:[
-                "play-large",
-                "play",
-                "progress",
-                "current-time",
-                "duration",
-                "mute",
-                "volume",
-                "settings",
-                "fullscreen"
-            ],
-
-            settings:[
-                "quality",
-                "speed"
-            ],
-
-            seekTime:10,
-
-            keyboard:{
-                focused:true,
-                global:true
-            },
-
-            tooltips:{
-                controls:true,
-                seek:false
-            },
-
-            clickToPlay:false,
-
-            disableContextMenu:true,
-
-            fullscreen:{
-                enabled:true,
-                fallback:true,
-                iosNative:true
-            }
-
-        }
-    );
-
-
-/* =========================================================
-   ELIMINAR PREVIEW DE MINIATURAS
-========================================================= */
-
-function removePreviewThumb(){
-
-    document
-        .querySelectorAll(
-            ".plyr__preview-thumb"
-        )
-        .forEach(
-            element =>
-                element.remove()
-        );
+    status.textContent = text;
 
 }
 
 
-/* =========================================================
-   FORMATO DE TIEMPO
-========================================================= */
+function showError(text) {
 
-function formatTime(seconds){
+    error.textContent = text;
 
-    if(
-        !Number.isFinite(seconds) ||
-        seconds < 0
-    ){
-
-        return "0:00";
-
-    }
-
-
-    const h =
-        Math.floor(
-            seconds / 3600
-        );
-
-
-    const m =
-        Math.floor(
-            (seconds % 3600) / 60
-        );
-
-
-    const s =
-        Math.floor(
-            seconds % 60
-        );
-
-
-    if(h > 0){
-
-        return (
-            h +
-            ":" +
-            String(m).padStart(2,"0") +
-            ":" +
-            String(s).padStart(2,"0")
-        );
-
-    }
-
-
-    return (
-        m +
-        ":" +
-        String(s).padStart(2,"0")
-    );
+    error.classList.add("show");
 
 }
 
 
-/* =========================================================
-   NOMBRE DEL VÍDEO
-========================================================= */
+function hideError() {
 
-function getVideoName(url){
+    error.textContent = "";
 
-    try{
-
-        const u =
-            new URL(url);
-
-        let path =
-            u.pathname
-            .split("/")
-            .filter(Boolean)
-            .pop();
-
-
-        if(!path){
-
-            return u.hostname;
-
-        }
-
-
-        path =
-            decodeURIComponent(path);
-
-
-        path =
-            path.replace(
-                /\.(mp4|m3u8|webm|mov|mkv|avi|ogg|ogv)$/i,
-                ""
-            );
-
-
-        path =
-            path
-            .replace(/[_-]+/g," ")
-            .trim();
-
-
-        return path ||
-               u.hostname;
-
-    }catch{
-
-        return url;
-
-    }
+    error.classList.remove("show");
 
 }
 
 
-/* =========================================================
-   DETECTAR FUENTE
-========================================================= */
+/* ==========================================
+   DESTRUIR HLS ANTERIOR
+========================================== */
 
-function detectSource(url){
+function destroyHLS() {
 
-    const clean =
-        url
-        .split("#")[0]
-        .toLowerCase();
-
-
-    const withoutQuery =
-        clean.split("?")[0];
-
-
-    /*
-       HLS.
-
-       Se comprueba también que la URL
-       contenga .m3u8 aunque tenga
-       parámetros después.
-    */
-
-    if(
-        withoutQuery.includes(".m3u8") ||
-        clean.includes(".m3u8?")
-    ){
-
-        return "hls";
-
-    }
-
-
-    /*
-       Vídeo directo.
-    */
-
-    if(
-        /\.(mp4|webm|ogg|ogv|mov)(\?|#|$)/i
-            .test(url)
-    ){
-
-        return "video";
-
-    }
-
-
-    /*
-       YouTube.
-    */
-
-    if(
-        /(^|\/\/)(www\.)?(youtube\.com|youtu\.be)/i
-            .test(url)
-    ){
-
-        return "youtube";
-
-    }
-
-
-    /*
-       Embed.
-    */
-
-    if(
-        /\/embed\//i.test(url) ||
-        /(^|\/\/)player\./i.test(url)
-    ){
-
-        return "iframe";
-
-    }
-
-
-    /*
-       Por defecto:
-
-       Intentamos reproducirlo como
-       fuente de vídeo directa.
-
-       Esto permite URLs de servidores
-       que no terminan en .mp4.
-    */
-
-    return "video";
-
-}
-
-
-/* =========================================================
-   LOADING
-========================================================= */
-
-function showLoading(text){
-
-    loadingText.textContent =
-        text ||
-        "Cargando vídeo...";
-
-    loadingOverlay.classList.add(
-        "active"
-    );
-
-}
-
-
-function hideLoading(){
-
-    loadingOverlay.classList.remove(
-        "active"
-    );
-
-}
-
-
-/* =========================================================
-   STATUS
-========================================================= */
-
-function showStatus(text){
-
-    status.textContent =
-        text;
-
-    status.classList.add(
-        "show"
-    );
-
-
-    clearTimeout(
-        statusTimer
-    );
-
-
-    statusTimer =
-        setTimeout(
-            function(){
-
-                status.classList.remove(
-                    "show"
-                );
-
-            },
-            2200
-        );
-
-}
-
-
-/* =========================================================
-   ERROR
-========================================================= */
-
-function showError(message){
-
-    hideLoading();
-
-
-    errorMessage.textContent =
-        message ||
-        "La fuente no pudo reproducirse.";
-
-
-    errorOverlay.classList.add(
-        "active"
-    );
-
-}
-
-
-function hideError(){
-
-    errorOverlay.classList.remove(
-        "active"
-    );
-
-}
-
-
-errorClose.onclick =
-function(){
-
-    hideError();
-
-};
-
-
-/* =========================================================
-   POSTER
-========================================================= */
-
-function setPoster(poster){
-
-    currentPoster =
-        poster || "";
-
-
-    if(currentPoster){
-
-        video.setAttribute(
-            "poster",
-            currentPoster
-        );
-
-    }else{
-
-        video.removeAttribute(
-            "poster"
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   DESTRUIR HLS
-========================================================= */
-
-function destroyHLS(){
-
-    if(!hls){
-
+    if (!hls) {
         return;
-
     }
 
-
-    try{
-
-        hls.stopLoad();
-
-    }catch(e){}
-
-
-    try{
-
-        hls.detachMedia();
-
-    }catch(e){}
-
-
-    try{
-
+    try {
         hls.destroy();
-
-    }catch(e){}
-
+    } catch (e) {
+        console.warn(e);
+    }
 
     hls = null;
 
 }
 
 
-/* =========================================================
-   LIMPIAR FUENTE ACTUAL
-========================================================= */
+/* ==========================================
+   LIMPIAR REPRODUCTOR
+========================================== */
 
-function destroyCurrentSource(){
-
-    sourceGeneration++;
-
+function clearPlayer() {
 
     destroyHLS();
 
-
-    try{
-
+    try {
         video.pause();
+    } catch (e) {}
 
-    }catch(e){}
-
-
-    /*
-       Primero retiramos la fuente.
-    */
-
-    video.removeAttribute(
-        "src"
-    );
-
-    video.removeAttribute(
-        "poster"
-    );
-
-
-    /*
-       Reiniciar el elemento.
-    */
-
-    try{
-
-        video.load();
-
-    }catch(e){}
-
-
-    /*
-       Limpiar iframe.
-    */
-
-    iframe.src =
-        "about:blank";
-
-    iframe.style.display =
-        "none";
-
-
-    video.style.display =
-        "block";
-
-
-    initialOverlay.classList.remove(
-        "hidden"
-    );
-
-
-    hideLoading();
-
-
-    currentUrl = "";
-
-    currentType = "";
-
-}
-
-
-/* =========================================================
-   CONFIGURAR CALIDAD HLS
-========================================================= */
-
-function setupHlsQuality(){
-
-    if(
-        !hls ||
-        !hls.levels ||
-        !hls.levels.length
-    ){
-
-        return;
-
-    }
-
-
-    const levels =
-        hls.levels;
-
-
-    const qualities =
-        levels
-        .map(
-            level =>
-                Number(level.height)
-        )
-        .filter(
-            height =>
-                Number.isFinite(height) &&
-                height > 0
-        );
-
-
-    const unique =
-        [...new Set(qualities)]
-        .sort(
-            (a,b) =>
-                b-a
-        );
-
-
-    if(!unique.length){
-
-        return;
-
-    }
-
-
-    /*
-       Configuración compatible
-       con Plyr.
-    */
-
-    player.config.quality = {
-
-        default:-1,
-
-        options:[
-            -1,
-            ...unique
-        ],
-
-        forced:true,
-
-        onChange:function(value){
-
-            if(!hls){
-
-                return;
-
-            }
-
-
-            if(value === -1){
-
-                hls.currentLevel = -1;
-
-                return;
-
-            }
-
-
-            const index =
-                levels.findIndex(
-                    level =>
-                        Number(level.height) ===
-                        Number(value)
-                );
-
-
-            if(index >= 0){
-
-                hls.currentLevel =
-                    index;
-
-            }
-
-        }
-
-    };
-
-
-    /*
-       Actualizar menú de Plyr.
-    */
-
-    try{
-
-        player.elements
-            .container
-            .dispatchEvent(
-                new Event(
-                    "qualitychange"
-                )
-            );
-
-    }catch(e){}
-
-}
-
-
-/* =========================================================
-   CARGAR HLS NATIVO
-========================================================= */
-
-function loadNativeHLS(url,generation){
-
-    showLoading(
-        "Preparando transmisión..."
-    );
-
-
-    video.src =
-        url;
-
+    video.removeAttribute("src");
 
     video.load();
 
+}
 
-    /*
-       El evento canplay/loadedmetadata
-       será quien retire el loading.
-    */
 
-    if(
-        generation !== sourceGeneration
-    ){
+/* ==========================================
+   DETECTAR HLS
+========================================== */
 
-        return;
+function isHLS(url) {
 
-    }
+    const cleanUrl =
+        url
+            .split("#")[0]
+            .toLowerCase();
+
+    return (
+        cleanUrl.includes(".m3u8") ||
+        cleanUrl.includes("application/vnd.apple.mpegurl")
+    );
 
 }
 
 
-/* =========================================================
-   CARGAR HLS.JS
-========================================================= */
+/* ==========================================
+   CARGAR HLS
+========================================== */
 
-function loadHLS(url){
+function loadHLS(url) {
 
-    const generation =
-        sourceGeneration;
-
-
-    showLoading(
-        "Preparando transmisión HLS..."
-    );
+    setStatus("Cargando HLS...");
 
 
     /*
-       Safari/iOS.
+       HLS nativo.
 
-       Si el navegador tiene soporte
-       nativo para HLS, no necesitamos
-       Hls.js.
+       Safari, iPhone, iPad y algunos
+       navegadores pueden reproducir
+       .m3u8 directamente.
     */
 
-    if(
+    if (
         video.canPlayType(
             "application/vnd.apple.mpegurl"
         )
-    ){
+    ) {
 
-        loadNativeHLS(
-            url,
-            generation
-        );
+        video.src = url;
+
+        video.load();
+
+        setStatus("HLS listo.");
 
         return;
 
@@ -1753,15 +362,15 @@ function loadHLS(url){
 
 
     /*
-       Hls.js.
+       HLS.js
     */
 
-    if(
+    if (
         typeof Hls === "undefined"
-    ){
+    ) {
 
         showError(
-            "No se pudo cargar el motor HLS."
+            "No se pudo cargar HLS.js."
         );
 
         return;
@@ -1769,12 +378,12 @@ function loadHLS(url){
     }
 
 
-    if(
+    if (
         !Hls.isSupported()
-    ){
+    ) {
 
         showError(
-            "Este navegador no permite reproducción HLS."
+            "Este navegador no soporta reproducción HLS."
         );
 
         return;
@@ -1782,1181 +391,61 @@ function loadHLS(url){
     }
 
 
-    hls =
-        new Hls({
+    hls = new Hls({
 
-            enableWorker:true,
+        enableWorker: true,
 
-            lowLatencyMode:false,
+        lowLatencyMode: false,
 
-            backBufferLength:60,
+        backBufferLength: 60,
 
-            maxBufferLength:30,
-
-            maxMaxBufferLength:60,
-
-            startLevel:-1,
-
-            capLevelToPlayerSize:true,
-
-            manifestLoadingMaxRetry:2,
-
-            manifestLoadingRetryDelay:1000,
-
-            levelLoadingMaxRetry:2,
-
-            levelLoadingRetryDelay:1000,
-
-            fragLoadingMaxRetry:2,
-
-            fragLoadingRetryDelay:1000
-
-        });
-
-
-    /*
-       Adjuntar vídeo.
-    */
-
-    hls.attachMedia(
-        video
-    );
-
-
-    hls.on(
-        Hls.Events.MEDIA_ATTACHED,
-        function(){
-
-            if(
-                generation !== sourceGeneration ||
-                !hls
-            ){
-
-                return;
-
-            }
-
-
-            hls.loadSource(
-                url
-            );
-
-        }
-    );
-
-
-    /*
-       Manifest cargado.
-    */
-
-    hls.on(
-        Hls.Events.MANIFEST_PARSED,
-        function(){
-
-            if(
-                generation !== sourceGeneration
-            ){
-
-                return;
-
-            }
-
-
-            hideLoading();
-
-
-            setupHlsQuality();
-
-
-            showStatus(
-                "Vídeo listo"
-            );
-
-        }
-    );
-
-
-    /*
-       Error HLS.
-
-       No hacemos bucles infinitos de
-       recuperación porque pueden producir
-       congelamientos.
-    */
-
-    hls.on(
-        Hls.Events.ERROR,
-        function(event,data){
-
-            if(
-                generation !== sourceGeneration ||
-                !hls
-            ){
-
-                return;
-
-            }
-
-
-            console.warn(
-                "HLS:",
-                data
-            );
-
-
-            if(!data.fatal){
-
-                return;
-
-            }
-
-
-            /*
-               Error de red fatal.
-
-               Hacemos un único reinicio
-               controlado.
-            */
-
-            if(
-                data.type ===
-                Hls.ErrorTypes.NETWORK_ERROR
-            ){
-
-                showStatus(
-                    "Problema de conexión"
-                );
-
-
-                try{
-
-                    hls.stopLoad();
-
-                    setTimeout(
-                        function(){
-
-                            if(
-                                hls &&
-                                generation ===
-                                sourceGeneration
-                            ){
-
-                                hls.startLoad();
-
-                            }
-
-                        },
-                        1000
-                    );
-
-                }catch(e){}
-
-
-                return;
-
-            }
-
-
-            /*
-               Error de media.
-
-               Intentamos recuperar una vez.
-            */
-
-            if(
-                data.type ===
-                Hls.ErrorTypes.MEDIA_ERROR
-            ){
-
-                try{
-
-                    hls.recoverMediaError();
-
-                }catch(e){
-
-                    showError(
-                        "La transmisión HLS contiene un formato de vídeo que el navegador no puede decodificar."
-                    );
-
-                }
-
-
-                return;
-
-            }
-
-
-            /*
-               Error irrecuperable.
-            */
-
-            showError(
-                "No se pudo cargar la transmisión HLS. " +
-                "Comprueba que la URL .m3u8 sea válida y que el servidor entregue correctamente el vídeo."
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   CARGAR VÍDEO DIRECTO
-========================================================= */
-
-function loadDirectVideo(url){
-
-    showLoading(
-        "Preparando vídeo..."
-    );
-
-
-    const generation =
-        sourceGeneration;
-
-
-    video.src =
-        url;
-
-
-    video.load();
-
-
-    /*
-       Si la fuente ya puede reproducirse,
-       quitamos loading.
-    */
-
-    if(
-        generation === sourceGeneration &&
-        video.readyState >= 2
-    ){
-
-        hideLoading();
-
-    }
-
-}
-
-
-/* =========================================================
-   YOUTUBE
-========================================================= */
-
-function convertYoutube(url){
-
-    try{
-
-        const u =
-            new URL(url);
-
-
-        let id =
-            "";
-
-
-        if(
-            u.hostname.includes(
-                "youtu.be"
-            )
-        ){
-
-            id =
-                u.pathname
-                .replace(/^\/+/,"")
-                .split("/")[0];
-
-        }
-
-
-        if(
-            u.hostname.includes(
-                "youtube.com"
-            )
-        ){
-
-            id =
-                u.searchParams.get(
-                    "v"
-                ) || "";
-
-        }
-
-
-        if(
-            u.pathname.includes(
-                "/embed/"
-            )
-        ){
-
-            id =
-                u.pathname
-                .split("/embed/")[1]
-                .split("/")[0];
-
-        }
-
-
-        if(!id){
-
-            return null;
-
-        }
-
-
-        return (
-            "https://www.youtube.com/embed/" +
-            encodeURIComponent(id) +
-            "?rel=0&modestbranding=1"
-        );
-
-    }catch{
-
-        return null;
-
-    }
-
-}
-
-
-/* =========================================================
-   CARGAR URL
-========================================================= */
-
-function loadVideo(rawUrl,poster){
-
-    const url =
-        String(
-            rawUrl || ""
-        ).trim();
-
-
-    if(!url){
-
-        showError(
-            "Pega una URL de vídeo antes de pulsar Cargar."
-        );
-
-        return;
-
-    }
-
-
-    hideError();
-
-
-    /*
-       Limpiar completamente
-       la fuente anterior.
-    */
-
-    destroyCurrentSource();
-
-
-    /*
-       Nueva generación.
-    */
-
-    currentUrl =
-        url;
-
-
-    currentType =
-        detectSource(url);
-
-
-    titleDisplay.textContent =
-        getVideoName(url);
-
-
-    saveHistory(url);
-
-
-    setPoster(
-        poster || ""
-    );
-
-
-    console.log(
-        "[JeissoNxP182] URL:",
-        url
-    );
-
-
-    console.log(
-        "[JeissoNxP182] Tipo:",
-        currentType
-    );
-
-
-    /*
-       YOUTUBE
-    */
-
-    if(
-        currentType ===
-        "youtube"
-    ){
-
-        const yt =
-            convertYoutube(url);
-
-
-        if(!yt){
-
-            showError(
-                "No se pudo identificar el vídeo de YouTube."
-            );
-
-            return;
-
-        }
-
-
-        video.style.display =
-            "none";
-
-
-        iframe.style.display =
-            "block";
-
-
-        initialOverlay.classList.add(
-            "hidden"
-        );
-
-
-        iframe.src =
-            yt;
-
-
-        showStatus(
-            "Vídeo externo cargado"
-        );
-
-
-        return;
-
-    }
-
-
-    /*
-       IFRAME
-    */
-
-    if(
-        currentType ===
-        "iframe"
-    ){
-
-        video.style.display =
-            "none";
-
-
-        iframe.style.display =
-            "block";
-
-
-        initialOverlay.classList.add(
-            "hidden"
-        );
-
-
-        iframe.src =
-            url;
-
-
-        showStatus(
-            "Reproductor externo cargado"
-        );
-
-
-        return;
-
-    }
-
-
-    /*
-       VÍDEO DIRECTO / HLS
-    */
-
-    video.style.display =
-        "block";
-
-
-    iframe.style.display =
-        "none";
-
-
-    initialOverlay.classList.remove(
-        "hidden"
-    );
-
-
-    if(
-        currentType ===
-        "hls"
-    ){
-
-        loadHLS(url);
-
-    }else{
-
-        loadDirectVideo(url);
-
-    }
-
-}
-
-
-/* =========================================================
-   PLAY
-========================================================= */
-
-async function playVideo(){
-
-    if(!currentUrl){
-
-        showError(
-            "Primero debes cargar una película."
-        );
-
-        return;
-
-    }
-
-
-    if(
-        currentType === "youtube" ||
-        currentType === "iframe"
-    ){
-
-        showStatus(
-            "La reproducción se controla desde el reproductor externo."
-        );
-
-        return;
-
-    }
-
-
-    hideError();
-
-
-    try{
-
-        await player.play();
-
-
-        initialOverlay.classList.add(
-            "hidden"
-        );
-
-    }catch(error){
-
-        console.error(
-            "[JeissoNxP182] Error:",
-            error
-        );
-
-
-        /*
-           Ya NO mostramos mensajes de CORS.
-           El error se explica de forma genérica.
-        */
-
-        showError(
-            "El navegador no pudo reproducir esta fuente. " +
-            "Comprueba que el enlace sea válido, que el servidor esté disponible " +
-            "y que el formato sea compatible con el navegador."
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   PLAY INICIAL
-========================================================= */
-
-initialPlay.onclick =
-function(event){
-
-    event.preventDefault();
-
-    event.stopPropagation();
-
-    playVideo();
-
-};
-
-
-/* =========================================================
-   EVENTOS DEL VIDEO
-========================================================= */
-
-video.addEventListener(
-    "loadstart",
-    function(){
-
-        if(
-            currentUrl
-        ){
-
-            showLoading(
-                "Cargando vídeo..."
-            );
-
-        }
-
-    }
-);
-
-
-video.addEventListener(
-    "loadedmetadata",
-    function(){
-
-        hideLoading();
-
-
-        console.log(
-            "[JeissoNxP182] Metadata cargada"
-        );
-
-    }
-);
-
-
-video.addEventListener(
-    "canplay",
-    function(){
-
-        hideLoading();
-
-
-        showStatus(
-            "Listo"
-        );
-
-    }
-);
-
-
-video.addEventListener(
-    "playing",
-    function(){
-
-        hideLoading();
-
-
-        initialOverlay.classList.add(
-            "hidden"
-        );
-
-    }
-);
-
-
-video.addEventListener(
-    "waiting",
-    function(){
-
-        /*
-           Solo mostramos estado.
-
-           NO pausamos,
-           NO reiniciamos,
-           NO destruimos HLS.
-
-           Esto evita congelamientos
-           artificiales.
-        */
-
-        if(
-            currentUrl
-        ){
-
-            showStatus(
-                "Cargando..."
-            );
-
-        }
-
-    }
-);
-
-
-video.addEventListener(
-    "stalled",
-    function(){
-
-        /*
-           No hacemos nada agresivo.
-
-           El navegador gestiona
-           automáticamente el buffer.
-        */
-
-        console.log(
-            "[JeissoNxP182] Buffer detenido temporalmente"
-        );
-
-    }
-);
-
-
-video.addEventListener(
-    "pause",
-    function(){
-
-        /*
-           No mostramos nuevamente
-           el overlay.
-        */
-
-    }
-);
-
-
-video.addEventListener(
-    "ended",
-    function(){
-
-        initialOverlay.classList.remove(
-            "hidden"
-        );
-
-
-        showStatus(
-            "Película terminada"
-        );
-
-    }
-);
-
-
-video.addEventListener(
-    "error",
-    function(){
-
-        if(
-            !currentUrl
-        ){
-
-            return;
-
-        }
-
-
-        hideLoading();
-
-
-        const mediaError =
-            video.error;
-
-
-        let message =
-            "El archivo no pudo ser reproducido.";
-
-
-        if(mediaError){
-
-            switch(
-                mediaError.code
-            ){
-
-                case MediaError.MEDIA_ERR_ABORTED:
-
-                    message =
-                        "La reproducción fue interrumpida.";
-
-                    break;
-
-
-                case MediaError.MEDIA_ERR_NETWORK:
-
-                    message =
-                        "No se pudo obtener correctamente el vídeo desde el servidor.";
-
-                    break;
-
-
-                case MediaError.MEDIA_ERR_DECODE:
-
-                    message =
-                        "El navegador no pudo decodificar el formato del vídeo.";
-
-                    break;
-
-
-                case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-
-                    message =
-                        "El formato o la fuente del vídeo no son compatibles con este navegador.";
-
-                    break;
-
-            }
-
-        }
-
-
-        showError(
-            message
-        );
-
-    }
-);
-
-
-/* =========================================================
-   EVENTOS PLYR
-========================================================= */
-
-player.on(
-    "ready",
-    function(){
-
-        console.log(
-            "[JeissoNxP182] Plyr listo"
-        );
-
-
-        removePreviewThumb();
-
-    }
-);
-
-
-player.on(
-    "timeupdate",
-    function(){
-
-        /*
-           Mantener esta función vacía
-           evita crear cualquier preview
-           basado en tiempo.
-        */
-
-    }
-);
-
-
-/* =========================================================
-   DOBLE CLICK / DOBLE TAP
-========================================================= */
-
-wrapper.addEventListener(
-    "click",
-    function(event){
-
-        if(
-            event.target.closest(
-                ".plyr__controls"
-            )
-        ){
-
-            return;
-
-        }
-
-
-        if(
-            event.target.closest(
-                "button"
-            )
-        ){
-
-            return;
-
-        }
-
-
-        if(
-            currentType === "youtube" ||
-            currentType === "iframe"
-        ){
-
-            return;
-
-        }
-
-
-        const now =
-            Date.now();
-
-
-        const rect =
-            wrapper.getBoundingClientRect();
-
-
-        const x =
-            event.clientX -
-            rect.left;
-
-
-        if(
-            now - lastTap < 320
-        ){
-
-            clearTimeout(
-                tapTimer
-            );
-
-
-            const middle =
-                rect.width / 2;
-
-
-            if(
-                x < middle
-            ){
-
-                player.currentTime =
-                    Math.max(
-                        0,
-                        player.currentTime - 10
-                    );
-
-
-                showStatus(
-                    "−10 segundos"
-                );
-
-            }else{
-
-                player.currentTime =
-                    Math.min(
-                        player.duration ||
-                        Infinity,
-                        player.currentTime + 10
-                    );
-
-
-                showStatus(
-                    "+10 segundos"
-                );
-
-            }
-
-
-            lastTap = 0;
-
-
-            return;
-
-        }
-
-
-        lastTap =
-            now;
-
-
-        tapTimer =
-            setTimeout(
-                function(){
-
-                    lastTap = 0;
-
-                },
-                340
-            );
-
-    }
-);
-
-
-/* =========================================================
-   HISTORIAL
-========================================================= */
-
-function getHistory(){
-
-    try{
-
-        const data =
-            JSON.parse(
-                localStorage.getItem(
-                    "jeissonHistory"
-                ) || "[]"
-            );
-
-
-        return Array.isArray(data)
-            ? data
-            : [];
-
-    }catch{
-
-        return [];
-
-    }
-
-}
-
-
-function saveHistory(url){
-
-    let history =
-        getHistory();
-
-
-    history =
-        history.filter(
-            item =>
-                item &&
-                item.url !== url
-        );
-
-
-    history.unshift({
-
-        url:url,
-
-        name:getVideoName(url),
-
-        date:Date.now()
+        maxBufferLength: 30
 
     });
 
 
-    history =
-        history.slice(
-            0,
-            10
-        );
+    hls.attachMedia(video);
 
 
-    try{
+    hls.on(
+        Hls.Events.MEDIA_ATTACHED,
+        function() {
 
-        localStorage.setItem(
-            "jeissonHistory",
-            JSON.stringify(
-                history
-            )
-        );
+            hls.loadSource(url);
 
-    }catch(e){}
+        }
+    );
 
 
-    renderHistory();
+    hls.on(
+        Hls.Events.MANIFEST_PARSED,
+        function() {
 
-}
+            setStatus(
+                "HLS cargado correctamente."
+            );
 
-
-function renderHistory(){
-
-    const history =
-        getHistory();
-
-
-    historyList.innerHTML =
-        "";
+        }
+    );
 
 
-    if(!history.length){
+    hls.on(
+        Hls.Events.ERROR,
+        function(event, data) {
 
-        const empty =
-            document.createElement(
-                "div"
+            console.warn(
+                "HLS error:",
+                data
             );
 
 
-        empty.style.color =
-            "#64748b";
+            if (!data.fatal) {
+                return;
+            }
 
 
-        empty.style.fontSize =
-            "11px";
-
-
-        empty.textContent =
-            "Todavía no hay películas.";
-
-
-        historyList.appendChild(
-            empty
-        );
-
-
-        return;
-
-    }
-
-
-    history.forEach(
-        function(item){
-
-            const row =
-                document.createElement(
-                    "div"
-                );
-
-
-            row.className =
-                "history-item";
-
-
-            const name =
-                document.createElement(
-                    "span"
-                );
-
-
-            name.className =
-                "history-name";
-
-
-            name.textContent =
-                item.name ||
-                getVideoName(
-                    item.url
-                );
-
-
-            const button =
-                document.createElement(
-                    "button"
-                );
-
-
-            button.className =
-                "history-play";
-
-
-            button.type =
-                "button";
-
-
-            button.textContent =
-                "▶";
-
-
-            button.onclick =
-                function(){
-
-                    loadVideo(
-                        item.url
-                    );
-
-                };
-
-
-            row.appendChild(
-                name
-            );
-
-
-            row.appendChild(
-                button
-            );
-
-
-            historyList.appendChild(
-                row
+            showError(
+                "No se pudo reproducir la transmisión HLS."
             );
 
         }
@@ -2965,21 +454,58 @@ function renderHistory(){
 }
 
 
-/* =========================================================
-   CARGAR BOTÓN
-========================================================= */
+/* ==========================================
+   CARGAR MP4 / VIDEO DIRECTO
+========================================== */
 
-btnLoad.onclick =
-function(){
+function loadVideo(url) {
+
+    setStatus(
+        "Cargando vídeo..."
+    );
+
+
+    video.src = url;
+
+    video.load();
+
+
+    video.addEventListener(
+        "loadedmetadata",
+        function onMetadata() {
+
+            video.removeEventListener(
+                "loadedmetadata",
+                onMetadata
+            );
+
+            setStatus(
+                "Vídeo listo."
+            );
+
+        }
+    );
+
+}
+
+
+/* ==========================================
+   CARGAR URL
+========================================== */
+
+function loadSource() {
 
     const url =
         urlInput.value.trim();
 
 
-    if(!url){
+    hideError();
+
+
+    if (!url) {
 
         showError(
-            "Escribe o pega una URL de vídeo."
+            "Introduce una URL."
         );
 
         return;
@@ -2987,271 +513,116 @@ function(){
     }
 
 
-    loadVideo(
-        url
-    );
+    clearPlayer();
 
-};
 
+    /*
+       Detectamos automáticamente
+       si es HLS o vídeo directo.
+    */
 
-/* =========================================================
-   ENTER
-========================================================= */
+    if (isHLS(url)) {
 
-urlInput.addEventListener(
-    "keydown",
-    function(event){
+        loadHLS(url);
 
-        if(
-            event.key === "Enter"
-        ){
+    } else {
 
-            event.preventDefault();
-
-            btnLoad.click();
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   TECLADO
-========================================================= */
-
-document.addEventListener(
-    "keydown",
-    function(event){
-
-        if(
-            document.activeElement ===
-            urlInput
-        ){
-
-            return;
-
-        }
-
-
-        if(
-            currentType === "youtube" ||
-            currentType === "iframe"
-        ){
-
-            return;
-
-        }
-
-
-        const key =
-            event.key.toLowerCase();
-
-
-        /*
-           ESPACIO / K
-        */
-
-        if(
-            key === " " ||
-            key === "k"
-        ){
-
-            event.preventDefault();
-
-
-            if(
-                player.paused
-            ){
-
-                player.play();
-
-            }else{
-
-                player.pause();
-
-            }
-
-        }
-
-
-        /*
-           J / ←
-        */
-
-        else if(
-            key === "j" ||
-            key === "arrowleft"
-        ){
-
-            event.preventDefault();
-
-
-            player.currentTime =
-                Math.max(
-                    0,
-                    player.currentTime - 10
-                );
-
-        }
-
-
-        /*
-           L / →
-        */
-
-        else if(
-            key === "l" ||
-            key === "arrowright"
-        ){
-
-            event.preventDefault();
-
-
-            player.currentTime =
-                Math.min(
-                    player.duration ||
-                    Infinity,
-                    player.currentTime + 10
-                );
-
-        }
-
-
-        /*
-           ↑
-        */
-
-        else if(
-            key === "arrowup"
-        ){
-
-            event.preventDefault();
-
-
-            player.volume =
-                Math.min(
-                    1,
-                    player.volume + .05
-                );
-
-        }
-
-
-        /*
-           ↓
-        */
-
-        else if(
-            key === "arrowdown"
-        ){
-
-            event.preventDefault();
-
-
-            player.volume =
-                Math.max(
-                    0,
-                    player.volume - .05
-                );
-
-        }
-
-
-        /*
-           M
-        */
-
-        else if(
-            key === "m"
-        ){
-
-            player.muted =
-                !player.muted;
-
-        }
-
-
-        /*
-           F
-        */
-
-        else if(
-            key === "f"
-        ){
-
-            event.preventDefault();
-
-
-            try{
-
-                player.fullscreen.toggle();
-
-            }catch(e){}
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   PARÁMETROS URL
-========================================================= */
-
-const params =
-    new URLSearchParams(
-        window.location.search
-    );
-
-
-const videoParam =
-    params.get("v") ||
-    params.get("url");
-
-
-const posterParam =
-    params.get("p") ||
-    params.get("poster");
-
-
-/* =========================================================
-   INICIO
-========================================================= */
-
-renderHistory();
-
-
-removePreviewThumb();
-
-
-if(videoParam){
-
-    try{
-
-        loadVideo(
-            decodeURIComponent(
-                videoParam
-            ),
-            posterParam
-                ? decodeURIComponent(
-                    posterParam
-                )
-                : ""
-        );
-
-    }catch{
-
-        loadVideo(
-            videoParam,
-            posterParam
-        );
+        loadVideo(url);
 
     }
 
 }
 
-});
+
+/* ==========================================
+   BOTÓN CARGAR
+========================================== */
+
+loadButton.addEventListener(
+    "click",
+    loadSource
+);
+
+
+/* ==========================================
+   ENTER
+========================================== */
+
+urlInput.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Enter"
+        ) {
+
+            loadSource();
+
+        }
+
+    }
+);
+
+
+/* ==========================================
+   ERRORES DEL VÍDEO
+========================================== */
+
+video.addEventListener(
+    "error",
+    function() {
+
+        if (!video.error) {
+            return;
+        }
+
+
+        let message =
+            "No se pudo reproducir el vídeo.";
+
+
+        switch (
+            video.error.code
+        ) {
+
+            case MediaError.MEDIA_ERR_ABORTED:
+
+                message =
+                    "La reproducción fue cancelada.";
+
+                break;
+
+
+            case MediaError.MEDIA_ERR_NETWORK:
+
+                message =
+                    "No se pudo obtener el vídeo desde el servidor.";
+
+                break;
+
+
+            case MediaError.MEDIA_ERR_DECODE:
+
+                message =
+                    "El navegador no pudo decodificar el vídeo.";
+
+                break;
+
+
+            case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+
+                message =
+                    "El formato de vídeo no es compatible.";
+
+                break;
+
+        }
+
+
+        showError(message);
+
+    }
+);
 
 </script>
 
