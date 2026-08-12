@@ -699,6 +699,8 @@
 
       let hlsInstance = null;
       let currentUrl = '';
+      let pendingUrl = '';
+      let isMediaLoaded = false;
       let controlsTimer = null;
       let isSeeking = false;
       let timeMode = 0;
@@ -722,6 +724,10 @@
 
       function togglePlay() {
         if (isEmbedMode) return;
+        if (!isMediaLoaded && pendingUrl) {
+          actualLoadAndPlay(pendingUrl);
+          return;
+        }
         if (video.paused) {
           video.play().catch(() => showToast('Toca Play'));
         } else {
@@ -856,10 +862,54 @@
         }
       });
 
-      function loadVideo(rawUrl, isAutoLoad = false) {
+      function actualLoadAndPlay(rawUrl) {
+        isMediaLoaded = true;
+        const cleanUrl = rawUrl.toLowerCase();
+        const isDirect = cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.webm') || cleanUrl.endsWith('.ogg');
+        const isHls = cleanUrl.includes('.m3u8');
+
+        if (isDirect) {
+          video.src = rawUrl;
+          video.play().then(() => showToast('Reproduciendo')).catch(() => showToast('Pulsa Play'));
+        } else if (isHls) {
+          if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = rawUrl;
+            video.play().catch(() => {});
+          } else if (Hls.isSupported()) {
+            hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
+            hlsInstance.loadSource(rawUrl);
+            hlsInstance.attachMedia(video);
+            hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+              video.play().catch(() => {});
+            });
+            hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+              if (data.fatal) {
+                switch (data.type) {
+                  case Hls.ErrorTypes.NETWORK_ERROR: hlsInstance.startLoad(); break;
+                  case Hls.ErrorTypes.MEDIA_ERROR: hlsInstance.recoverMediaError(); break;
+                  default: hlsInstance.destroy(); showToast('Error HLS'); break;
+                }
+              }
+            });
+          } else {
+            showToast('HLS no soportado');
+          }
+        } else {
+          video.src = rawUrl;
+          video.play().catch(() => showToast('Pulsa Play para iniciar'));
+          video.onerror = () => {
+            showToast('Error al cargar el vídeo');
+          };
+        }
+        resetAutoHide();
+      }
+
+      function loadVideo(rawUrl) {
         if (!rawUrl) return;
         currentUrl = rawUrl;
-        urlInput.value = ''; // Limpiamos el input después de recibir el valor
+        pendingUrl = rawUrl;
+        isMediaLoaded = false;
+        urlInput.value = '';
 
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
         video.pause();
@@ -887,58 +937,22 @@
           controlsOverlay.style.display = 'flex';
           controlsOverlay.classList.add('active');
 
-          // Prioridad: Archivos directos primero
-          const isDirect = cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.webm') || cleanUrl.endsWith('.ogg');
-          const isHls = cleanUrl.includes('.m3u8');
+          centerIconPlay.style.display = 'block';
+          centerIconPause.style.display = 'none';
+          bottomIconPlay.style.display = 'block';
+          bottomIconPause.style.display = 'none';
 
-          if (isDirect) {
-            video.src = rawUrl;
-            if (!isAutoLoad) video.play().catch(() => showToast('Pulsa Play'));
-          } else if (isHls) {
-            if (video.canPlayType('application/vnd.apple.mpegurl')) {
-              video.src = rawUrl;
-              if (!isAutoLoad) video.play().catch(() => {});
-            } else if (Hls.isSupported()) {
-              hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
-              hlsInstance.loadSource(rawUrl);
-              hlsInstance.attachMedia(video);
-              hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-                if (!isAutoLoad) video.play().catch(() => {});
-              });
-              hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-                if (data.fatal) {
-                  switch (data.type) {
-                    case Hls.ErrorTypes.NETWORK_ERROR: hlsInstance.startLoad(); break;
-                    case Hls.ErrorTypes.MEDIA_ERROR: hlsInstance.recoverMediaError(); break;
-                    default: hlsInstance.destroy(); showToast('Error HLS'); break;
-                  }
-                }
-              });
-            } else {
-              showToast('HLS no soportado');
-            }
-          } else {
-            video.src = rawUrl;
-            if (!isAutoLoad) {
-              video.play().catch(() => showToast('Pulsa Play para iniciar'));
-            }
-            video.onerror = () => {
-              showToast('Error al cargar el vídeo');
-            };
-          }
-
-          showToast(isAutoLoad ? 'Vídeo cargado' : 'Cargando vídeo...');
-          resetAutoHide();
+          showToast('Vídeo listo. Presiona Play');
         }
       }
 
-      btnLoad.addEventListener('click', () => loadVideo(urlInput.value.trim(), false));
-      urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadVideo(urlInput.value.trim(), false); });
+      btnLoad.addEventListener('click', () => loadVideo(urlInput.value.trim()));
+      urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadVideo(urlInput.value.trim()); });
       
       const urlParams = new URLSearchParams(window.location.search);
       const videoParam = urlParams.get('url');
       if (videoParam) {
-        loadVideo(videoParam, true);
+        loadVideo(videoParam);
       }
     });
   </script>
