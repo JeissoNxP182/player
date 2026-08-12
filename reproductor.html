@@ -68,7 +68,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      min-height: 20px;
+      min-height: 18px;
     }
 
     /* REPRODUCTOR - CONTENEDOR PRINCIPAL */
@@ -294,6 +294,38 @@
       border: 2px solid var(--purple-main);
       box-shadow: 0 0 8px var(--purple-main);
       cursor: pointer;
+    }
+
+    .scrubber-tooltip {
+      position: absolute;
+      bottom: 14px;
+      transform: translateX(-50%);
+      background: rgba(20, 3, 38, 0.95);
+      border: 1px solid var(--purple-main);
+      border-radius: 6px;
+      padding: 4px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      z-index: 25;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    }
+
+    .scrubber-tooltip canvas {
+      width: 100px;
+      height: 56px;
+      border-radius: 4px;
+      background: #000;
+      object-fit: cover;
+    }
+
+    .scrubber-tooltip span {
+      font-size: 10px;
+      font-family: monospace;
+      color: #e2e8f0;
+      font-weight: 700;
     }
 
     .bottom-row {
@@ -544,22 +576,24 @@
 </head>
 <body>
 
-  <!-- BARRA SUPERIOR INDEPENDIENTE -->
+  <!-- BARRA SUPERIOR DE TITULO DE VIDEO -->
   <div class="top-header-bar">
     <div class="brand-watermark">JeissoNxP182</div>
-    <div class="video-title-display" id="videoTitleDisplay">Ningún vídeo cargado</div>
+    <div class="video-title-display" id="videoTitleDisplay"></div>
   </div>
 
   <!-- REPRODUCTOR -->
   <div class="player-wrapper" id="playerWrapper">
-    
-    <!-- ZONAS TÁCTILES Y FEEDBACK -->
+
+    <!-- ZONAS TÁCTILES DOBLE TAP -->
     <div class="touch-zones" id="touchZones">
-      <div class="touch-zone-left" id="zoneLeft"></div>
-      <div class="touch-zone-right" id="zoneRight"></div>
+      <div class="touch-zone-left" id="touchLeft"></div>
+      <div class="touch-zone-right" id="touchRight"></div>
     </div>
-    <div class="tap-feedback left" id="feedbackLeft">-10s</div>
-    <div class="tap-feedback right" id="feedbackRight">+10s</div>
+
+    <!-- FEEDBACK DE DOBLE TAP -->
+    <div class="tap-feedback left" id="tapFeedbackLeft">-10s</div>
+    <div class="tap-feedback right" id="tapFeedbackRight">+10s</div>
 
     <!-- CAPA INICIAL EXCLUSIVA (SOLO PLAY GRANDE AL CARGAR) -->
     <div class="initial-play-overlay" id="initialPlayOverlay">
@@ -569,7 +603,7 @@
     </div>
 
     <!-- ELEMENTOS DE VIDEO E IFRAME -->
-    <video id="mainVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline></video>
+    <video id="mainVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline crossorigin="anonymous"></video>
     <iframe id="mainIframe" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
 
     <!-- CAPA DE CONTROLES GENERALES -->
@@ -577,6 +611,10 @@
       
       <!-- ARRIBA A LA DERECHA -->
       <div class="top-controls">
+        <button class="icon-btn" id="btnMirror" title="Modo Espejo (Flip Horizontal)">
+          <svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
+        </button>
+
         <button class="icon-btn" id="btnShortcuts" title="Atajos de teclado">
           <svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2H2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-3 0h2v2H5v-2zm0-3h2v2H5V8zm11 10H8v-2h8v2zm1-3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
         </button>
@@ -594,7 +632,7 @@
         </button>
       </div>
 
-      <!-- TRES OPCIONES CENTRALES -->
+      <!-- CONTROLES CENTRALES -->
       <div class="center-controls">
         <button class="btn-center" id="btnRewind" title="-10 Segundos">
           <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
@@ -613,6 +651,10 @@
       <!-- ABAJO -->
       <div class="bottom-controls-wrapper">
         <div class="scrubber-container">
+          <div class="scrubber-tooltip" id="scrubberTooltip">
+            <canvas id="previewCanvas"></canvas>
+            <span id="tooltipTime">0:00:00</span>
+          </div>
           <input type="range" class="video-scrubber" id="videoScrubber" min="0" max="100" value="0" step="0.05">
         </div>
 
@@ -652,8 +694,24 @@
       </div>
     </div>
 
-    <!-- PANELS / MODALES -->
+    <!-- PANELES Y MODALES -->
     <div class="settings-panel" id="settingsPanel">
+      <div class="settings-item">
+        <span>Calidad</span>
+        <select id="selectQuality">
+          <option value="-1">Automática</option>
+        </select>
+      </div>
+
+      <div class="settings-item">
+        <span>Ajuste de Escala</span>
+        <select id="selectFit">
+          <option value="contain">Ajustar (Contain)</option>
+          <option value="cover">Rellenar Pantalla (Cover)</option>
+          <option value="fill">Estirar (Fill)</option>
+        </select>
+      </div>
+
       <div class="settings-item">
         <span>Velocidad de reproducción</span>
         <select id="selectSpeed">
@@ -672,7 +730,7 @@
       </div>
     </div>
 
-    <!-- PANEL MODAL DE ATAJOS DE TECLADO -->
+    <!-- PANEL MODAL DE ATAJOS -->
     <div class="shortcuts-panel" id="shortcutsPanel">
       <div class="shortcuts-header">
         <span class="shortcuts-title">⌨️ Atajos de Teclado</span>
@@ -716,7 +774,7 @@
       </div>
     </div>
 
-    <!-- CAPA DE DESBLOQUEO -->
+    <!-- DESBLOQUEO DE PANTALLA -->
     <div class="lock-overlay" id="lockOverlay">
       <button class="icon-btn" id="btnUnlock" style="background:rgba(20,3,38,0.8); border:1px solid var(--purple-main);">
         <svg viewBox="0 0 24 24"><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/></svg>
@@ -724,7 +782,7 @@
     </div>
   </div>
 
-  <!-- SECCIÓN SUPERIOR DE CARGA (DEBAJO DEL REPRODUCTOR) -->
+  <!-- ENLACE Y CARGA -->
   <div class="url-section">
     <div class="url-title">Cargar Fuente de Vídeo (.mp4 / .m3u8 / Youtube / Embed)</div>
     <div class="input-wrapper">
@@ -761,11 +819,18 @@
       const volumeSlider = document.getElementById('volumeSlider');
 
       const videoScrubber = document.getElementById('videoScrubber');
+      const scrubberTooltip = document.getElementById('scrubberTooltip');
+      const previewCanvas = document.getElementById('previewCanvas');
+      const tooltipTime = document.getElementById('tooltipTime');
       const currTimeElem = document.getElementById('currTime');
 
       const btnSettings = document.getElementById('btnSettings');
       const settingsPanel = document.getElementById('settingsPanel');
       const selectSpeed = document.getElementById('selectSpeed');
+      const selectQuality = document.getElementById('selectQuality');
+      const selectFit = document.getElementById('selectFit');
+      const btnMirror = document.getElementById('btnMirror');
+
       const optLockScreen = document.getElementById('optLockScreen');
       const lockOverlay = document.getElementById('lockOverlay');
       const btnUnlock = document.getElementById('btnUnlock');
@@ -782,13 +847,14 @@
       const btnPip = document.getElementById('btnPip');
       const btnCast = document.getElementById('btnCast');
 
+      const touchZones = document.getElementById('touchZones');
+      const touchLeft = document.getElementById('touchLeft');
+      const touchRight = document.getElementById('touchRight');
+      const tapFeedbackLeft = document.getElementById('tapFeedbackLeft');
+      const tapFeedbackRight = document.getElementById('tapFeedbackRight');
+
       const urlInput = document.getElementById('urlInput');
       const btnLoad = document.getElementById('btnLoad');
-
-      const zoneLeft = document.getElementById('zoneLeft');
-      const zoneRight = document.getElementById('zoneRight');
-      const feedbackLeft = document.getElementById('feedbackLeft');
-      const feedbackRight = document.getElementById('feedbackRight');
 
       let hlsInstance = null;
       let currentUrl = '';
@@ -797,28 +863,19 @@
       let isSeeking = false;
       let timeMode = 0;
       let isEmbedMode = false;
-      let audioCtx = null;
       let lastTapLeft = 0;
       let lastTapRight = 0;
 
-      function initAudioRouting() {
-        if (!audioCtx) {
-          try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            audioCtx = new AudioContext({ latencyHint: 'playback' });
-            const source = audioCtx.createMediaElementSource(video);
-            source.connect(audioCtx.destination);
-          } catch (err) {}
-        }
-        if (audioCtx && audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
+      // Asegurar sonido activado y desmutear nativamente
+      function ensureAudioUnmuted() {
+        video.muted = false;
+        if (video.volume === 0) video.volume = 1;
+        volumeSlider.value = video.volume;
+        updateVolIcons();
       }
 
       window.addEventListener('popstate', () => {
-        if (currentUrl) {
-          unloadVideoInternal();
-        }
+        if (currentUrl) unloadVideoInternal();
       });
 
       function unloadVideoInternal() {
@@ -833,7 +890,7 @@
         mainIframe.src = 'about:blank';
         controlsOverlay.classList.remove('active');
         initialPlayOverlay.classList.remove('hidden');
-        videoTitleDisplay.textContent = 'Ningún vídeo cargado';
+        videoTitleDisplay.textContent = '';
       }
 
       function getCleanTitle(url) {
@@ -863,7 +920,7 @@
 
       function togglePlay() {
         if (isEmbedMode) return;
-        initAudioRouting();
+        ensureAudioUnmuted();
         if (video.paused) {
           video.play().catch(() => {});
         } else {
@@ -873,7 +930,7 @@
 
       btnInitialPlay.addEventListener('click', (e) => {
         e.stopPropagation();
-        initAudioRouting();
+        ensureAudioUnmuted();
         initialPlayOverlay.classList.add('hidden');
         if (pendingUrl) {
           actualLoadAndPlay(pendingUrl);
@@ -908,46 +965,41 @@
         updateVolIcons();
       });
 
+      btnRewind.addEventListener('click', (e) => { e.stopPropagation(); if (!isEmbedMode) seekVideo(Math.max(0, video.currentTime - 10)); resetAutoHide(); });
+      btnForward.addEventListener('click', (e) => { e.stopPropagation(); if (!isEmbedMode) seekVideo(Math.min(video.duration || 0, video.currentTime + 10)); resetAutoHide(); });
+
       function seekVideo(timeSec) {
         if (isEmbedMode) return;
         if (video.fastSeek) video.fastSeek(timeSec);
         else video.currentTime = timeSec;
       }
 
-      btnRewind.addEventListener('click', (e) => { e.stopPropagation(); seekVideo(Math.max(0, video.currentTime - 10)); resetAutoHide(); });
-      btnForward.addEventListener('click', (e) => { e.stopPropagation(); seekVideo(Math.min(video.duration || 0, video.currentTime + 10)); resetAutoHide(); });
-
-      // Doble toque a los lados
-      zoneLeft.addEventListener('click', (e) => {
+      // DOBLE TAP INTERACTIVO
+      touchLeft.addEventListener('click', (e) => {
         const now = Date.now();
         if (now - lastTapLeft < 300) {
           e.stopPropagation();
           seekVideo(Math.max(0, video.currentTime - 10));
-          showTapFeedback(feedbackLeft);
+          showFeedback(tapFeedbackLeft);
         } else {
-          toggleControlsByOverlay();
+          toggleOverlayState();
         }
         lastTapLeft = now;
       });
 
-      zoneRight.addEventListener('click', (e) => {
+      touchRight.addEventListener('click', (e) => {
         const now = Date.now();
         if (now - lastTapRight < 300) {
           e.stopPropagation();
           seekVideo(Math.min(video.duration || 0, video.currentTime + 10));
-          showTapFeedback(feedbackRight);
+          showFeedback(tapFeedbackRight);
         } else {
-          toggleControlsByOverlay();
+          toggleOverlayState();
         }
         lastTapRight = now;
       });
 
-      function showTapFeedback(elem) {
-        elem.classList.add('animate');
-        setTimeout(() => elem.classList.remove('animate'), 500);
-      }
-
-      function toggleControlsByOverlay() {
+      function toggleOverlayState() {
         if (isEmbedMode || !initialPlayOverlay.classList.contains('hidden')) return;
         const isActive = controlsOverlay.classList.contains('active');
         if (isActive) {
@@ -959,6 +1011,11 @@
         }
       }
 
+      function showFeedback(elem) {
+        elem.classList.add('animate');
+        setTimeout(() => elem.classList.remove('animate'), 500);
+      }
+
       btnCast.addEventListener('click', async (e) => {
         e.stopPropagation();
         if (!isEmbedMode && video.remote && typeof video.remote.prompt === 'function') {
@@ -966,12 +1023,32 @@
         }
       });
 
-      volumeSlider.addEventListener('input', (e) => { e.stopPropagation(); if (!isEmbedMode) { video.volume = parseFloat(e.target.value); video.muted = (video.volume === 0); } updateVolIcons(); });
-      btnMute.addEventListener('click', (e) => { e.stopPropagation(); if (!isEmbedMode) { video.muted = !video.muted; volumeSlider.value = video.muted ? 0 : (video.volume || 1); } updateVolIcons(); });
+      volumeSlider.addEventListener('input', (e) => { 
+        e.stopPropagation(); 
+        if (!isEmbedMode) { 
+          video.volume = parseFloat(e.target.value); 
+          video.muted = (video.volume === 0); 
+        } 
+        updateVolIcons(); 
+      });
+
+      btnMute.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        if (!isEmbedMode) { 
+          video.muted = !video.muted; 
+          volumeSlider.value = video.muted ? 0 : (video.volume || 1); 
+        } 
+        updateVolIcons(); 
+      });
 
       function updateVolIcons() {
-        if (video.muted || video.volume === 0) { iconVolHigh.style.display = 'none'; iconVolMute.style.display = 'block'; } 
-        else { iconVolHigh.style.display = 'block'; iconVolMute.style.display = 'none'; }
+        if (video.muted || video.volume === 0) { 
+          iconVolHigh.style.display = 'none'; 
+          iconVolMute.style.display = 'block'; 
+        } else { 
+          iconVolHigh.style.display = 'block'; 
+          iconVolMute.style.display = 'none'; 
+        }
       }
 
       function formatHMS(sec) {
@@ -1004,6 +1081,27 @@
         videoScrubber.style.background = `linear-gradient(to right, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) ${bufPct}%, rgba(255, 255, 255, 0.2) ${bufPct}%, rgba(255, 255, 255, 0.2) 100%)`;
       }
 
+      // PREVIEW TOOLTIP
+      videoScrubber.addEventListener('mousemove', (e) => {
+        if (isEmbedMode || !video.duration) return;
+        const rect = videoScrubber.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        const targetTime = pos * video.duration;
+
+        scrubberTooltip.style.display = 'flex';
+        scrubberTooltip.style.left = `${e.clientX - rect.left}px`;
+        tooltipTime.textContent = formatHMS(targetTime);
+
+        try {
+          const ctx = previewCanvas.getContext('2d');
+          previewCanvas.width = 100;
+          previewCanvas.height = 56;
+          ctx.drawImage(video, 0, 0, 100, 56);
+        } catch (err) {}
+      });
+
+      videoScrubber.addEventListener('mouseleave', () => { scrubberTooltip.style.display = 'none'; });
+
       videoScrubber.addEventListener('pointerdown', (e) => { e.stopPropagation(); isSeeking = true; });
       videoScrubber.addEventListener('input', (e) => { e.stopPropagation(); isSeeking = true; const targetTime = (parseFloat(videoScrubber.value) / 100) * (video.duration || 0); if (timeMode === 0) currTimeElem.textContent = formatHMS(targetTime); else if (timeMode === 1) currTimeElem.textContent = "-" + formatHMS((video.duration || 0) - targetTime); });
       videoScrubber.addEventListener('change', (e) => { e.stopPropagation(); if (!isEmbedMode && video.duration) seekVideo((parseFloat(videoScrubber.value) / 100) * video.duration); isSeeking = false; resetAutoHide(); });
@@ -1013,6 +1111,9 @@
       btnCloseShortcuts.addEventListener('click', (e) => { e.stopPropagation(); shortcutsPanel.classList.remove('active'); });
 
       selectSpeed.addEventListener('change', (e) => { if (!isEmbedMode) { video.playbackRate = parseFloat(e.target.value); } });
+      selectFit.addEventListener('change', (e) => { if (!isEmbedMode) { video.style.objectFit = e.target.value; } });
+      btnMirror.addEventListener('click', (e) => { e.stopPropagation(); btnMirror.classList.toggle('active'); video.classList.toggle('mirror-mode'); });
+
       optLockScreen.addEventListener('click', () => { settingsPanel.classList.remove('active'); shortcutsPanel.classList.remove('active'); controlsOverlay.classList.remove('active'); lockOverlay.classList.add('active'); });
       btnUnlock.addEventListener('click', () => { lockOverlay.classList.remove('active'); controlsOverlay.classList.add('active'); });
       btnCopyLink.addEventListener('click', (e) => { e.stopPropagation(); if (currentUrl) { navigator.clipboard.writeText(currentUrl); } });
@@ -1035,7 +1136,21 @@
         }
       });
 
+      function populateHlsQualities(hls) {
+        selectQuality.innerHTML = '<option value="-1">Automática</option>';
+        hls.levels.forEach((level, index) => {
+          const opt = document.createElement('option');
+          opt.value = index;
+          opt.textContent = `${level.height || level.bitrate}p`;
+          selectQuality.appendChild(opt);
+        });
+        selectQuality.onchange = (e) => {
+          hls.currentLevel = parseInt(e.target.value);
+        };
+      }
+
       function actualLoadAndPlay(rawUrl) {
+        ensureAudioUnmuted();
         const cleanUrl = rawUrl.toLowerCase();
         const isDirect = cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.webm') || cleanUrl.endsWith('.ogg');
         const isHls = cleanUrl.includes('.m3u8');
@@ -1052,6 +1167,7 @@
             hlsInstance.loadSource(rawUrl);
             hlsInstance.attachMedia(video);
             hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+              populateHlsQualities(hlsInstance);
               video.play().catch(() => {});
             });
             hlsInstance.on(Hls.Events.ERROR, (event, data) => {
@@ -1078,7 +1194,6 @@
         urlInput.value = '';
 
         videoTitleDisplay.textContent = getCleanTitle(rawUrl);
-
         history.pushState({ videoLoaded: true }, '');
 
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
@@ -1096,6 +1211,7 @@
           else if (rawUrl.includes('youtube.com/watch?v=')) finalEmbedUrl = `https://www.youtube.com/embed/${rawUrl.split('v=')[1].split('&')[0]}?autoplay=1`;
           
           video.style.display = 'none';
+          touchZones.style.display = 'none';
           mainIframe.style.display = 'block';
           mainIframe.src = finalEmbedUrl;
           controlsOverlay.style.display = 'none';
@@ -1104,9 +1220,9 @@
           mainIframe.style.display = 'none';
           mainIframe.src = 'about:blank';
           video.style.display = 'block';
+          touchZones.style.display = 'flex';
           controlsOverlay.style.display = 'flex';
           controlsOverlay.classList.remove('active');
-          
           initialPlayOverlay.classList.remove('hidden');
         }
       }
