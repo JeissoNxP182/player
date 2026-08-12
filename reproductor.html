@@ -856,16 +856,15 @@
         }
       });
 
-      // --- AQUÍ ESTÁ EL CAMBIO SOLICITADO ---
       function loadVideo(rawUrl) {
         if (!rawUrl) return;
         currentUrl = rawUrl;
         urlInput.value = rawUrl;
 
-        // Limpiar recursos previos
+        // Limpiar recursos previos de HLS o video
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
         video.pause();
-        video.onerror = null; // Quitar cualquier error previo
+        video.onerror = null;
         video.removeAttribute('src');
         video.load();
 
@@ -889,20 +888,48 @@
           controlsOverlay.style.display = 'flex';
           controlsOverlay.classList.add('active');
 
-          // Intento de reproducción nativa (Prioridad al MP4)
-          video.src = rawUrl;
-          video.play().catch(() => {});
+          const isHls = cleanUrl.includes('.m3u8');
 
-          // FALLBACK: Si falla la reproducción nativa, intentar HLS
-          video.onerror = () => {
-            if (Hls.isSupported() && !hlsInstance) {
-              console.log("Error nativo, activando HLS fallback...");
+          if (isHls) {
+            if (video.canPlayType('application/vnd.apple.mpegurl')) {
+              // Reproducción nativa HLS (Safari / iOS)
+              video.src = rawUrl;
+              video.play().catch(() => {});
+            } else if (Hls.isSupported()) {
+              // Hls.js para Chrome, Firefox, Edge, etc.
               hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
               hlsInstance.loadSource(rawUrl);
               hlsInstance.attachMedia(video);
-              hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+              hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+                video.play().catch(() => {});
+              });
+              hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+                if (data.fatal) {
+                  switch (data.type) {
+                    case Hls.ErrorTypes.NETWORK_ERROR:
+                      hlsInstance.startLoad();
+                      break;
+                    case Hls.ErrorTypes.MEDIA_ERROR:
+                      hlsInstance.recoverMediaError();
+                      break;
+                    default:
+                      hlsInstance.destroy();
+                      showToast('Error al reproducir el flujo HLS');
+                      break;
+                  }
+                }
+              });
+            } else {
+              showToast('Tu navegador no soporta HLS');
             }
-          };
+          } else {
+            // Reproducción normal (MP4, etc.)
+            video.src = rawUrl;
+            video.play().catch(() => {});
+            video.onerror = () => {
+              showToast('Error al cargar el vídeo');
+            };
+          }
 
           showToast('Cargando vídeo...');
           resetAutoHide();
@@ -911,6 +938,7 @@
 
       btnLoad.addEventListener('click', () => loadVideo(urlInput.value.trim()));
       urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadVideo(urlInput.value.trim()); });
+      
       const urlParams = new URLSearchParams(window.location.search);
       const videoParam = urlParams.get('url');
       if (videoParam) loadVideo(decodeURIComponent(videoParam));
