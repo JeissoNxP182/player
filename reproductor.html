@@ -856,12 +856,11 @@
         }
       });
 
-      function loadVideo(rawUrl) {
+      function loadVideo(rawUrl, isAutoLoad = false) {
         if (!rawUrl) return;
         currentUrl = rawUrl;
         urlInput.value = rawUrl;
 
-        // Limpiar recursos previos de HLS o video
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
         video.pause();
         video.onerror = null;
@@ -892,56 +891,52 @@
 
           if (isHls) {
             if (video.canPlayType('application/vnd.apple.mpegurl')) {
-              // Reproducción nativa HLS (Safari / iOS)
               video.src = rawUrl;
-              video.play().catch(() => {});
+              if (!isAutoLoad) video.play().catch(() => {});
             } else if (Hls.isSupported()) {
-              // Hls.js para Chrome, Firefox, Edge, etc.
               hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
               hlsInstance.loadSource(rawUrl);
               hlsInstance.attachMedia(video);
               hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-                video.play().catch(() => {});
+                if (!isAutoLoad) video.play().catch(() => {});
               });
               hlsInstance.on(Hls.Events.ERROR, (event, data) => {
                 if (data.fatal) {
                   switch (data.type) {
-                    case Hls.ErrorTypes.NETWORK_ERROR:
-                      hlsInstance.startLoad();
-                      break;
-                    case Hls.ErrorTypes.MEDIA_ERROR:
-                      hlsInstance.recoverMediaError();
-                      break;
-                    default:
-                      hlsInstance.destroy();
-                      showToast('Error al reproducir el flujo HLS');
-                      break;
+                    case Hls.ErrorTypes.NETWORK_ERROR: hlsInstance.startLoad(); break;
+                    case Hls.ErrorTypes.MEDIA_ERROR: hlsInstance.recoverMediaError(); break;
+                    default: hlsInstance.destroy(); showToast('Error HLS'); break;
                   }
                 }
               });
             } else {
-              showToast('Tu navegador no soporta HLS');
+              showToast('HLS no soportado');
             }
           } else {
-            // Reproducción normal (MP4, etc.)
             video.src = rawUrl;
-            video.play().catch(() => {});
+            if (!isAutoLoad) {
+              video.play().catch(() => showToast('Pulsa Play para iniciar'));
+            }
             video.onerror = () => {
               showToast('Error al cargar el vídeo');
             };
           }
 
-          showToast('Cargando vídeo...');
+          showToast(isAutoLoad ? 'Vídeo cargado' : 'Cargando vídeo...');
           resetAutoHide();
         }
       }
 
-      btnLoad.addEventListener('click', () => loadVideo(urlInput.value.trim()));
-      urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadVideo(urlInput.value.trim()); });
+      btnLoad.addEventListener('click', () => loadVideo(urlInput.value.trim(), false));
+      urlInput.arguments = null;
+      urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadVideo(urlInput.value.trim(), false); });
       
       const urlParams = new URLSearchParams(window.location.search);
       const videoParam = urlParams.get('url');
-      if (videoParam) loadVideo(decodeURIComponent(videoParam));
+      if (videoParam) {
+        // Se pasa directamente sin doble decode y se marca como carga automática para evitar bloqueos del navegador
+        loadVideo(videoParam, true);
+      }
     });
   </script>
 </body>
