@@ -48,7 +48,7 @@
       gap: 4px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
       z-index: 100;
-      margin-top: 10px; /* Margen para despejar menús superiores */
+      margin-top: 10px;
     }
 
     .brand-watermark {
@@ -95,7 +95,6 @@
       transition: transform 0.2s ease, object-fit 0.2s ease;
     }
 
-    /* ESTILO ESPEJO AL APLICAR CLASE */
     video.mirror-mode {
       transform: scaleX(-1);
     }
@@ -212,7 +211,6 @@
       pointer-events: auto;
     }
 
-    /* FILA SUPERIOR CONTROLES */
     .top-controls {
       display: flex;
       justify-content: flex-end;
@@ -222,7 +220,6 @@
       flex-wrap: wrap;
     }
 
-    /* CONTROLES CENTRALES */
     .center-controls {
       position: absolute;
       top: 50%;
@@ -261,7 +258,6 @@
       border-color: #cbd5e1;
     }
 
-    /* FILA INFERIOR CONTROLES */
     .bottom-controls-wrapper {
       display: flex;
       flex-direction: column;
@@ -663,7 +659,7 @@
 </head>
 <body>
 
-  <!-- BARRA SUPERIOR CON MARCA Y NOMBRE DE LA PELÍCULA (BAJADO Y MÁS GRANDE) -->
+  <!-- BARRA SUPERIOR DE MARCA Y NOMBRE DE LA PELÍCULA -->
   <div class="top-header-bar">
     <div class="brand-watermark">JeissoNxP182</div>
     <div class="video-title-display" id="videoTitleDisplay">Sin película cargada</div>
@@ -690,7 +686,7 @@
     </div>
 
     <!-- ELEMENTOS DE VIDEO E IFRAME -->
-    <video id="mainVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline crossOrigin="anonymous"></video>
+    <video id="mainVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline></video>
     <iframe id="mainIframe" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
 
     <!-- CAPA DE CONTROLES GENERALES -->
@@ -698,8 +694,9 @@
       
       <!-- ARRIBA A LA DERECHA -->
       <div class="top-controls">
+        <!-- ICONO DE CAPTURA DE PANTALLA REEMPLAZADO (CÁMARA COMPLETA) -->
         <button class="icon-btn" id="btnScreenshot" title="Hacer captura de pantalla">
-          <svg viewBox="0 0 24 24"><path d="M9.64 7.64c.23-.5.36-1.05.36-1.64 0-2.21-1.79-4-4-4S2 3.79 2 6s1.79 4 4 4c.59 0 1.14-.13 1.64-.36L10 12l-2.36 2.36C7.14 14.13 6.59 14 6 14c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4c0-.59-.13-1.14-.36-1.64L12 14l7 7h3v-1L9.64 7.64zM6 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0 12c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm13-8c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zM12 3c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>
         </button>
 
         <button class="icon-btn" id="btnMirror" title="Efecto Espejo">
@@ -891,40 +888,15 @@
       const btnForward = document.getElementById('btnForward');
 
       const btnMute = document.getElementById('btnMute');
-      const iconVolHigh = document.getElementById('iconVolHigh');
-      const iconVolMute = document.getElementById('iconVolMute');
       const volumeSlider = document.getElementById('volumeSlider');
 
       const videoScrubber = document.getElementById('videoScrubber');
-      const scrubberContainer = document.getElementById('scrubberContainer');
-      const scrubberTooltip = document.getElementById('scrubberTooltip');
-      const thumbCanvas = document.getElementById('thumbCanvas');
-      const thumbTime = document.getElementById('thumbTime');
       const currTimeElem = document.getElementById('currTime');
 
       const btnSettings = document.getElementById('btnSettings');
       const settingsPanel = document.getElementById('settingsPanel');
       const selectSpeed = document.getElementById('selectSpeed');
       const selectAspect = document.getElementById('selectAspect');
-      const selectAudioMode = document.getElementById('selectAudioMode');
-      const optLockScreen = document.getElementById('optLockScreen');
-      const lockOverlay = document.getElementById('lockOverlay');
-      const btnUnlock = document.getElementById('btnUnlock');
-
-      const btnShortcuts = document.getElementById('btnShortcuts');
-      const shortcutsPanel = document.getElementById('shortcutsPanel');
-      const btnCloseShortcuts = document.getElementById('btnCloseShortcuts');
-
-      const btnCopyLink = document.getElementById('btnCopyLink');
-      const btnDownload = document.getElementById('btnDownload');
-      const btnFullscreen = document.getElementById('btnFullscreen');
-      const iconFS = document.getElementById('iconFS');
-      const iconExitFS = document.getElementById('iconExitFS');
-      const btnPip = document.getElementById('btnPip');
-      const btnCast = document.getElementById('btnCast');
-
-      const btnScreenshot = document.getElementById('btnScreenshot');
-      const btnMirror = document.getElementById('btnMirror');
 
       const urlInput = document.getElementById('urlInput');
       const btnLoad = document.getElementById('btnLoad');
@@ -932,20 +904,13 @@
       const playlistGrid = document.getElementById('playlistGrid');
       const btnClearPlaylist = document.getElementById('btnClearPlaylist');
 
-      const zoneLeft = document.getElementById('zoneLeft');
-      const zoneRight = document.getElementById('zoneRight');
-      const tapFeedbackLeft = document.getElementById('tapFeedbackLeft');
-      const tapFeedbackRight = document.getElementById('tapFeedbackRight');
-
       let hlsInstance = null;
       let currentUrl = '';
-      let pendingUrl = '';
       let controlsTimer = null;
       let isSeeking = false;
       let timeMode = 0;
       let isEmbedMode = false;
 
-      // Renderizar historial al cargar
       renderPlaylist();
 
       btnLoad.addEventListener('click', () => {
@@ -963,7 +928,6 @@
       function loadVideo(rawUrl) {
         if (!rawUrl) return;
         currentUrl = rawUrl;
-        pendingUrl = rawUrl;
         urlInput.value = '';
 
         addToHistory(rawUrl);
@@ -1025,7 +989,9 @@
         e.stopPropagation();
         initialPlayOverlay.classList.add('hidden');
         if (!isEmbedMode) {
-          video.play().catch(() => {});
+          video.play().catch(err => {
+            console.error("Error al reproducir el video:", err);
+          });
         }
       });
 
