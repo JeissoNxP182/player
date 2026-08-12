@@ -694,7 +694,6 @@
       
       <!-- ARRIBA A LA DERECHA -->
       <div class="top-controls">
-        <!-- ICONO DE CAPTURA DE PANTALLA REEMPLAZADO (CÁMARA COMPLETA) -->
         <button class="icon-btn" id="btnScreenshot" title="Hacer captura de pantalla">
           <svg viewBox="0 0 24 24"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>
         </button>
@@ -928,10 +927,12 @@
       function loadVideo(rawUrl) {
         if (!rawUrl) return;
         currentUrl = rawUrl;
-        urlInput.value = '';
+        
+        // Actualizar título de forma inmediata
+        const cleanTitle = getCleanTitle(rawUrl);
+        videoTitleDisplay.textContent = cleanTitle;
 
         addToHistory(rawUrl);
-        videoTitleDisplay.textContent = getCleanTitle(rawUrl);
 
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
         video.pause();
@@ -987,10 +988,18 @@
 
       btnInitialPlay.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (!currentUrl) {
+          const url = urlInput.value.trim();
+          if (url) loadVideo(url);
+          else return;
+        }
+        
         initialPlayOverlay.classList.add('hidden');
         if (!isEmbedMode) {
-          video.play().catch(err => {
-            console.error("Error al reproducir el video:", err);
+          video.play().then(() => {
+            resetAutoHide();
+          }).catch(err => {
+            console.error("Error al reproducir el vídeo:", err);
           });
         }
       });
@@ -1054,13 +1063,14 @@
       btnRewind.addEventListener('click', (e) => { e.stopPropagation(); seekVideo(Math.max(0, video.currentTime - 10)); resetAutoHide(); });
       btnForward.addEventListener('click', (e) => { e.stopPropagation(); seekVideo(Math.min(video.duration || 0, video.currentTime + 10)); resetAutoHide(); });
 
+      // DURACIÓN DE OCULTAMIENTO AUTOMÁTICO DE MENÚS CAMBIADO A 10 SEGUNDOS (10000ms)
       function resetAutoHide() {
         clearTimeout(controlsTimer);
         if (!isEmbedMode && !video.paused) {
           controlsTimer = setTimeout(() => {
             controlsOverlay.classList.remove('active');
             settingsPanel.classList.remove('active');
-          }, 4000);
+          }, 10000);
         }
       }
 
@@ -1159,7 +1169,10 @@
             </div>
             <div class="playlist-card-name" title="${item.title}">${item.title}</div>
           `;
-          card.addEventListener('click', () => loadVideo(item.url));
+          card.addEventListener('click', () => {
+            urlInput.value = item.url;
+            loadVideo(item.url);
+          });
           playlistGrid.appendChild(card);
         });
       }
@@ -1169,7 +1182,7 @@
         renderPlaylist();
       });
 
-      btnSettings.addEventListener('click', (e) => { e.stopPropagation(); settingsPanel.classList.toggle('active'); });
+      btnSettings.addEventListener('click', (e) => { e.stopPropagation(); settingsPanel.classList.toggle('active'); resetAutoHide(); });
       selectAspect.addEventListener('change', (e) => { video.style.objectFit = e.target.value; });
       selectSpeed.addEventListener('change', (e) => { video.playbackRate = parseFloat(e.target.value); });
     });
