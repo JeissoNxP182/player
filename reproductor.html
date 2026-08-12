@@ -64,7 +64,7 @@
       z-index: 5;
     }
 
-    /* MARCA PERSONAL Y TITULO */
+    /* MARCA PERSONAL Y TÍTULO LIMPIO DEL VÍDEO */
     .brand-watermark {
       position: absolute;
       top: 12px;
@@ -78,6 +78,22 @@
       text-shadow: 0 2px 8px rgba(168, 85, 247, 0.4);
       z-index: 25;
       pointer-events: none;
+    }
+
+    .video-title-display {
+      position: absolute;
+      top: 36px;
+      left: 14px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #cbd5e1;
+      max-width: 70%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 25;
+      pointer-events: none;
+      opacity: 0.85;
     }
 
     /* CAPA INICIAL EXCLUSIVA (SOLO PLAY GRANDE) */
@@ -511,6 +527,7 @@
   <!-- REPRODUCTOR -->
   <div class="player-wrapper" id="playerWrapper">
     <div class="brand-watermark">JeissoNxP182</div>
+    <div class="video-title-display" id="videoTitleDisplay"></div>
 
     <!-- CAPA INICIAL EXCLUSIVA (SOLO PLAY GRANDE AL CARGAR) -->
     <div class="initial-play-overlay" id="initialPlayOverlay">
@@ -529,7 +546,7 @@
       <!-- ARRIBA A LA DERECHA -->
       <div class="top-controls">
         <button class="icon-btn" id="btnShortcuts" title="Atajos de teclado">
-          <svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-3 0h2v2H5v-2zm0-3h2v2H5V8zm11 10H8v-2h8v2zm1-3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2H2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-3 0h2v2H5v-2zm0-3h2v2H5V8zm11 10H8v-2h8v2zm1-3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
         </button>
 
         <button class="icon-btn" id="btnCast" title="Transmitir">
@@ -702,6 +719,7 @@
       const video = document.getElementById('mainVideo');
       const mainIframe = document.getElementById('mainIframe');
       const playerWrapper = document.getElementById('playerWrapper');
+      const videoTitleDisplay = document.getElementById('videoTitleDisplay');
       
       const initialPlayOverlay = document.getElementById('initialPlayOverlay');
       const btnInitialPlay = document.getElementById('btnInitialPlay');
@@ -758,10 +776,37 @@
       let timeMode = 0;
       let isEmbedMode = false;
 
+      // Historial seguro para evitar cierre completo de página al dar atrás
+      window.history.pushState({ player: true }, '', window.location.href);
+      window.addEventListener('popstate', (e) => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('url')) {
+          e.preventDefault();
+          history.pushState(null, '', window.location.pathname);
+          window.location.reload();
+        }
+      });
+
       function showToast(txt) {
         toastMsg.textContent = txt;
         toastMsg.classList.add('show');
         setTimeout(() => toastMsg.classList.remove('show'), 2000);
+      }
+
+      function getCleanTitle(url) {
+        try {
+          const parsed = new URL(url);
+          const segments = parsed.pathname.split('/').filter(Boolean);
+          if (segments.length > 0) {
+            let filename = decodeURIComponent(segments[segments.length - 1]);
+            // Reemplazar guiones bajos o porcentajes si vienen feos
+            filename = filename.replace(/[_]/g, ' ').replace(/\.[^/.]+$/, '');
+            return filename;
+          }
+          return parsed.hostname;
+        } catch {
+          return url;
+        }
       }
 
       function resetAutoHide() {
@@ -783,7 +828,6 @@
         }
       }
 
-      // Evento del botón de play inicial (solo aparece al cargar)
       btnInitialPlay.addEventListener('click', (e) => {
         e.stopPropagation();
         initialPlayOverlay.classList.add('hidden');
@@ -966,6 +1010,9 @@
         pendingUrl = rawUrl;
         urlInput.value = '';
 
+        // Mostrar un título limpio y corto derivado de la URL
+        videoTitleDisplay.textContent = getCleanTitle(rawUrl);
+
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
         video.pause();
         video.onerror = null;
@@ -993,7 +1040,6 @@
           controlsOverlay.style.display = 'flex';
           controlsOverlay.classList.remove('active');
           
-          // Mostrar solo el botón de play grande al cargar
           initialPlayOverlay.classList.remove('hidden');
           showToast('Vídeo listo');
         }
