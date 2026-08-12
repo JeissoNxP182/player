@@ -14,7 +14,7 @@
      PLYR
 ========================================================= -->
 <link rel="stylesheet"
-href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
+      href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
 
 <!-- =========================================================
      HLS.JS
@@ -56,8 +56,14 @@ body{
             var(--background) 45%,
             #08010e 100%
         );
+
     color:var(--text);
-    font-family:Arial,Helvetica,sans-serif;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
     overflow:hidden;
 }
 
@@ -67,27 +73,42 @@ body{
 
 .video-header{
     height:64px;
+
     padding:10px 15px;
+
     background:rgba(20,3,38,.96);
-    border-bottom:1px solid rgba(168,85,247,.15);
+
+    border-bottom:
+        1px solid rgba(168,85,247,.15);
+
     display:flex;
+
     flex-direction:column;
+
     justify-content:center;
 }
 
 .brand-watermark{
     font-size:17px;
+
     font-weight:800;
+
     letter-spacing:1px;
+
     color:#e9d5ff;
 }
 
 .video-title-display{
     margin-top:3px;
+
     font-size:12px;
+
     color:var(--muted);
+
     white-space:nowrap;
+
     overflow:hidden;
+
     text-overflow:ellipsis;
 }
 
@@ -97,21 +118,23 @@ body{
 
 .player-wrapper{
     position:relative;
+
     width:100%;
+
     height:55vh;
+
     max-height:68vh;
+
     min-height:220px;
+
     background:#000;
+
     overflow:hidden;
+
     box-shadow:
         0 5px 30px rgba(0,0,0,.7),
         inset 0 0 30px rgba(0,0,0,.4);
 }
-
-/*
-   Importante:
-   Plyr necesita que el video tenga dimensiones reales.
-*/
 
 .player-wrapper .plyr{
     width:100%;
@@ -127,12 +150,14 @@ body{
 .player-wrapper video{
     width:100%;
     height:100%;
+
     object-fit:contain;
+
     background:#000;
 }
 
 /* =========================================================
-   PLYR PERSONALIZACIÓN
+   PLYR
 ========================================================= */
 
 .plyr{
@@ -160,15 +185,26 @@ body{
 }
 
 .plyr__control:hover{
-    background:rgba(168,85,247,.25) !important;
+    background:
+        rgba(168,85,247,.25) !important;
 }
 
 .plyr__progress input[type=range]{
     color:var(--primary);
 }
 
-.plyr__volume input[type=range]{
-    color:var(--primary);
+/*
+   Sin preview de miniaturas.
+   No se genera ni muestra ninguna miniatura
+   al mover el cursor sobre la barra.
+*/
+
+.plyr__preview-thumb{
+    display:none !important;
+}
+
+.plyr__tooltip{
+    display:none !important;
 }
 
 /* =========================================================
@@ -177,11 +213,15 @@ body{
 
 .initial-play-overlay{
     position:absolute;
+
     inset:0;
+
     z-index:20;
 
     display:flex;
+
     align-items:center;
+
     justify-content:center;
 
     background:
@@ -198,7 +238,9 @@ body{
 
 .initial-play-overlay.hidden{
     opacity:0;
+
     visibility:hidden;
+
     pointer-events:none;
 }
 
@@ -208,7 +250,8 @@ body{
 
     border-radius:50%;
 
-    border:2px solid rgba(255,255,255,.8);
+    border:
+        2px solid rgba(255,255,255,.8);
 
     background:
         linear-gradient(
@@ -220,7 +263,9 @@ body{
     color:white;
 
     display:flex;
+
     align-items:center;
+
     justify-content:center;
 
     cursor:pointer;
@@ -247,7 +292,9 @@ body{
 .btn-initial-play svg{
     width:42px;
     height:42px;
+
     fill:white;
+
     margin-left:4px;
 }
 
@@ -257,6 +304,7 @@ body{
 
 .loading-overlay{
     position:absolute;
+
     inset:0;
 
     z-index:18;
@@ -264,6 +312,7 @@ body{
     display:none;
 
     align-items:center;
+
     justify-content:center;
 
     flex-direction:column;
@@ -293,13 +342,16 @@ body{
 }
 
 @keyframes spin{
+
     to{
         transform:rotate(360deg);
     }
+
 }
 
 .loading-text{
     font-size:13px;
+
     color:#e9d5ff;
 }
 
@@ -309,6 +361,7 @@ body{
 
 .error-overlay{
     position:absolute;
+
     inset:0;
 
     z-index:25;
@@ -316,6 +369,7 @@ body{
     display:none;
 
     align-items:center;
+
     justify-content:center;
 
     padding:20px;
@@ -330,6 +384,7 @@ body{
 
 .error-box{
     width:min(500px,90%);
+
     padding:22px;
 
     background:
@@ -352,19 +407,25 @@ body{
 
 .error-icon{
     font-size:35px;
+
     margin-bottom:10px;
 }
 
 .error-title{
     font-size:16px;
+
     font-weight:bold;
+
     margin-bottom:8px;
 }
 
 .error-message{
     font-size:12px;
+
     color:#cbd5e1;
+
     line-height:1.5;
+
     word-break:break-word;
 }
 
@@ -373,7 +434,8 @@ body{
 
     padding:9px 17px;
 
-    border:1px solid var(--primary);
+    border:
+        1px solid var(--primary);
 
     border-radius:7px;
 
@@ -395,6 +457,7 @@ body{
 
 #mainIframe{
     position:absolute;
+
     inset:0;
 
     width:100%;
@@ -419,6 +482,7 @@ body{
     padding:14px;
 
     display:flex;
+
     flex-direction:column;
 
     gap:8px;
@@ -433,6 +497,7 @@ body{
 
 .url-title{
     font-size:11px;
+
     color:var(--muted);
 
     text-transform:uppercase;
@@ -442,6 +507,7 @@ body{
 
 .input-wrapper{
     display:flex;
+
     gap:8px;
 }
 
@@ -459,8 +525,7 @@ body{
 
     border-radius:8px;
 
-    padding:
-        0 12px;
+    padding:0 12px;
 
     color:white;
 
@@ -485,8 +550,7 @@ body{
 .btn-load{
     height:42px;
 
-    padding:
-        0 18px;
+    padding:0 18px;
 
     border:
         1px solid rgba(255,255,255,.4);
@@ -529,6 +593,7 @@ body{
 
 .history-list{
     display:flex;
+
     flex-direction:column;
 
     gap:5px;
@@ -544,6 +609,7 @@ body{
 
 .history-list::-webkit-scrollbar-thumb{
     background:var(--primary-dark);
+
     border-radius:5px;
 }
 
@@ -551,13 +617,14 @@ body{
     min-height:34px;
 
     display:flex;
+
     align-items:center;
+
     justify-content:space-between;
 
     gap:8px;
 
-    padding:
-        6px 8px;
+    padding:6px 8px;
 
     border-radius:7px;
 
@@ -589,8 +656,7 @@ body{
 
     border-radius:5px;
 
-    padding:
-        4px 8px;
+    padding:4px 8px;
 
     color:white;
 
@@ -611,13 +677,11 @@ body{
 
     z-index:15;
 
-    padding:
-        5px 8px;
+    padding:5px 8px;
 
     border-radius:5px;
 
-    background:
-        rgba(0,0,0,.6);
+    background:rgba(0,0,0,.6);
 
     color:#cbd5e1;
 
@@ -705,6 +769,7 @@ body{
     .btn-load{
         padding:0 13px;
     }
+
 }
 
 </style>
@@ -746,7 +811,6 @@ body{
         playsinline
         webkit-playsinline
         preload="metadata"
-        crossorigin="anonymous"
     ></video>
 
 
@@ -883,8 +947,8 @@ body{
 
     <div
         class="history-list"
-        id="historyList"
-    ></div>
+        id="historyList">
+    </div>
 
 </section>
 
@@ -907,42 +971,58 @@ document.addEventListener("DOMContentLoaded",function(){
    HELPERS
 ========================================================= */
 
-const $ = id => document.getElementById(id);
+const $ = id =>
+    document.getElementById(id);
 
 
 /* =========================================================
    ELEMENTOS
 ========================================================= */
 
-const video = $("mainVideo");
+const video =
+    $("mainVideo");
 
-const iframe = $("mainIframe");
+const iframe =
+    $("mainIframe");
 
-const wrapper = $("playerWrapper");
+const wrapper =
+    $("playerWrapper");
 
-const initialOverlay = $("initialPlayOverlay");
+const initialOverlay =
+    $("initialPlayOverlay");
 
-const initialPlay = $("btnInitialPlay");
+const initialPlay =
+    $("btnInitialPlay");
 
-const loadingOverlay = $("loadingOverlay");
+const loadingOverlay =
+    $("loadingOverlay");
 
-const loadingText = $("loadingText");
+const loadingText =
+    $("loadingText");
 
-const errorOverlay = $("errorOverlay");
+const errorOverlay =
+    $("errorOverlay");
 
-const errorMessage = $("errorMessage");
+const errorMessage =
+    $("errorMessage");
 
-const errorClose = $("errorClose");
+const errorClose =
+    $("errorClose");
 
-const urlInput = $("urlInput");
+const urlInput =
+    $("urlInput");
 
-const btnLoad = $("btnLoad");
+const btnLoad =
+    $("btnLoad");
 
-const historyList = $("historyList");
+const historyList =
+    $("historyList");
 
-const titleDisplay = $("videoTitleDisplay");
+const titleDisplay =
+    $("videoTitleDisplay");
 
-const status = $("status");
+const status =
+    $("status");
 
 
 /* =========================================================
@@ -957,63 +1037,85 @@ let currentType = "";
 
 let currentPoster = "";
 
-let destroyTimer = null;
+let statusTimer = null;
 
 let lastTap = 0;
 
 let tapTimer = null;
 
-let isLoading = false;
+let sourceGeneration = 0;
 
 
 /* =========================================================
    PLYR
 ========================================================= */
 
-const player = new Plyr(video,{
+const player =
+    new Plyr(
+        video,
+        {
 
-    autoplay:false,
+            autoplay:false,
 
-    controls:[
-        "play-large",
-        "play",
-        "progress",
-        "current-time",
-        "duration",
-        "mute",
-        "volume",
-        "settings",
-        "fullscreen"
-    ],
+            controls:[
+                "play-large",
+                "play",
+                "progress",
+                "current-time",
+                "duration",
+                "mute",
+                "volume",
+                "settings",
+                "fullscreen"
+            ],
 
-    settings:[
-        "quality",
-        "speed"
-    ],
+            settings:[
+                "quality",
+                "speed"
+            ],
 
-    seekTime:10,
+            seekTime:10,
 
-    keyboard:{
-        focused:true,
-        global:true
-    },
+            keyboard:{
+                focused:true,
+                global:true
+            },
 
-    tooltips:{
-        controls:true,
-        seek:true
-    },
+            tooltips:{
+                controls:true,
+                seek:false
+            },
 
-    clickToPlay:false,
+            clickToPlay:false,
 
-    disableContextMenu:true,
+            disableContextMenu:true,
 
-    fullscreen:{
-        enabled:true,
-        fallback:true,
-        iosNative:true
-    }
+            fullscreen:{
+                enabled:true,
+                fallback:true,
+                iosNative:true
+            }
 
-});
+        }
+    );
+
+
+/* =========================================================
+   ELIMINAR PREVIEW DE MINIATURAS
+========================================================= */
+
+function removePreviewThumb(){
+
+    document
+        .querySelectorAll(
+            ".plyr__preview-thumb"
+        )
+        .forEach(
+            element =>
+                element.remove()
+        );
+
+}
 
 
 /* =========================================================
@@ -1026,18 +1128,29 @@ function formatTime(seconds){
         !Number.isFinite(seconds) ||
         seconds < 0
     ){
+
         return "0:00";
+
     }
 
-    const h = Math.floor(seconds / 3600);
 
-    const m = Math.floor(
-        (seconds % 3600) / 60
-    );
+    const h =
+        Math.floor(
+            seconds / 3600
+        );
 
-    const s = Math.floor(
-        seconds % 60
-    );
+
+    const m =
+        Math.floor(
+            (seconds % 3600) / 60
+        );
+
+
+    const s =
+        Math.floor(
+            seconds % 60
+        );
+
 
     if(h > 0){
 
@@ -1051,11 +1164,13 @@ function formatTime(seconds){
 
     }
 
+
     return (
         m +
         ":" +
         String(s).padStart(2,"0")
     );
+
 }
 
 
@@ -1067,7 +1182,8 @@ function getVideoName(url){
 
     try{
 
-        const u = new URL(url);
+        const u =
+            new URL(url);
 
         let path =
             u.pathname
@@ -1075,22 +1191,33 @@ function getVideoName(url){
             .filter(Boolean)
             .pop();
 
+
         if(!path){
+
             return u.hostname;
+
         }
 
-        path = decodeURIComponent(path);
 
-        path = path.replace(
-            /\.(mp4|m3u8|webm|mov|mkv|avi)$/i,
-            ""
-        );
+        path =
+            decodeURIComponent(path);
 
-        path = path
+
+        path =
+            path.replace(
+                /\.(mp4|m3u8|webm|mov|mkv|avi|ogg|ogv)$/i,
+                ""
+            );
+
+
+        path =
+            path
             .replace(/[_-]+/g," ")
             .trim();
 
-        return path || u.hostname;
+
+        return path ||
+               u.hostname;
 
     }catch{
 
@@ -1102,60 +1229,89 @@ function getVideoName(url){
 
 
 /* =========================================================
-   TIPO DE FUENTE
+   DETECTAR FUENTE
 ========================================================= */
 
 function detectSource(url){
 
-    const lower =
+    const clean =
         url
-        .split("?")[0]
+        .split("#")[0]
         .toLowerCase();
 
 
+    const withoutQuery =
+        clean.split("?")[0];
+
+
+    /*
+       HLS.
+
+       Se comprueba también que la URL
+       contenga .m3u8 aunque tenga
+       parámetros después.
+    */
+
     if(
-        lower.endsWith(".m3u8")
+        withoutQuery.includes(".m3u8") ||
+        clean.includes(".m3u8?")
     ){
+
         return "hls";
-    }
 
-
-    if(
-        lower.endsWith(".mp4") ||
-        lower.endsWith(".webm") ||
-        lower.endsWith(".ogg") ||
-        lower.endsWith(".ogv") ||
-        lower.endsWith(".mov")
-    ){
-        return "video";
-    }
-
-
-    if(
-        url.includes("youtube.com") ||
-        url.includes("youtu.be")
-    ){
-        return "youtube";
-    }
-
-
-    if(
-        url.includes("player.") ||
-        url.includes("/embed/")
-    ){
-        return "iframe";
     }
 
 
     /*
-       IMPORTANTE:
+       Vídeo directo.
+    */
 
-       Si no tiene extensión conocida,
-       NO lo mandamos automáticamente
-       a iframe.
+    if(
+        /\.(mp4|webm|ogg|ogv|mov)(\?|#|$)/i
+            .test(url)
+    ){
 
-       Muchos servidores entregan MP4
-       sin terminar en .mp4.
+        return "video";
+
+    }
+
+
+    /*
+       YouTube.
+    */
+
+    if(
+        /(^|\/\/)(www\.)?(youtube\.com|youtu\.be)/i
+            .test(url)
+    ){
+
+        return "youtube";
+
+    }
+
+
+    /*
+       Embed.
+    */
+
+    if(
+        /\/embed\//i.test(url) ||
+        /(^|\/\/)player\./i.test(url)
+    ){
+
+        return "iframe";
+
+    }
+
+
+    /*
+       Por defecto:
+
+       Intentamos reproducirlo como
+       fuente de vídeo directa.
+
+       Esto permite URLs de servidores
+       que no terminan en .mp4.
     */
 
     return "video";
@@ -1170,20 +1326,21 @@ function detectSource(url){
 function showLoading(text){
 
     loadingText.textContent =
-        text || "Cargando vídeo...";
+        text ||
+        "Cargando vídeo...";
 
-    loadingOverlay.classList.add("active");
-
-    isLoading = true;
+    loadingOverlay.classList.add(
+        "active"
+    );
 
 }
 
 
 function hideLoading(){
 
-    loadingOverlay.classList.remove("active");
-
-    isLoading = false;
+    loadingOverlay.classList.remove(
+        "active"
+    );
 
 }
 
@@ -1194,18 +1351,29 @@ function hideLoading(){
 
 function showStatus(text){
 
-    status.textContent = text;
+    status.textContent =
+        text;
 
-    status.classList.add("show");
+    status.classList.add(
+        "show"
+    );
 
-    clearTimeout(destroyTimer);
 
-    destroyTimer =
+    clearTimeout(
+        statusTimer
+    );
+
+
+    statusTimer =
         setTimeout(
-            ()=>{
-                status.classList.remove("show");
+            function(){
+
+                status.classList.remove(
+                    "show"
+                );
+
             },
-            2000
+            2200
         );
 
 }
@@ -1219,73 +1387,34 @@ function showError(message){
 
     hideLoading();
 
+
     errorMessage.textContent =
         message ||
         "La fuente no pudo reproducirse.";
 
-    errorOverlay.classList.add("active");
+
+    errorOverlay.classList.add(
+        "active"
+    );
 
 }
 
 
 function hideError(){
 
-    errorOverlay.classList.remove("active");
+    errorOverlay.classList.remove(
+        "active"
+    );
 
 }
 
 
-errorClose.onclick = function(){
+errorClose.onclick =
+function(){
 
     hideError();
 
 };
-
-
-/* =========================================================
-   DESTRUIR FUENTE ANTERIOR
-========================================================= */
-
-function destroyCurrentSource(){
-
-    if(hls){
-
-        try{
-            hls.destroy();
-        }catch(e){}
-
-        hls = null;
-
-    }
-
-
-    try{
-        player.stop();
-    }catch(e){}
-
-
-    video.pause();
-
-    video.removeAttribute("src");
-
-    video.removeAttribute("poster");
-
-    video.load();
-
-
-    iframe.src = "about:blank";
-
-    iframe.style.display = "none";
-
-
-    video.style.display = "block";
-
-
-    initialOverlay.classList.remove("hidden");
-
-    hideLoading();
-
-}
 
 
 /* =========================================================
@@ -1294,7 +1423,9 @@ function destroyCurrentSource(){
 
 function setPoster(poster){
 
-    currentPoster = poster || "";
+    currentPoster =
+        poster || "";
+
 
     if(currentPoster){
 
@@ -1303,14 +1434,11 @@ function setPoster(poster){
             currentPoster
         );
 
-        try{
-            player.poster =
-                currentPoster;
-        }catch(e){}
-
     }else{
 
-        video.removeAttribute("poster");
+        video.removeAttribute(
+            "poster"
+        );
 
     }
 
@@ -1318,7 +1446,119 @@ function setPoster(poster){
 
 
 /* =========================================================
-   CONFIGURAR PLYR PARA HLS
+   DESTRUIR HLS
+========================================================= */
+
+function destroyHLS(){
+
+    if(!hls){
+
+        return;
+
+    }
+
+
+    try{
+
+        hls.stopLoad();
+
+    }catch(e){}
+
+
+    try{
+
+        hls.detachMedia();
+
+    }catch(e){}
+
+
+    try{
+
+        hls.destroy();
+
+    }catch(e){}
+
+
+    hls = null;
+
+}
+
+
+/* =========================================================
+   LIMPIAR FUENTE ACTUAL
+========================================================= */
+
+function destroyCurrentSource(){
+
+    sourceGeneration++;
+
+
+    destroyHLS();
+
+
+    try{
+
+        video.pause();
+
+    }catch(e){}
+
+
+    /*
+       Primero retiramos la fuente.
+    */
+
+    video.removeAttribute(
+        "src"
+    );
+
+    video.removeAttribute(
+        "poster"
+    );
+
+
+    /*
+       Reiniciar el elemento.
+    */
+
+    try{
+
+        video.load();
+
+    }catch(e){}
+
+
+    /*
+       Limpiar iframe.
+    */
+
+    iframe.src =
+        "about:blank";
+
+    iframe.style.display =
+        "none";
+
+
+    video.style.display =
+        "block";
+
+
+    initialOverlay.classList.remove(
+        "hidden"
+    );
+
+
+    hideLoading();
+
+
+    currentUrl = "";
+
+    currentType = "";
+
+}
+
+
+/* =========================================================
+   CONFIGURAR CALIDAD HLS
 ========================================================= */
 
 function setupHlsQuality(){
@@ -1328,32 +1568,47 @@ function setupHlsQuality(){
         !hls.levels ||
         !hls.levels.length
     ){
+
         return;
+
     }
 
 
-    const levels = hls.levels;
+    const levels =
+        hls.levels;
 
 
     const qualities =
         levels
-        .map(level => level.height)
-        .filter(Boolean);
+        .map(
+            level =>
+                Number(level.height)
+        )
+        .filter(
+            height =>
+                Number.isFinite(height) &&
+                height > 0
+        );
 
 
     const unique =
         [...new Set(qualities)]
-        .sort((a,b)=>b-a);
+        .sort(
+            (a,b) =>
+                b-a
+        );
 
 
     if(!unique.length){
+
         return;
+
     }
 
 
     /*
-       Plyr mostrará automáticamente
-       el menú de calidad.
+       Configuración compatible
+       con Plyr.
     */
 
     player.config.quality = {
@@ -1367,14 +1622,16 @@ function setupHlsQuality(){
 
         forced:true,
 
-        onChange:function(newQuality){
+        onChange:function(value){
 
             if(!hls){
+
                 return;
+
             }
 
 
-            if(newQuality === -1){
+            if(value === -1){
 
                 hls.currentLevel = -1;
 
@@ -1386,8 +1643,10 @@ function setupHlsQuality(){
             const index =
                 levels.findIndex(
                     level =>
-                    level.height === newQuality
+                        Number(level.height) ===
+                        Number(value)
                 );
+
 
             if(index >= 0){
 
@@ -1400,14 +1659,69 @@ function setupHlsQuality(){
 
     };
 
+
+    /*
+       Actualizar menú de Plyr.
+    */
+
+    try{
+
+        player.elements
+            .container
+            .dispatchEvent(
+                new Event(
+                    "qualitychange"
+                )
+            );
+
+    }catch(e){}
+
 }
 
 
 /* =========================================================
-   CARGAR HLS
+   CARGAR HLS NATIVO
+========================================================= */
+
+function loadNativeHLS(url,generation){
+
+    showLoading(
+        "Preparando transmisión..."
+    );
+
+
+    video.src =
+        url;
+
+
+    video.load();
+
+
+    /*
+       El evento canplay/loadedmetadata
+       será quien retire el loading.
+    */
+
+    if(
+        generation !== sourceGeneration
+    ){
+
+        return;
+
+    }
+
+}
+
+
+/* =========================================================
+   CARGAR HLS.JS
 ========================================================= */
 
 function loadHLS(url){
+
+    const generation =
+        sourceGeneration;
+
 
     showLoading(
         "Preparando transmisión HLS..."
@@ -1415,8 +1729,11 @@ function loadHLS(url){
 
 
     /*
-       Safari / iOS puede reproducir HLS
-       directamente.
+       Safari/iOS.
+
+       Si el navegador tiene soporte
+       nativo para HLS, no necesitamos
+       Hls.js.
     */
 
     if(
@@ -1425,14 +1742,9 @@ function loadHLS(url){
         )
     ){
 
-        video.src = url;
-
-        video.load();
-
-        hideLoading();
-
-        showStatus(
-            "HLS preparado"
+        loadNativeHLS(
+            url,
+            generation
         );
 
         return;
@@ -1441,124 +1753,249 @@ function loadHLS(url){
 
 
     /*
-       Chrome / Android / Firefox
-       utilizan Hls.js.
+       Hls.js.
     */
 
     if(
-        typeof Hls !== "undefined" &&
-        Hls.isSupported()
+        typeof Hls === "undefined"
     ){
 
-        hls = new Hls({
-
-            enableWorker:true,
-
-            lowLatencyMode:false,
-
-            backBufferLength:30,
-
-            maxBufferLength:30,
-
-            maxMaxBufferLength:60,
-
-            startLevel:-1
-
-        });
-
-
-        hls.attachMedia(video);
-
-
-        hls.on(
-            Hls.Events.MEDIA_ATTACHED,
-            function(){
-
-                hls.loadSource(url);
-
-            }
+        showError(
+            "No se pudo cargar el motor HLS."
         );
-
-
-        hls.on(
-            Hls.Events.MANIFEST_PARSED,
-            function(){
-
-                hideLoading();
-
-                setupHlsQuality();
-
-                showStatus(
-                    "HLS listo para reproducir"
-                );
-
-            }
-        );
-
-
-        hls.on(
-            Hls.Events.ERROR,
-            function(event,data){
-
-                console.warn(
-                    "HLS:",
-                    data
-                );
-
-
-                if(!data.fatal){
-                    return;
-                }
-
-
-                if(
-                    data.type ===
-                    Hls.ErrorTypes.NETWORK_ERROR
-                ){
-
-                    showStatus(
-                        "Reintentando conexión..."
-                    );
-
-                    try{
-                        hls.startLoad();
-                    }catch(e){}
-
-                    return;
-
-                }
-
-
-                if(
-                    data.type ===
-                    Hls.ErrorTypes.MEDIA_ERROR
-                ){
-
-                    try{
-                        hls.recoverMediaError();
-                    }catch(e){}
-
-                    return;
-
-                }
-
-
-                showError(
-                    "El servidor HLS rechazó la reproducción. " +
-                    "Comprueba que el enlace .m3u8 siga activo."
-                );
-
-            }
-        );
-
 
         return;
 
     }
 
 
-    showError(
-        "Este navegador no es compatible con reproducción HLS."
+    if(
+        !Hls.isSupported()
+    ){
+
+        showError(
+            "Este navegador no permite reproducción HLS."
+        );
+
+        return;
+
+    }
+
+
+    hls =
+        new Hls({
+
+            enableWorker:true,
+
+            lowLatencyMode:false,
+
+            backBufferLength:60,
+
+            maxBufferLength:30,
+
+            maxMaxBufferLength:60,
+
+            startLevel:-1,
+
+            capLevelToPlayerSize:true,
+
+            manifestLoadingMaxRetry:2,
+
+            manifestLoadingRetryDelay:1000,
+
+            levelLoadingMaxRetry:2,
+
+            levelLoadingRetryDelay:1000,
+
+            fragLoadingMaxRetry:2,
+
+            fragLoadingRetryDelay:1000
+
+        });
+
+
+    /*
+       Adjuntar vídeo.
+    */
+
+    hls.attachMedia(
+        video
+    );
+
+
+    hls.on(
+        Hls.Events.MEDIA_ATTACHED,
+        function(){
+
+            if(
+                generation !== sourceGeneration ||
+                !hls
+            ){
+
+                return;
+
+            }
+
+
+            hls.loadSource(
+                url
+            );
+
+        }
+    );
+
+
+    /*
+       Manifest cargado.
+    */
+
+    hls.on(
+        Hls.Events.MANIFEST_PARSED,
+        function(){
+
+            if(
+                generation !== sourceGeneration
+            ){
+
+                return;
+
+            }
+
+
+            hideLoading();
+
+
+            setupHlsQuality();
+
+
+            showStatus(
+                "Vídeo listo"
+            );
+
+        }
+    );
+
+
+    /*
+       Error HLS.
+
+       No hacemos bucles infinitos de
+       recuperación porque pueden producir
+       congelamientos.
+    */
+
+    hls.on(
+        Hls.Events.ERROR,
+        function(event,data){
+
+            if(
+                generation !== sourceGeneration ||
+                !hls
+            ){
+
+                return;
+
+            }
+
+
+            console.warn(
+                "HLS:",
+                data
+            );
+
+
+            if(!data.fatal){
+
+                return;
+
+            }
+
+
+            /*
+               Error de red fatal.
+
+               Hacemos un único reinicio
+               controlado.
+            */
+
+            if(
+                data.type ===
+                Hls.ErrorTypes.NETWORK_ERROR
+            ){
+
+                showStatus(
+                    "Problema de conexión"
+                );
+
+
+                try{
+
+                    hls.stopLoad();
+
+                    setTimeout(
+                        function(){
+
+                            if(
+                                hls &&
+                                generation ===
+                                sourceGeneration
+                            ){
+
+                                hls.startLoad();
+
+                            }
+
+                        },
+                        1000
+                    );
+
+                }catch(e){}
+
+
+                return;
+
+            }
+
+
+            /*
+               Error de media.
+
+               Intentamos recuperar una vez.
+            */
+
+            if(
+                data.type ===
+                Hls.ErrorTypes.MEDIA_ERROR
+            ){
+
+                try{
+
+                    hls.recoverMediaError();
+
+                }catch(e){
+
+                    showError(
+                        "La transmisión HLS contiene un formato de vídeo que el navegador no puede decodificar."
+                    );
+
+                }
+
+
+                return;
+
+            }
+
+
+            /*
+               Error irrecuperable.
+            */
+
+            showError(
+                "No se pudo cargar la transmisión HLS. " +
+                "Comprueba que la URL .m3u8 sea válida y que el servidor entregue correctamente el vídeo."
+            );
+
+        }
     );
 
 }
@@ -1575,17 +2012,30 @@ function loadDirectVideo(url){
     );
 
 
-    video.src = url;
+    const generation =
+        sourceGeneration;
+
+
+    video.src =
+        url;
+
 
     video.load();
 
 
     /*
-       NO llamamos a play() aquí.
-
-       El usuario debe pulsar
-       el botón de reproducción.
+       Si la fuente ya puede reproducirse,
+       quitamos loading.
     */
+
+    if(
+        generation === sourceGeneration &&
+        video.readyState >= 2
+    ){
+
+        hideLoading();
+
+    }
 
 }
 
@@ -1598,35 +2048,46 @@ function convertYoutube(url){
 
     try{
 
-        const u = new URL(url);
+        const u =
+            new URL(url);
 
-        let id = "";
+
+        let id =
+            "";
 
 
         if(
-            u.hostname.includes("youtu.be")
+            u.hostname.includes(
+                "youtu.be"
+            )
         ){
 
             id =
                 u.pathname
-                .replace("/","")
+                .replace(/^\/+/,"")
                 .split("/")[0];
 
         }
 
 
         if(
-            u.hostname.includes("youtube.com")
+            u.hostname.includes(
+                "youtube.com"
+            )
         ){
 
             id =
-                u.searchParams.get("v") || "";
+                u.searchParams.get(
+                    "v"
+                ) || "";
 
         }
 
 
         if(
-            u.pathname.includes("/embed/")
+            u.pathname.includes(
+                "/embed/"
+            )
         ){
 
             id =
@@ -1638,7 +2099,9 @@ function convertYoutube(url){
 
 
         if(!id){
+
             return null;
+
         }
 
 
@@ -1664,7 +2127,9 @@ function convertYoutube(url){
 function loadVideo(rawUrl,poster){
 
     const url =
-        String(rawUrl || "").trim();
+        String(
+            rawUrl || ""
+        ).trim();
 
 
     if(!url){
@@ -1680,10 +2145,22 @@ function loadVideo(rawUrl,poster){
 
     hideError();
 
+
+    /*
+       Limpiar completamente
+       la fuente anterior.
+    */
+
     destroyCurrentSource();
 
 
-    currentUrl = url;
+    /*
+       Nueva generación.
+    */
+
+    currentUrl =
+        url;
+
 
     currentType =
         detectSource(url);
@@ -1696,16 +2173,19 @@ function loadVideo(rawUrl,poster){
     saveHistory(url);
 
 
-    setPoster(poster || "");
+    setPoster(
+        poster || ""
+    );
 
 
     console.log(
-        "URL:",
+        "[JeissoNxP182] URL:",
         url
     );
 
+
     console.log(
-        "Tipo:",
+        "[JeissoNxP182] Tipo:",
         currentType
     );
 
@@ -1714,7 +2194,10 @@ function loadVideo(rawUrl,poster){
        YOUTUBE
     */
 
-    if(currentType === "youtube"){
+    if(
+        currentType ===
+        "youtube"
+    ){
 
         const yt =
             convertYoutube(url);
@@ -1731,17 +2214,27 @@ function loadVideo(rawUrl,poster){
         }
 
 
-        video.style.display = "none";
+        video.style.display =
+            "none";
 
-        iframe.style.display = "block";
 
-        initialOverlay.classList.add("hidden");
+        iframe.style.display =
+            "block";
 
-        iframe.src = yt;
+
+        initialOverlay.classList.add(
+            "hidden"
+        );
+
+
+        iframe.src =
+            yt;
+
 
         showStatus(
             "Vídeo externo cargado"
         );
+
 
         return;
 
@@ -1752,19 +2245,32 @@ function loadVideo(rawUrl,poster){
        IFRAME
     */
 
-    if(currentType === "iframe"){
+    if(
+        currentType ===
+        "iframe"
+    ){
 
-        video.style.display = "none";
+        video.style.display =
+            "none";
 
-        iframe.style.display = "block";
 
-        initialOverlay.classList.add("hidden");
+        iframe.style.display =
+            "block";
 
-        iframe.src = url;
+
+        initialOverlay.classList.add(
+            "hidden"
+        );
+
+
+        iframe.src =
+            url;
+
 
         showStatus(
             "Reproductor externo cargado"
         );
+
 
         return;
 
@@ -1772,17 +2278,26 @@ function loadVideo(rawUrl,poster){
 
 
     /*
-       VÍDEO
+       VÍDEO DIRECTO / HLS
     */
 
-    video.style.display = "block";
-
-    iframe.style.display = "none";
-
-    initialOverlay.classList.remove("hidden");
+    video.style.display =
+        "block";
 
 
-    if(currentType === "hls"){
+    iframe.style.display =
+        "none";
+
+
+    initialOverlay.classList.remove(
+        "hidden"
+    );
+
+
+    if(
+        currentType ===
+        "hls"
+    ){
 
         loadHLS(url);
 
@@ -1796,7 +2311,7 @@ function loadVideo(rawUrl,poster){
 
 
 /* =========================================================
-   PLAY MANUAL
+   PLAY
 ========================================================= */
 
 async function playVideo(){
@@ -1833,6 +2348,7 @@ async function playVideo(){
 
         await player.play();
 
+
         initialOverlay.classList.add(
             "hidden"
         );
@@ -1840,15 +2356,20 @@ async function playVideo(){
     }catch(error){
 
         console.error(
-            "Error de reproducción:",
+            "[JeissoNxP182] Error:",
             error
         );
 
 
+        /*
+           Ya NO mostramos mensajes de CORS.
+           El error se explica de forma genérica.
+        */
+
         showError(
             "El navegador no pudo reproducir esta fuente. " +
-            "Si es un MP4 externo, comprueba que el servidor " +
-            "permita CORS y solicitudes de vídeo."
+            "Comprueba que el enlace sea válido, que el servidor esté disponible " +
+            "y que el formato sea compatible con el navegador."
         );
 
     }
@@ -1857,7 +2378,7 @@ async function playVideo(){
 
 
 /* =========================================================
-   BOTÓN PLAY
+   PLAY INICIAL
 ========================================================= */
 
 initialPlay.onclick =
@@ -1873,52 +2394,48 @@ function(event){
 
 
 /* =========================================================
-   EVENTOS PLYR
+   EVENTOS DEL VIDEO
 ========================================================= */
 
-player.on(
-    "ready",
-    function(){
-
-        console.log(
-            "Plyr listo"
-        );
-
-    }
-);
-
-
-player.on(
+video.addEventListener(
     "loadstart",
     function(){
 
-        showLoading(
-            "Cargando fuente..."
-        );
+        if(
+            currentUrl
+        ){
+
+            showLoading(
+                "Cargando vídeo..."
+            );
+
+        }
 
     }
 );
 
 
-player.on(
+video.addEventListener(
     "loadedmetadata",
     function(){
 
         hideLoading();
 
+
         console.log(
-            "Metadata cargada"
+            "[JeissoNxP182] Metadata cargada"
         );
 
     }
 );
 
 
-player.on(
+video.addEventListener(
     "canplay",
     function(){
 
         hideLoading();
+
 
         showStatus(
             "Listo"
@@ -1928,11 +2445,12 @@ player.on(
 );
 
 
-player.on(
+video.addEventListener(
     "playing",
     function(){
 
         hideLoading();
+
 
         initialOverlay.classList.add(
             "hidden"
@@ -1942,27 +2460,75 @@ player.on(
 );
 
 
-player.on(
+video.addEventListener(
+    "waiting",
+    function(){
+
+        /*
+           Solo mostramos estado.
+
+           NO pausamos,
+           NO reiniciamos,
+           NO destruimos HLS.
+
+           Esto evita congelamientos
+           artificiales.
+        */
+
+        if(
+            currentUrl
+        ){
+
+            showStatus(
+                "Cargando..."
+            );
+
+        }
+
+    }
+);
+
+
+video.addEventListener(
+    "stalled",
+    function(){
+
+        /*
+           No hacemos nada agresivo.
+
+           El navegador gestiona
+           automáticamente el buffer.
+        */
+
+        console.log(
+            "[JeissoNxP182] Buffer detenido temporalmente"
+        );
+
+    }
+);
+
+
+video.addEventListener(
     "pause",
     function(){
 
         /*
-           No mostramos el overlay otra vez
-           para que el usuario pueda volver
-           a pulsar los controles de Plyr.
+           No mostramos nuevamente
+           el overlay.
         */
 
     }
 );
 
 
-player.on(
+video.addEventListener(
     "ended",
     function(){
 
         initialOverlay.classList.remove(
             "hidden"
         );
+
 
         showStatus(
             "Película terminada"
@@ -1972,23 +2538,74 @@ player.on(
 );
 
 
-player.on(
+video.addEventListener(
     "error",
-    function(event){
+    function(){
 
-        console.error(
-            "Plyr error:",
-            event
-        );
+        if(
+            !currentUrl
+        ){
+
+            return;
+
+        }
 
 
         hideLoading();
 
 
+        const mediaError =
+            video.error;
+
+
+        let message =
+            "El archivo no pudo ser reproducido.";
+
+
+        if(mediaError){
+
+            switch(
+                mediaError.code
+            ){
+
+                case MediaError.MEDIA_ERR_ABORTED:
+
+                    message =
+                        "La reproducción fue interrumpida.";
+
+                    break;
+
+
+                case MediaError.MEDIA_ERR_NETWORK:
+
+                    message =
+                        "No se pudo obtener correctamente el vídeo desde el servidor.";
+
+                    break;
+
+
+                case MediaError.MEDIA_ERR_DECODE:
+
+                    message =
+                        "El navegador no pudo decodificar el formato del vídeo.";
+
+                    break;
+
+
+                case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+
+                    message =
+                        "El formato o la fuente del vídeo no son compatibles con este navegador.";
+
+                    break;
+
+            }
+
+        }
+
+
         showError(
-            "El archivo no pudo ser reproducido. " +
-            "La URL puede estar caída, protegida o " +
-            "el servidor puede no permitir reproducción externa."
+            message
         );
 
     }
@@ -1996,16 +2613,45 @@ player.on(
 
 
 /* =========================================================
-   DOBLE TAP / DOBLE CLICK
+   EVENTOS PLYR
+========================================================= */
+
+player.on(
+    "ready",
+    function(){
+
+        console.log(
+            "[JeissoNxP182] Plyr listo"
+        );
+
+
+        removePreviewThumb();
+
+    }
+);
+
+
+player.on(
+    "timeupdate",
+    function(){
+
+        /*
+           Mantener esta función vacía
+           evita crear cualquier preview
+           basado en tiempo.
+        */
+
+    }
+);
+
+
+/* =========================================================
+   DOBLE CLICK / DOBLE TAP
 ========================================================= */
 
 wrapper.addEventListener(
     "click",
     function(event){
-
-        /*
-           Ignorar controles de Plyr.
-        */
 
         if(
             event.target.closest(
@@ -2028,11 +2674,6 @@ wrapper.addEventListener(
 
         }
 
-
-        /*
-           Los iframe externos no deben
-           recibir nuestra lógica.
-        */
 
         if(
             currentType === "youtube" ||
@@ -2057,28 +2698,29 @@ wrapper.addEventListener(
             rect.left;
 
 
-        /*
-           DOBLE CLICK
-        */
-
         if(
             now - lastTap < 320
         ){
 
-            clearTimeout(tapTimer);
+            clearTimeout(
+                tapTimer
+            );
 
 
             const middle =
                 rect.width / 2;
 
 
-            if(x < middle){
+            if(
+                x < middle
+            ){
 
                 player.currentTime =
                     Math.max(
                         0,
                         player.currentTime - 10
                     );
+
 
                 showStatus(
                     "−10 segundos"
@@ -2088,9 +2730,11 @@ wrapper.addEventListener(
 
                 player.currentTime =
                     Math.min(
-                        player.duration || Infinity,
+                        player.duration ||
+                        Infinity,
                         player.currentTime + 10
                     );
+
 
                 showStatus(
                     "+10 segundos"
@@ -2101,18 +2745,15 @@ wrapper.addEventListener(
 
             lastTap = 0;
 
+
             return;
 
         }
 
 
-        lastTap = now;
+        lastTap =
+            now;
 
-
-        /*
-           Un solo click no hace nada
-           para no interferir con Plyr.
-        */
 
         tapTimer =
             setTimeout(
@@ -2136,11 +2777,17 @@ function getHistory(){
 
     try{
 
-        return JSON.parse(
-            localStorage.getItem(
-                "jeissonHistory"
-            ) || "[]"
-        );
+        const data =
+            JSON.parse(
+                localStorage.getItem(
+                    "jeissonHistory"
+                ) || "[]"
+            );
+
+
+        return Array.isArray(data)
+            ? data
+            : [];
 
     }catch{
 
@@ -2160,7 +2807,8 @@ function saveHistory(url){
     history =
         history.filter(
             item =>
-            item.url !== url
+                item &&
+                item.url !== url
         );
 
 
@@ -2176,14 +2824,19 @@ function saveHistory(url){
 
 
     history =
-        history.slice(0,10);
+        history.slice(
+            0,
+            10
+        );
 
 
     try{
 
         localStorage.setItem(
             "jeissonHistory",
-            JSON.stringify(history)
+            JSON.stringify(
+                history
+            )
         );
 
     }catch(e){}
@@ -2200,7 +2853,8 @@ function renderHistory(){
         getHistory();
 
 
-    historyList.innerHTML = "";
+    historyList.innerHTML =
+        "";
 
 
     if(!history.length){
@@ -2210,18 +2864,23 @@ function renderHistory(){
                 "div"
             );
 
+
         empty.style.color =
             "#64748b";
+
 
         empty.style.fontSize =
             "11px";
 
+
         empty.textContent =
             "Todavía no hay películas.";
+
 
         historyList.appendChild(
             empty
         );
+
 
         return;
 
@@ -2236,6 +2895,7 @@ function renderHistory(){
                     "div"
                 );
 
+
             row.className =
                 "history-item";
 
@@ -2245,11 +2905,16 @@ function renderHistory(){
                     "span"
                 );
 
+
             name.className =
                 "history-name";
 
+
             name.textContent =
-                item.name;
+                item.name ||
+                getVideoName(
+                    item.url
+                );
 
 
             const button =
@@ -2257,8 +2922,14 @@ function renderHistory(){
                     "button"
                 );
 
+
             button.className =
                 "history-play";
+
+
+            button.type =
+                "button";
+
 
             button.textContent =
                 "▶";
@@ -2274,11 +2945,19 @@ function renderHistory(){
                 };
 
 
-            row.appendChild(name);
+            row.appendChild(
+                name
+            );
 
-            row.appendChild(button);
 
-            historyList.appendChild(row);
+            row.appendChild(
+                button
+            );
+
+
+            historyList.appendChild(
+                row
+            );
 
         }
     );
@@ -2308,7 +2987,9 @@ function(){
     }
 
 
-    loadVideo(url);
+    loadVideo(
+        url
+    );
 
 };
 
@@ -2342,10 +3023,6 @@ urlInput.addEventListener(
 document.addEventListener(
     "keydown",
     function(event){
-
-        /*
-           No interferir con el campo URL.
-        */
 
         if(
             document.activeElement ===
@@ -2382,7 +3059,10 @@ document.addEventListener(
 
             event.preventDefault();
 
-            if(player.paused){
+
+            if(
+                player.paused
+            ){
 
                 player.play();
 
@@ -2406,6 +3086,7 @@ document.addEventListener(
 
             event.preventDefault();
 
+
             player.currentTime =
                 Math.max(
                     0,
@@ -2426,9 +3107,11 @@ document.addEventListener(
 
             event.preventDefault();
 
+
             player.currentTime =
                 Math.min(
-                    player.duration || Infinity,
+                    player.duration ||
+                    Infinity,
                     player.currentTime + 10
                 );
 
@@ -2444,6 +3127,7 @@ document.addEventListener(
         ){
 
             event.preventDefault();
+
 
             player.volume =
                 Math.min(
@@ -2463,6 +3147,7 @@ document.addEventListener(
         ){
 
             event.preventDefault();
+
 
             player.volume =
                 Math.max(
@@ -2497,7 +3182,12 @@ document.addEventListener(
 
             event.preventDefault();
 
-            player.fullscreen.toggle();
+
+            try{
+
+                player.fullscreen.toggle();
+
+            }catch(e){}
 
         }
 
@@ -2506,7 +3196,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   PARÁMETROS DE URL
+   PARÁMETROS URL
 ========================================================= */
 
 const params =
@@ -2515,22 +3205,10 @@ const params =
     );
 
 
-/*
-   Vídeo:
-   ?v=
-   ?url=
-*/
-
 const videoParam =
     params.get("v") ||
     params.get("url");
 
-
-/*
-   Poster:
-   ?p=
-   ?poster=
-*/
 
 const posterParam =
     params.get("p") ||
@@ -2544,10 +3222,8 @@ const posterParam =
 renderHistory();
 
 
-/*
-   Si hay vídeo en la URL,
-   lo carga pero NO lo reproduce.
-*/
+removePreviewThumb();
+
 
 if(videoParam){
 
