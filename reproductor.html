@@ -1,2786 +1,1271 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#140326">
+<title>Reproductor JeissoNxP182</title>
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1"
->
-
-<title>Reproductor</title>
-
-
-<!-- =====================================================
-     HLS.JS
-===================================================== -->
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17"></script>
 
-
 <style>
-
-/* =====================================================
-   BASE
-===================================================== */
-
-* {
-    box-sizing: border-box;
+:root{
+  --purple:#a855f7;
+  --purple-dark:#3b0764;
+  --bg:#10021f;
+  --panel:#1b0633;
+  --text:#fff;
+  --muted:#aaa;
 }
 
-html,
-body {
-    margin: 0;
-    padding: 0;
+*{box-sizing:border-box;margin:0;padding:0}
 
-    width: 100%;
-    min-height: 100%;
-
-    background: #140326;
+html,body{
+  width:100%;
+  height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
 }
 
-body {
-
-    color: #ffffff;
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+body{
+  overflow:hidden;
 }
 
-
-/* =====================================================
-   CONTENEDOR
-===================================================== */
-
-.container {
-
-    width: 100%;
-
-    max-width: 900px;
-
-    margin: 0 auto;
-
-    padding: 15px;
+.header{
+  height:58px;
+  padding:8px 12px;
+  background:#140326;
 }
 
-
-/* =====================================================
-   REPRODUCTOR
-===================================================== */
-
-.player {
-
-    position: relative;
-
-    width: 100%;
-
-    background: #000000;
-
-    border: 1px solid #6b21a8;
-
-    overflow: hidden;
+.brand{
+  font-weight:bold;
+  color:#e9d5ff;
 }
 
-
-/* =====================================================
-   VIDEO
-===================================================== */
-
-video {
-
-    display: block;
-
-    width: 100%;
-
-    height: auto;
-
-    min-height: 220px;
-
-    background: #000000;
-
-    object-fit: contain;
-
-    transition:
-        object-fit .2s ease,
-        aspect-ratio .2s ease;
+.title{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:3px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
-
-/* =====================================================
-   RELACIONES DE ASPECTO
-===================================================== */
-
-.player.aspect-auto video {
-
-    object-fit: contain;
-
+.player{
+  position:relative;
+  width:100%;
+  height:48vh;
+  min-height:210px;
+  background:#000;
+  overflow:hidden;
 }
 
-
-.player.aspect-169 video {
-
-    aspect-ratio: 16 / 9;
-
-    object-fit: contain;
-
+video,
+iframe{
+  width:100%;
+  height:100%;
+  border:0;
+  background:#000;
 }
 
-
-.player.aspect-43 video {
-
-    aspect-ratio: 4 / 3;
-
-    object-fit: contain;
-
+video{
+  object-fit:contain;
 }
 
+iframe{display:none}
 
-.player.aspect-expand video {
-
-    aspect-ratio: auto;
-
-    object-fit: cover;
-
+.plyr{
+  --plyr-color-main:var(--purple);
 }
 
-
-.player.aspect-stretch video {
-
-    aspect-ratio: auto;
-
-    object-fit: fill;
-
+.plyr__controls{
+  background:linear-gradient(transparent,rgba(0,0,0,.9))!important;
 }
 
+/* TUERCA */
 
-/* =====================================================
-   BOTÓN DE CONFIGURACIÓN
-===================================================== */
-
-.settings-button {
-
-    position: absolute;
-
-    top: 10px;
-
-    right: 10px;
-
-    z-index: 50;
-
-    width: 38px;
-
-    height: 38px;
-
-    border: 1px solid rgba(255,255,255,.35);
-
-    border-radius: 50%;
-
-    background: rgba(20,3,38,.85);
-
-    color: #ffffff;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    cursor: pointer;
-
-    font-size: 21px;
-
-    line-height: 1;
-
-    backdrop-filter: blur(5px);
-
-    -webkit-backdrop-filter: blur(5px);
-
-    transition:
-        background .15s ease,
-        transform .15s ease;
+.settings-button{
+  position:absolute;
+  right:12px;
+  top:12px;
+  z-index:50;
+  width:42px;
+  height:42px;
+  border:0;
+  border-radius:50%;
+  background:rgba(0,0,0,.65);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:22px;
 }
 
-
-.settings-button:hover {
-
-    background: #6b21a8;
-
+.settings-button:active{
+  transform:scale(.94);
 }
 
+/* MENÚ */
 
-.settings-button:active {
-
-    transform: scale(.92);
-
+.settings-menu{
+  position:absolute;
+  z-index:45;
+  top:0;
+  left:50%;
+  right:0;
+  bottom:0;
+  background:rgba(12,1,24,.97);
+  transform:translateX(100%);
+  transition:transform .22s ease;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
 }
 
-
-.settings-button.active {
-
-    background: #7e22ce;
-
+.settings-menu.open{
+  transform:translateX(0);
 }
 
-
-/* =====================================================
-   PANEL DE CONFIGURACIÓN
-===================================================== */
-
-.settings-panel {
-
-    position: absolute;
-
-    top: 55px;
-
-    right: 10px;
-
-    z-index: 60;
-
-    width: 245px;
-
-    max-width: calc(100% - 20px);
-
-    max-height: calc(100% - 65px);
-
-    overflow-y: auto;
-
-    background: #1b0633;
-
-    border: 1px solid #7e22ce;
-
-    border-radius: 8px;
-
-    box-shadow:
-        0 10px 35px rgba(0,0,0,.7);
-
-    display: none;
+.settings-header{
+  height:58px;
+  display:flex;
+  align-items:center;
+  padding:0 15px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  font-weight:bold;
 }
 
-
-.settings-panel.open {
-
-    display: block;
-
+.settings-back{
+  border:0;
+  background:none;
+  color:white;
+  font-size:24px;
+  margin-right:12px;
+  cursor:pointer;
 }
 
-
-/* =====================================================
-   SCROLL PANEL
-===================================================== */
-
-.settings-panel::-webkit-scrollbar {
-
-    width: 5px;
-
+.settings-content{
+  overflow-y:auto;
+  flex:1;
 }
 
-
-.settings-panel::-webkit-scrollbar-thumb {
-
-    background: #6b21a8;
-
-    border-radius: 5px;
-
+.setting-item{
+  min-height:52px;
+  width:100%;
+  padding:0 15px;
+  border:0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  background:transparent;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  text-align:left;
+  cursor:pointer;
+  font-size:14px;
 }
 
-
-/* =====================================================
-   TÍTULO PANEL
-===================================================== */
-
-.settings-header {
-
-    padding: 12px;
-
-    border-bottom:
-        1px solid rgba(168,85,247,.25);
-
-    font-size: 14px;
-
-    font-weight: bold;
-
+.setting-item:active{
+  background:rgba(168,85,247,.18);
 }
 
-
-/* =====================================================
-   OPCIONES
-===================================================== */
-
-.setting-group {
-
-    padding: 9px 0;
-
-    border-bottom:
-        1px solid rgba(168,85,247,.12);
+.setting-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
 }
 
-
-.setting-group:last-child {
-
-    border-bottom: none;
-
+.setting-icon{
+  width:25px;
+  text-align:center;
+  font-size:18px;
 }
 
-
-.setting-title {
-
-    padding:
-        4px 12px 7px;
-
-    color: #c084fc;
-
-    font-size: 11px;
-
-    text-transform: uppercase;
-
-    letter-spacing: .4px;
+.setting-value{
+  color:#aaa;
+  font-size:12px;
 }
 
-
-.setting-option {
-
-    width: 100%;
-
-    min-height: 38px;
-
-    padding:
-        8px 12px;
-
-    border: none;
-
-    background: transparent;
-
-    color: #ffffff;
-
-    text-align: left;
-
-    font-size: 13px;
-
-    cursor: pointer;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 10px;
+.submenu{
+  display:none;
+  flex-direction:column;
+  height:100%;
 }
 
-
-.setting-option:hover {
-
-    background: rgba(168,85,247,.15);
-
+.submenu.active{
+  display:flex;
 }
 
-
-.setting-option:active {
-
-    background: rgba(168,85,247,.25);
-
+.option{
+  width:100%;
+  min-height:48px;
+  border:0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  background:none;
+  color:white;
+  padding:0 18px;
+  text-align:left;
+  cursor:pointer;
 }
 
-
-.setting-option.selected {
-
-    color: #c084fc;
-
-    background:
-        rgba(168,85,247,.12);
-
+.option.active{
+  color:var(--purple);
+  font-weight:bold;
 }
 
-
-.setting-check {
-
-    color: #a855f7;
-
-    font-weight: bold;
-
+.option:active{
+  background:rgba(168,85,247,.15);
 }
 
+/* BLOQUEO */
 
-/* =====================================================
-   BLOQUEO
-===================================================== */
-
-.lock-overlay {
-
-    position: absolute;
-
-    inset: 0;
-
-    z-index: 100;
-
-    display: none;
-
-    align-items: center;
-
-    justify-content: center;
-
-    background: transparent;
-
+.lock-screen{
+  position:absolute;
+  inset:0;
+  z-index:100;
+  background:rgba(0,0,0,.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  pointer-events:auto;
 }
 
-
-.lock-overlay.active {
-
-    display: flex;
-
+.lock-screen.active{
+  display:flex;
 }
 
-
-.lock-message {
-
-    padding:
-        8px 13px;
-
-    border-radius: 20px;
-
-    background:
-        rgba(0,0,0,.65);
-
-    color: #ffffff;
-
-    font-size: 12px;
-
-    pointer-events: none;
-
+.unlock-button{
+  border:1px solid rgba(255,255,255,.4);
+  background:rgba(20,3,38,.9);
+  color:white;
+  padding:12px 20px;
+  border-radius:9px;
+  cursor:pointer;
 }
 
-
-/* =====================================================
-   ICONO BLOQUEO
-===================================================== */
-
-.lock-indicator {
-
-    position: absolute;
-
-    top: 10px;
-
-    left: 10px;
-
-    z-index: 110;
-
-    display: none;
-
-    width: 34px;
-
-    height: 34px;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background:
-        rgba(20,3,38,.85);
-
-    border:
-        1px solid rgba(255,255,255,.3);
-
-    font-size: 16px;
-
-    pointer-events: none;
+.lock-message{
+  position:absolute;
+  top:15px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,.7);
+  padding:7px 12px;
+  border-radius:6px;
+  font-size:12px;
 }
 
+/* PLAY */
 
-.lock-indicator.active {
-
-    display: flex;
-
+.play-overlay{
+  position:absolute;
+  inset:0;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.45);
 }
 
-
-/* =====================================================
-   CAJA URL
-===================================================== */
-
-.url-box {
-
-    margin-top: 15px;
-
-    padding: 12px;
-
-    background: #1b0633;
-
-    border: 1px solid #6b21a8;
+.play-overlay.hidden{
+  display:none;
 }
 
-
-/* =====================================================
-   INPUT
-===================================================== */
-
-.url-input {
-
-    width: 100%;
-
-    height: 42px;
-
-    padding: 0 10px;
-
-    background: #0c0118;
-
-    color: #ffffff;
-
-    border: 1px solid #7e22ce;
-
-    outline: none;
-
-    font-size: 14px;
+.play-button{
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  border:2px solid white;
+  background:linear-gradient(135deg,var(--purple),var(--purple-dark));
+  color:white;
+  font-size:30px;
+  cursor:pointer;
 }
 
+/* LOADING */
 
-.url-input:focus {
-
-    border-color: #a855f7;
-
+.loading{
+  position:absolute;
+  inset:0;
+  z-index:30;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.7);
+  font-size:13px;
 }
 
-
-.url-input::placeholder {
-
-    color: #8b7a99;
-
+.loading.active{
+  display:flex;
 }
 
+/* ERROR */
 
-/* =====================================================
-   BOTÓN CARGAR
-===================================================== */
-
-.load-button {
-
-    width: 100%;
-
-    height: 42px;
-
-    margin-top: 8px;
-
-    background: #7e22ce;
-
-    color: #ffffff;
-
-    border: 1px solid #a855f7;
-
-    cursor: pointer;
-
-    font-size: 14px;
-
-    font-weight: bold;
+.error{
+  position:absolute;
+  inset:0;
+  z-index:60;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.9);
 }
 
-
-.load-button:active {
-
-    background: #6b21a8;
-
+.error.active{
+  display:flex;
 }
 
-
-/* =====================================================
-   ESTADO
-===================================================== */
-
-.status {
-
-    margin-top: 8px;
-
-    font-size: 12px;
-
-    color: #c084fc;
-
-    min-height: 18px;
-
+.error-box{
+  max-width:450px;
+  padding:20px;
+  border-radius:12px;
+  background:#1b0633;
+  text-align:center;
 }
 
-
-/* =====================================================
-   ERROR
-===================================================== */
-
-.error {
-
-    margin-top: 8px;
-
-    font-size: 12px;
-
-    color: #f87171;
-
-    display: none;
+.error-box p{
+  font-size:13px;
+  color:#ccc;
+  margin:10px 0;
 }
 
-
-.error.show {
-
-    display: block;
-
+.error-box button{
+  padding:9px 18px;
+  border:0;
+  border-radius:7px;
+  background:var(--purple);
+  color:white;
 }
 
+/* URL */
 
-/* =====================================================
-   MODO BLOQUEADO
-===================================================== */
-
-.player.locked video {
-
-    pointer-events: none;
-
+.url-section{
+  height:calc(52vh - 58px);
+  padding:12px;
+  background:#10021f;
 }
 
-
-.player.locked .settings-button {
-
-    display: none;
-
+.url-title{
+  color:#999;
+  font-size:11px;
+  margin-bottom:7px;
 }
 
-
-/* =====================================================
-   MÓVIL
-===================================================== */
-
-@media(max-width:600px) {
-
-    .container {
-
-        padding: 8px;
-
-    }
-
-    .settings-panel {
-
-        width: 230px;
-
-    }
-
-    video {
-
-        min-height: 200px;
-
-    }
-
+.input-row{
+  display:flex;
+  gap:7px;
 }
 
+.url-input{
+  flex:1;
+  min-width:0;
+  height:40px;
+  border:1px solid rgba(168,85,247,.4);
+  border-radius:7px;
+  background:#ffffff08;
+  color:white;
+  padding:0 10px;
+  outline:none;
+}
+
+.load-button{
+  height:40px;
+  padding:0 15px;
+  border:0;
+  border-radius:7px;
+  background:var(--purple);
+  color:white;
+  font-weight:bold;
+}
+
+.history-title{
+  margin-top:12px;
+  margin-bottom:6px;
+  color:#888;
+  font-size:10px;
+}
+
+.history{
+  max-height:calc(100% - 95px);
+  overflow-y:auto;
+}
+
+.history-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px;
+  margin-bottom:5px;
+  background:#ffffff06;
+  border:1px solid rgba(168,85,247,.1);
+  border-radius:6px;
+}
+
+.history-name{
+  flex:1;
+  min-width:0;
+  font-size:11px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.history-play{
+  border:0;
+  background:var(--purple-dark);
+  color:white;
+  border-radius:5px;
+  padding:5px 8px;
+}
+
+@media(max-width:600px){
+  .player{height:45vh}
+  .settings-menu{left:50%}
+  .url-section{height:calc(55vh - 58px)}
+}
 </style>
-
 </head>
-
 
 <body>
 
+<header class="header">
+  <div class="brand">JeissoNxP182</div>
+  <div class="title" id="title">Ningún vídeo cargado</div>
+</header>
 
-<div class="container">
+<main class="player" id="playerWrapper">
 
+  <video id="video" playsinline webkit-playsinline preload="metadata"></video>
 
-    <!-- =================================================
-         REPRODUCTOR
-    ================================================== -->
+  <iframe
+    id="iframe"
+    allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+    allowfullscreen>
+  </iframe>
 
-    <div
-        class="player aspect-auto"
-        id="player"
-    >
+  <button class="settings-button" id="settingsButton">⚙</button>
 
+  <!-- MENÚ PRINCIPAL -->
+  <div class="settings-menu" id="settingsMenu">
 
-        <!-- VIDEO -->
-
-        <video
-            id="video"
-            controls
-            playsinline
-            preload="metadata"
-        ></video>
-
-
-        <!-- =================================================
-             BOTÓN TUERCA
-        ================================================== -->
-
-        <button
-            class="settings-button"
-            id="settingsButton"
-            type="button"
-            aria-label="Configuración"
-        >
-            ⚙
-        </button>
-
-
-        <!-- =================================================
-             PANEL DE CONFIGURACIÓN
-        ================================================== -->
-
-        <div
-            class="settings-panel"
-            id="settingsPanel"
-        >
-
-
-            <div class="settings-header">
-                Configuración
-            </div>
-
-
-            <!-- =============================================
-                 CALIDAD
-            ============================================== -->
-
-            <div class="setting-group">
-
-                <div class="setting-title">
-                    Calidad
-                </div>
-
-                <div id="qualityOptions">
-
-                    <button
-                        class="setting-option selected"
-                        type="button"
-                        data-quality="-1"
-                    >
-
-                        <span>
-                            Automático
-                        </span>
-
-                        <span class="setting-check">
-                            ✓
-                        </span>
-
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <!-- =============================================
-                 VELOCIDAD
-            ============================================== -->
-
-            <div class="setting-group">
-
-                <div class="setting-title">
-                    Velocidad
-                </div>
-
-
-                <button
-                    class="setting-option"
-                    type="button"
-                    data-speed="0.25"
-                >
-                    <span>0.25× Lento</span>
-                    <span></span>
-                </button>
-
-
-                <button
-                    class="setting-option"
-                    type="button"
-                    data-speed="0.5"
-                >
-                    <span>0.5× Muy lento</span>
-                    <span></span>
-                </button>
-
-
-                <button
-                    class="setting-option"
-                    type="button"
-                    data-speed="0.75"
-                >
-                    <span>0.75×</span>
-                    <span></span>
-                </button>
-
-
-                <button
-                    class="setting-option selected"
-                    type="button"
-                    data-speed="1"
-                >
-                    <span>1× Normal</span>
-                    <span class="setting-check">✓</span>
-                </button>
-
-
-                <button
-                    class="setting-option"
-                    type="button"
-                    data-speed="1.25"
-                >
-                    <span>1.25×</span>
-                    <span></span>
-                </button>
-
-
-                <button
-                    class="setting-option"
-                    type="button"
-                    data-speed="1.5"
-                >
-                    <span>1.5× Rápido</span>
-                    <span></span>
-                </button>
-
-
-                <button
-                    class="setting-option"
-                    type="button"
-                    data-speed="1.75"
-                >
-                    <span>1.75×</span>
-                    <span></span>
-                </button>
-
-
-                <button
-                    class="setting-option"
-                    type="button"
-                    data-speed="2"
-                >
-                    <span>2× Muy rápido</span>
-                    <span></span>
-                </button>
-
-            </div>
-
-
-            <!-- =============================================
-                 ASPECTO
-            ============================================== -->
-
-            <div class="setting-group">
-
-                <div class="setting-title">
-                    Relación de aspecto
-                </div>
-
-
-                <button
-                    class="setting-option selected"
-                    type="button"
-                    data-aspect="auto"
-                >
-                    <span>Automático</span>
-                    <span class="setting-check">✓</span>
-                </button>
-
-
-                <button
-                    class="setting-option"
-                    type="button"
-                    data-aspect="169"
-                >
-                    <span>16:9</span>
-                    <span></span>
-                </button>
-
-
-                <button
-                    class="setting-option"
-                    type="button"
-                    data-aspect="43"
-                >
-                    <span>4:3</span>
-                    <span></span>
-                </button>
-
-
-                <button
-                    class="setting-option"
-                    type="button"
-                    data-aspect="expand"
-                >
-                    <span>Expandir</span>
-                    <span></span>
-                </button>
-
-
-                <button
-                    class="setting-option"
-                    type="button"
-                    data-aspect="stretch"
-                >
-                    <span>Estirar</span>
-                    <span></span>
-                </button>
-
-            </div>
-
-
-            <!-- =============================================
-                 SONIDO
-            ============================================== -->
-
-            <div class="setting-group">
-
-                <div class="setting-title">
-                    Sonido
-                </div>
-
-
-                <button
-                    class="setting-option selected"
-                    type="button"
-                    data-audio="normal"
-                >
-                    <span>Normal</span>
-                    <span class="setting-check">✓</span>
-                </button>
-
-
-                <button
-                    class="setting-option"
-                    type="button"
-                    data-audio="bass"
-                >
-                    <span>Aumento de bajos</span>
-                    <span></span>
-                </button>
-
-
-                <button
-                    class="setting-option"
-                    type="button"
-                    data-audio="spatial"
-                >
-                    <span>Sonido espacial</span>
-                    <span></span>
-                </button>
-
-
-                <button
-                    class="setting-option"
-                    type="button"
-                    data-audio="surround"
-                >
-                    <span>Sonido envolvente</span>
-                    <span></span>
-                </button>
-
-            </div>
-
-
-            <!-- =============================================
-                 BLOQUEAR
-            ============================================== -->
-
-            <div class="setting-group">
-
-                <button
-                    class="setting-option"
-                    id="lockButton"
-                    type="button"
-                >
-
-                    <span>
-                        🔒 Bloquear pantalla
-                    </span>
-
-                    <span></span>
-
-                </button>
-
-            </div>
-
-
-        </div>
-
-
-        <!-- =================================================
-             INDICADOR BLOQUEO
-        ================================================== -->
-
-        <div
-            class="lock-indicator"
-            id="lockIndicator"
-        >
-            🔒
-        </div>
-
-
-        <div
-            class="lock-overlay"
-            id="lockOverlay"
-        >
-
-            <div class="lock-message">
-                Pantalla bloqueada · mantén pulsado para desbloquear
-            </div>
-
-        </div>
-
-
+    <div class="settings-header">
+      <button class="settings-back" id="menuBack">‹</button>
+      <span id="menuTitle">Configuración</span>
     </div>
 
+    <div class="settings-content">
 
-    <!-- =================================================
-         URL
-    ================================================== -->
+      <div id="mainSettings">
 
-    <div class="url-box">
-
-
-        <input
-            id="urlInput"
-            class="url-input"
-            type="text"
-            placeholder="Pega aquí una URL .m3u8, HLS o MP4"
-            autocomplete="off"
-            spellcheck="false"
-        >
-
-
-        <button
-            id="loadButton"
-            class="load-button"
-            type="button"
-        >
-            Cargar
+        <button class="setting-item" data-menu="quality">
+          <span class="setting-left">
+            <span class="setting-icon">▣</span>
+            <span>Calidad</span>
+          </span>
+          <span class="setting-value" id="qualityValue">Auto</span>
         </button>
 
+        <button class="setting-item" data-menu="speed">
+          <span class="setting-left">
+            <span class="setting-icon">◷</span>
+            <span>Velocidad</span>
+          </span>
+          <span class="setting-value" id="speedValue">Normal</span>
+        </button>
 
-        <div
-            id="status"
-            class="status"
-        ></div>
+        <button class="setting-item" data-menu="aspect">
+          <span class="setting-left">
+            <span class="setting-icon">▣</span>
+            <span>Relación de aspecto</span>
+          </span>
+          <span class="setting-value" id="aspectValue">16:9</span>
+        </button>
 
+        <button class="setting-item" data-menu="sound">
+          <span class="setting-left">
+            <span class="setting-icon">🔊</span>
+            <span>Sonido</span>
+          </span>
+          <span class="setting-value" id="soundValue">Normal</span>
+        </button>
 
-        <div
-            id="error"
-            class="error"
-        ></div>
+        <button class="setting-item" id="mirrorButton">
+          <span class="setting-left">
+            <span class="setting-icon">↔</span>
+            <span>Modo espejo</span>
+          </span>
+          <span class="setting-value" id="mirrorValue">Desactivado</span>
+        </button>
 
+        <button class="setting-item" id="lockButton">
+          <span class="setting-left">
+            <span class="setting-icon">🔒</span>
+            <span>Bloquear pantalla</span>
+          </span>
+        </button>
+
+      </div>
+
+      <!-- CALIDAD -->
+      <div class="submenu" id="qualityMenu">
+        <button class="option" data-quality="-1">Automática</button>
+      </div>
+
+      <!-- VELOCIDAD -->
+      <div class="submenu" id="speedMenu">
+        <button class="option" data-speed="0.5">0.5x — Lento</button>
+        <button class="option" data-speed="0.75">0.75x</button>
+        <button class="option active" data-speed="1">1x — Normal</button>
+        <button class="option" data-speed="1.25">1.25x</button>
+        <button class="option" data-speed="1.5">1.5x — Rápido</button>
+        <button class="option" data-speed="1.75">1.75x</button>
+        <button class="option" data-speed="2">2x — Muy rápido</button>
+      </div>
+
+      <!-- ASPECTO -->
+      <div class="submenu" id="aspectMenu">
+        <button class="option active" data-aspect="contain">16:9</button>
+        <button class="option" data-aspect="43">4:3</button>
+        <button class="option" data-aspect="cover">Expandir</button>
+        <button class="option" data-aspect="fill">Estirar</button>
+      </div>
+
+      <!-- SONIDO -->
+      <div class="submenu" id="soundMenu">
+        <button class="option active" data-sound="normal">Normal</button>
+        <button class="option" data-sound="bass">Aumento de bajos</button>
+        <button class="option" data-sound="spatial">Sonido espacial</button>
+        <button class="option" data-sound="surround">Sonido envolvente</button>
+      </div>
 
     </div>
+  </div>
 
+  <!-- BLOQUEO -->
+  <div class="lock-screen" id="lockScreen">
+    <div class="lock-message">🔒 Pantalla bloqueada</div>
+    <button class="unlock-button" id="unlockButton">
+      Desbloquear
+    </button>
+  </div>
 
-</div>
+  <!-- PLAY -->
+  <div class="play-overlay" id="playOverlay">
+    <button class="play-button" id="playButton">▶</button>
+  </div>
 
+  <div class="loading" id="loading">
+    Cargando...
+  </div>
+
+  <div class="error" id="error">
+    <div class="error-box">
+      <strong>No se pudo reproducir</strong>
+      <p id="errorText"></p>
+      <button id="errorClose">Cerrar</button>
+    </div>
+  </div>
+
+</main>
+
+<section class="url-section">
+
+  <div class="url-title">
+    FUENTE DE VÍDEO — MP4 / M3U8 / HLS / EMBED
+  </div>
+
+  <div class="input-row">
+    <input
+      class="url-input"
+      id="urlInput"
+      placeholder="Pega aquí la URL..."
+      autocomplete="off"
+      spellcheck="false">
+
+    <button class="load-button" id="loadButton">
+      Cargar
+    </button>
+  </div>
+
+  <div class="history-title">
+    ÚLTIMAS PELÍCULAS
+  </div>
+
+  <div class="history" id="history"></div>
+
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
 
 <script>
+document.addEventListener("DOMContentLoaded",()=>{
 
 "use strict";
 
+const $=id=>document.getElementById(id);
 
-/* =====================================================
-   ELEMENTOS
-===================================================== */
+const video=$("video");
+const iframe=$("iframe");
+const wrapper=$("playerWrapper");
+const title=$("title");
+const input=$("urlInput");
+const historyBox=$("history");
+const loading=$("loading");
+const error=$("error");
+const errorText=$("errorText");
+const playOverlay=$("playOverlay");
 
-const video =
-    document.getElementById("video");
+let hls=null;
+let currentUrl="";
+let currentType="";
+let audioContext=null;
+let sourceNode=null;
+let filters=[];
+let mirror=false;
 
-const player =
-    document.getElementById("player");
+const player=new Plyr(video,{
+  controls:[
+    "play-large",
+    "play",
+    "progress",
+    "current-time",
+    "duration",
+    "mute",
+    "volume",
+    "fullscreen"
+  ],
+  clickToPlay:false,
+  keyboard:{focused:true,global:true},
+  fullscreen:{enabled:true,fallback:true,iosNative:true}
+});
 
-const urlInput =
-    document.getElementById("urlInput");
+/* MENÚ */
 
-const loadButton =
-    document.getElementById("loadButton");
+const settingsMenu=$("settingsMenu");
+const mainSettings=$("mainSettings");
+const menuTitle=$("menuTitle");
 
-const status =
-    document.getElementById("status");
+$("settingsButton").onclick=()=>{
+  settingsMenu.classList.toggle("open");
+};
 
-const error =
-    document.getElementById("error");
+$("menuBack").onclick=()=>{
+  showMainMenu();
+};
 
-const settingsButton =
-    document.getElementById("settingsButton");
-
-const settingsPanel =
-    document.getElementById("settingsPanel");
-
-const lockButton =
-    document.getElementById("lockButton");
-
-const lockOverlay =
-    document.getElementById("lockOverlay");
-
-const lockIndicator =
-    document.getElementById("lockIndicator");
-
-const qualityOptions =
-    document.getElementById("qualityOptions");
-
-
-/* =====================================================
-   VARIABLES
-===================================================== */
-
-let hls = null;
-
-let currentUrl = "";
-
-let currentQuality = -1;
-
-let currentSpeed = 1;
-
-let currentAspect = "auto";
-
-let currentAudio = "normal";
-
-let isLocked = false;
-
-
-/* =====================================================
-   AUDIO WEB AUDIO API
-===================================================== */
-
-let audioContext = null;
-
-let sourceNode = null;
-
-let bassFilter = null;
-
-let stereoNode = null;
-
-let surroundDelay = null;
-
-let audioGain = null;
-
-
-/* =====================================================
-   ESTADO
-===================================================== */
-
-function setStatus(text) {
-
-    status.textContent = text;
-
+function showMainMenu(){
+  document.querySelectorAll(".submenu").forEach(x=>x.classList.remove("active"));
+  mainSettings.style.display="block";
+  menuTitle.textContent="Configuración";
 }
 
+document.querySelectorAll("[data-menu]").forEach(button=>{
+  button.onclick=()=>{
+    mainSettings.style.display="none";
+    document.querySelectorAll(".submenu").forEach(x=>x.classList.remove("active"));
 
-function showError(text) {
+    const name=button.dataset.menu;
+    $(name+"Menu").classList.add("active");
+    menuTitle.textContent=button.querySelector("span span:last-child").textContent;
+  };
+});
 
-    error.textContent = text;
+/* CALIDAD HLS */
 
-    error.classList.add("show");
+function setupQuality(){
 
+  const menu=$("qualityMenu");
+  menu.innerHTML='<button class="option active" data-quality="-1">Automática</button>';
+
+  if(!hls || !hls.levels.length)return;
+
+  const levels=hls.levels
+    .map((level,index)=>({
+      index,
+      height:level.height||0
+    }))
+    .filter(x=>x.height)
+    .sort((a,b)=>b.height-a.height);
+
+  levels.forEach(level=>{
+    const button=document.createElement("button");
+    button.className="option";
+    button.dataset.quality=level.index;
+    button.textContent=level.height+"p";
+    menu.appendChild(button);
+  });
+
+  menu.querySelectorAll("[data-quality]").forEach(button=>{
+    button.onclick=()=>{
+      const value=Number(button.dataset.quality);
+
+      hls.currentLevel=value;
+
+      menu.querySelectorAll(".option")
+        .forEach(x=>x.classList.remove("active"));
+
+      button.classList.add("active");
+
+      $("qualityValue").textContent=
+        value===-1?"Auto":button.textContent;
+
+      showMainMenu();
+    };
+  });
 }
 
+/* VELOCIDAD */
 
-function hideError() {
+document.querySelectorAll("[data-speed]").forEach(button=>{
+  button.onclick=()=>{
+    const speed=Number(button.dataset.speed);
 
-    error.textContent = "";
+    player.speed=speed;
 
-    error.classList.remove("show");
+    document.querySelectorAll("#speedMenu .option")
+      .forEach(x=>x.classList.remove("active"));
 
+    button.classList.add("active");
+
+    $("speedValue").textContent=button.textContent.split("—")[0].trim();
+
+    showMainMenu();
+  };
+});
+
+/* RELACIÓN */
+
+document.querySelectorAll("[data-aspect]").forEach(button=>{
+  button.onclick=()=>{
+    const aspect=button.dataset.aspect;
+
+    video.style.objectFit=aspect==="43"?"contain":aspect==="fill"?"fill":aspect==="cover"?"cover":"contain";
+
+    if(aspect==="43"){
+      video.style.aspectRatio="4/3";
+    }else{
+      video.style.aspectRatio="16/9";
+    }
+
+    document.querySelectorAll("#aspectMenu .option")
+      .forEach(x=>x.classList.remove("active"));
+
+    button.classList.add("active");
+
+    $("aspectValue").textContent=button.textContent;
+
+    showMainMenu();
+  };
+});
+
+/* ESPEJO */
+
+$("mirrorButton").onclick=()=>{
+  mirror=!mirror;
+  video.style.transform=mirror?"scaleX(-1)":"scaleX(1)";
+  $("mirrorValue").textContent=mirror?"Activado":"Desactivado";
+};
+
+/* BLOQUEO */
+
+$("lockButton").onclick=()=>{
+  settingsMenu.classList.remove("open");
+  document.querySelectorAll(".submenu").forEach(x=>x.classList.remove("active"));
+  mainSettings.style.display="block";
+  lockScreen();
+};
+
+const lockScreen=()=>{
+  $("lockScreen").classList.add("active");
+
+  /* Evita interacción con Plyr */
+  player.elements.controls.style.pointerEvents="none";
+};
+
+$("unlockButton").onclick=()=>{
+  $("lockScreen").classList.remove("active");
+
+  player.elements.controls.style.pointerEvents="";
+};
+
+/* SONIDO */
+
+function createAudio(){
+
+  if(audioContext)return;
+
+  try{
+
+    audioContext=new AudioContext();
+    sourceNode=audioContext.createMediaElementSource(video);
+
+  }catch(e){
+    console.warn("Web Audio no disponible",e);
+  }
 }
 
+function clearAudio(){
 
-/* =====================================================
-   DESTRUIR HLS
-===================================================== */
+  filters.forEach(filter=>{
+    try{filter.disconnect()}catch(e){}
+  });
 
-function destroyHLS() {
+  filters=[];
 
-    if (!hls) {
+  if(sourceNode){
+    try{sourceNode.disconnect()}catch(e){}
+  }
 
-        return;
+  if(audioContext){
+
+    const gain=audioContext.createGain();
+
+    sourceNode.connect(gain);
+    gain.connect(audioContext.destination);
+
+  }
+}
+
+function applySound(type){
+
+  createAudio();
+
+  if(!audioContext || !sourceNode)return;
+
+  if(audioContext.state==="suspended"){
+    audioContext.resume();
+  }
+
+  clearAudio();
+
+  const gain=audioContext.createGain();
+
+  if(type==="normal"){
+
+    sourceNode.connect(gain);
+    gain.connect(audioContext.destination);
+
+  }
+
+  if(type==="bass"){
+
+    const bass=audioContext.createBiquadFilter();
+
+    bass.type="lowshelf";
+    bass.frequency.value=180;
+    bass.gain.value=8;
+
+    sourceNode.connect(bass);
+    bass.connect(gain);
+    gain.connect(audioContext.destination);
+
+    filters.push(bass);
+
+  }
+
+  if(type==="spatial"){
+
+    const panner=audioContext.createStereoPanner();
+
+    panner.pan.value=0;
+
+    sourceNode.connect(panner);
+    panner.connect(gain);
+    gain.connect(audioContext.destination);
+
+    filters.push(panner);
+
+  }
+
+  if(type==="surround"){
+
+    const splitter=audioContext.createChannelSplitter(2);
+    const merger=audioContext.createChannelMerger(2);
+
+    const left=audioContext.createGain();
+    const right=audioContext.createGain();
+
+    left.gain.value=1.15;
+    right.gain.value=1.15;
+
+    sourceNode.connect(splitter);
+
+    splitter.connect(left,0);
+    splitter.connect(right,1);
+
+    left.connect(merger,0,0);
+    right.connect(merger,0,1);
+
+    merger.connect(gain);
+    gain.connect(audioContext.destination);
+
+    filters.push(splitter,merger,left,right);
+
+  }
+}
+
+document.querySelectorAll("[data-sound]").forEach(button=>{
+  button.onclick=()=>{
+    const sound=button.dataset.sound;
+
+    /* IMPORTANTE:
+       Nunca hacemos video.muted=true.
+    */
+
+    video.muted=false;
+    player.muted=false;
+
+    applySound(sound);
+
+    document.querySelectorAll("#soundMenu .option")
+      .forEach(x=>x.classList.remove("active"));
+
+    button.classList.add("active");
+
+    $("soundValue").textContent=button.textContent;
+
+    showMainMenu();
+  };
+});
+
+/* CARGA */
+
+function detect(url){
+
+  const clean=url.toLowerCase().split("?")[0];
+
+  if(clean.includes(".m3u8"))return"hls";
+
+  if(/\.(mp4|webm|ogg|ogv|mov)$/i.test(clean))return"video";
+
+  if(/youtube\.com|youtu\.be/i.test(url))return"youtube";
+
+  if(/\/embed\//i.test(url))return"iframe";
+
+  return"video";
+}
+
+function name(url){
+
+  try{
+
+    const u=new URL(url);
+    let n=u.pathname.split("/").filter(Boolean).pop();
+
+    if(!n)return u.hostname;
+
+    return decodeURIComponent(n)
+      .replace(/\.(mp4|m3u8|webm|ogg|ogv|mov)$/i,"")
+      .replace(/[_-]+/g," ");
+
+  }catch{
+
+    return url;
+
+  }
+}
+
+function showLoading(value=true){
+  loading.classList.toggle("active",value);
+}
+
+function showError(message){
+  showLoading(false);
+  errorText.textContent=message;
+  error.classList.add("active");
+}
+
+$("errorClose").onclick=()=>{
+  error.classList.remove("active");
+};
+
+function destroy(){
+
+  if(hls){
+
+    try{hls.destroy()}catch(e){}
+
+    hls=null;
+  }
+
+  video.pause();
+  video.removeAttribute("src");
+  video.load();
+
+  iframe.src="about:blank";
+  iframe.style.display="none";
+  video.style.display="block";
+}
+
+function youtube(url){
+
+  try{
+
+    const u=new URL(url);
+    let id=u.searchParams.get("v");
+
+    if(u.hostname.includes("youtu.be")){
+      id=u.pathname.slice(1).split("/")[0];
+    }
+
+    if(u.pathname.includes("/embed/")){
+      id=u.pathname.split("/embed/")[1].split("/")[0];
+    }
+
+    return id
+      ?"https://www.youtube.com/embed/"+encodeURIComponent(id)+"?rel=0"
+      :null;
+
+  }catch{
+
+    return null;
+
+  }
+}
+
+function load(url){
+
+  url=url.trim();
+
+  if(!url){
+    showError("Introduce una URL.");
+    return;
+  }
+
+  error.classList.remove("active");
+  destroy();
+
+  currentUrl=url;
+  currentType=detect(url);
+  title.textContent=name(url);
+
+  saveHistory(url);
+
+  playOverlay.classList.remove("hidden");
+
+  if(currentType==="youtube"){
+
+    const yt=youtube(url);
+
+    if(!yt){
+      showError("No se pudo identificar el vídeo.");
+      return;
+    }
+
+    video.style.display="none";
+    iframe.style.display="block";
+    iframe.src=yt;
+    playOverlay.classList.add("hidden");
+    return;
+  }
+
+  if(currentType==="iframe"){
+
+    video.style.display="none";
+    iframe.style.display="block";
+    iframe.src=url;
+    playOverlay.classList.add("hidden");
+    return;
+  }
+
+  video.style.display="block";
+  iframe.style.display="none";
+
+  showLoading();
+
+  if(currentType==="hls"){
+
+    if(video.canPlayType("application/vnd.apple.mpegurl")){
+
+      video.src=url;
+      video.load();
+
+    }else if(window.Hls && Hls.isSupported()){
+
+      hls=new Hls({
+        enableWorker:true,
+        lowLatencyMode:false,
+        backBufferLength:60,
+        maxBufferLength:30
+      });
+
+      hls.loadSource(url);
+      hls.attachMedia(video);
+
+      hls.on(Hls.Events.MANIFEST_PARSED,()=>{
+        showLoading(false);
+        setupQuality();
+      });
+
+      hls.on(Hls.Events.ERROR,(event,data)=>{
+
+        if(data.fatal){
+
+          showError(
+            "No se pudo reproducir la transmisión HLS. "+
+            "Comprueba la URL y que el servidor permita reproducción desde el navegador."
+          );
+
+        }
+
+      });
+
+    }else{
+
+      showError("Este navegador no soporta HLS.");
 
     }
 
+  }else{
 
-    try {
-
-        hls.destroy();
-
-    } catch (e) {
-
-        console.warn(e);
-
-    }
-
-
-    hls = null;
-
-}
-
-
-/* =====================================================
-   LIMPIAR VIDEO
-===================================================== */
-
-function clearPlayer() {
-
-    destroyHLS();
-
-
-    try {
-
-        video.pause();
-
-    } catch (e) {}
-
-
-    video.removeAttribute("src");
-
+    video.src=url;
     video.load();
 
+  }
 }
 
+/* PLAY */
 
-/* =====================================================
-   DETECTAR HLS
-===================================================== */
+$("playButton").onclick=async()=>{
 
-function isHLS(url) {
+  if(!currentUrl){
+    showError("Primero carga una URL.");
+    return;
+  }
 
-    const cleanUrl =
-        url
-            .split("#")[0]
-            .toLowerCase();
+  try{
 
+    await player.play();
 
-    return (
-        cleanUrl.includes(".m3u8")
+    playOverlay.classList.add("hidden");
+
+    createAudio();
+
+  }catch(e){
+
+    showError(
+      "El navegador no pudo iniciar la reproducción."
     );
 
+  }
+};
+
+video.addEventListener("loadedmetadata",()=>{
+  showLoading(false);
+});
+
+video.addEventListener("canplay",()=>{
+  showLoading(false);
+});
+
+video.addEventListener("playing",()=>{
+  showLoading(false);
+  playOverlay.classList.add("hidden");
+});
+
+video.addEventListener("waiting",()=>{
+  if(currentUrl)showLoading(true);
+});
+
+video.addEventListener("error",()=>{
+
+  if(!currentUrl)return;
+
+  showLoading(false);
+
+  if(currentType!=="hls"){
+
+    showError(
+      "El vídeo no pudo reproducirse. "+
+      "Comprueba que la URL sea válida y que el formato sea compatible."
+    );
+
+  }
+
+});
+
+/* HISTORIAL */
+
+function getHistory(){
+
+  try{
+    return JSON.parse(localStorage.getItem("jeissonHistory")||"[]");
+  }catch{
+    return[];
+  }
 }
 
+function saveHistory(url){
 
-/* =====================================================
-   CARGAR HLS
-===================================================== */
+  let data=getHistory();
 
-function loadHLS(url) {
+  data=data.filter(x=>x.url!==url);
 
-    setStatus(
-        "Cargando HLS..."
-    );
+  data.unshift({
+    url,
+    name:name(url)
+  });
 
+  data=data.slice(0,10);
 
-    /*
-       HLS NATIVO
-    */
+  localStorage.setItem(
+    "jeissonHistory",
+    JSON.stringify(data)
+  );
 
-    if (
-        video.canPlayType(
-            "application/vnd.apple.mpegurl"
-        )
-    ) {
-
-        video.src = url;
-
-        video.load();
-
-        setStatus(
-            "HLS listo."
-        );
-
-        return;
-
-    }
-
-
-    /*
-       HLS.JS
-    */
-
-    if (
-        typeof Hls === "undefined"
-    ) {
-
-        showError(
-            "No se pudo cargar HLS.js."
-        );
-
-        return;
-
-    }
-
-
-    if (
-        !Hls.isSupported()
-    ) {
-
-        showError(
-            "Este navegador no soporta HLS."
-        );
-
-        return;
-
-    }
-
-
-    hls = new Hls({
-
-        enableWorker: true,
-
-        lowLatencyMode: false,
-
-        backBufferLength: 60,
-
-        maxBufferLength: 30,
-
-        maxMaxBufferLength: 60,
-
-        startLevel: -1,
-
-        capLevelToPlayerSize: true
-
-    });
-
-
-    /*
-       Adjuntar vídeo
-    */
-
-    hls.attachMedia(video);
-
-
-    /*
-       Media conectada
-    */
-
-    hls.on(
-        Hls.Events.MEDIA_ATTACHED,
-        function() {
-
-            if (!hls) {
-
-                return;
-
-            }
-
-
-            hls.loadSource(url);
-
-        }
-    );
-
-
-    /*
-       MANIFEST
-    */
-
-    hls.on(
-        Hls.Events.MANIFEST_PARSED,
-        function() {
-
-            setStatus(
-                "HLS cargado correctamente."
-            );
-
-
-            buildQualityMenu();
-
-        }
-    );
-
-
-    /*
-       ERROR HLS
-    */
-
-    hls.on(
-        Hls.Events.ERROR,
-        function(event, data) {
-
-            console.warn(
-                "HLS:",
-                data
-            );
-
-
-            if (!data.fatal) {
-
-                return;
-
-            }
-
-
-            if (
-                data.type ===
-                Hls.ErrorTypes.NETWORK_ERROR
-            ) {
-
-                setStatus(
-                    "Problema de conexión HLS."
-                );
-
-
-                try {
-
-                    hls.startLoad();
-
-                } catch (e) {}
-
-                return;
-
-            }
-
-
-            if (
-                data.type ===
-                Hls.ErrorTypes.MEDIA_ERROR
-            ) {
-
-                try {
-
-                    hls.recoverMediaError();
-
-                } catch (e) {
-
-                    showError(
-                        "No se pudo recuperar el vídeo."
-                    );
-
-                }
-
-                return;
-
-            }
-
-
-            showError(
-                "No se pudo reproducir la transmisión HLS."
-            );
-
-        }
-    );
-
+  renderHistory();
 }
 
+function renderHistory(){
 
-/* =====================================================
-   CARGAR VIDEO DIRECTO
-===================================================== */
+  historyBox.innerHTML="";
 
-function loadDirectVideo(url) {
+  const data=getHistory();
 
-    setStatus(
-        "Cargando vídeo..."
-    );
+  if(!data.length){
 
+    historyBox.innerHTML=
+      '<div style="font-size:11px;color:#666">Todavía no hay películas.</div>';
 
-    video.src = url;
+    return;
+  }
 
-    video.load();
+  data.forEach(item=>{
 
+    const row=document.createElement("div");
+    row.className="history-item";
+
+    const text=document.createElement("span");
+    text.className="history-name";
+    text.textContent=item.name;
+
+    const button=document.createElement("button");
+    button.className="history-play";
+    button.textContent="▶";
+
+    button.onclick=()=>load(item.url);
+
+    row.append(text,button);
+    historyBox.appendChild(row);
+
+  });
 }
 
+$("loadButton").onclick=()=>{
+  load(input.value);
+};
 
-/* =====================================================
-   CARGAR FUENTE
-===================================================== */
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter")load(input.value);
+});
 
-function loadSource() {
+renderHistory();
 
-    const url =
-        urlInput.value.trim();
-
-
-    hideError();
-
-
-    if (!url) {
-
-        showError(
-            "Introduce una URL."
-        );
-
-        return;
-
-    }
-
-
-    clearPlayer();
-
-
-    currentUrl =
-        url;
-
-
-    if (
-        isHLS(url)
-    ) {
-
-        loadHLS(url);
-
-    } else {
-
-        loadDirectVideo(url);
-
-    }
-
-}
-
-
-/* =====================================================
-   BOTÓN CARGAR
-===================================================== */
-
-loadButton.addEventListener(
-    "click",
-    loadSource
-);
-
-
-/* =====================================================
-   ENTER
-===================================================== */
-
-urlInput.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (
-            event.key === "Enter"
-        ) {
-
-            loadSource();
-
-        }
-
-    }
-);
-
-
-/* =====================================================
-   VIDEO READY
-===================================================== */
-
-video.addEventListener(
-    "loadedmetadata",
-    function() {
-
-        setStatus(
-            "Vídeo listo."
-        );
-
-    }
-);
-
-
-/* =====================================================
-   VIDEO ERROR
-===================================================== */
-
-video.addEventListener(
-    "error",
-    function() {
-
-        if (!video.error) {
-
-            return;
-
-        }
-
-
-        let message =
-            "No se pudo reproducir el vídeo.";
-
-
-        switch (
-            video.error.code
-        ) {
-
-            case MediaError.MEDIA_ERR_ABORTED:
-
-                message =
-                    "La reproducción fue cancelada.";
-
-                break;
-
-
-            case MediaError.MEDIA_ERR_NETWORK:
-
-                message =
-                    "No se pudo obtener el vídeo desde el servidor.";
-
-                break;
-
-
-            case MediaError.MEDIA_ERR_DECODE:
-
-                message =
-                    "El navegador no pudo decodificar el vídeo.";
-
-                break;
-
-
-            case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-
-                message =
-                    "El formato de vídeo no es compatible.";
-
-                break;
-
-        }
-
-
-        showError(message);
-
-    }
-);
-
-
-/* =====================================================
-   MENÚ CONFIGURACIÓN
-===================================================== */
-
-settingsButton.addEventListener(
-    "click",
-    function(event) {
-
-        event.stopPropagation();
-
-
-        if (isLocked) {
-
-            return;
-
-        }
-
-
-        const isOpen =
-            settingsPanel.classList.toggle(
-                "open"
-            );
-
-
-        settingsButton.classList.toggle(
-            "active",
-            isOpen
-        );
-
-    }
-);
-
-
-/* =====================================================
-   CERRAR MENÚ AL TOCAR AFUERA
-===================================================== */
-
-document.addEventListener(
-    "click",
-    function(event) {
-
-        if (
-            !settingsPanel.contains(event.target) &&
-            event.target !== settingsButton
-        ) {
-
-            settingsPanel.classList.remove(
-                "open"
-            );
-
-            settingsButton.classList.remove(
-                "active"
-            );
-
-        }
-
-    }
-);
-
-
-/* =====================================================
-   CALIDAD HLS
-===================================================== */
-
-function buildQualityMenu() {
-
-    qualityOptions.innerHTML = "";
-
-
-    /*
-       AUTO
-    */
-
-    addQualityOption(
-        -1,
-        "Automático"
-    );
-
-
-    if (
-        !hls ||
-        !hls.levels ||
-        !hls.levels.length
-    ) {
-
-        return;
-
-    }
-
-
-    const levels =
-        hls.levels;
-
-
-    const qualities = [];
-
-
-    levels.forEach(
-        function(level, index) {
-
-            const height =
-                Number(level.height);
-
-
-            if (
-                Number.isFinite(height) &&
-                height > 0
-            ) {
-
-                qualities.push({
-
-                    height: height,
-
-                    index: index
-
-                });
-
-            }
-
-        }
-    );
-
-
-    /*
-       Ordenar de mayor a menor
-    */
-
-    qualities.sort(
-        function(a, b) {
-
-            return b.height - a.height;
-
-        }
-    );
-
-
-    /*
-       Evitar duplicados
-    */
-
-    const added =
-        new Set();
-
-
-    qualities.forEach(
-        function(item) {
-
-            if (
-                added.has(item.height)
-            ) {
-
-                return;
-
-            }
-
-
-            added.add(
-                item.height
-            );
-
-
-            addQualityOption(
-                item.height,
-                item.height + "p"
-            );
-
-        }
-    );
-
-
-    /*
-       Restaurar selección
-    */
-
-    updateQualitySelection();
-
-}
-
-
-/* =====================================================
-   CREAR OPCIÓN CALIDAD
-===================================================== */
-
-function addQualityOption(
-    value,
-    label
-) {
-
-    const button =
-        document.createElement(
-            "button"
-        );
-
-
-    button.type =
-        "button";
-
-
-    button.className =
-        "setting-option";
-
-
-    button.dataset.quality =
-        value;
-
-
-    const text =
-        document.createElement(
-            "span"
-        );
-
-
-    text.textContent =
-        label;
-
-
-    const check =
-        document.createElement(
-            "span"
-        );
-
-
-    check.className =
-        "setting-check";
-
-
-    button.appendChild(
-        text
-    );
-
-
-    button.appendChild(
-        check
-    );
-
-
-    button.addEventListener(
-        "click",
-        function() {
-
-            setQuality(
-                Number(value)
-            );
-
-        }
-    );
-
-
-    qualityOptions.appendChild(
-        button
-    );
-
-}
-
-
-/* =====================================================
-   CAMBIAR CALIDAD
-===================================================== */
-
-function setQuality(value) {
-
-    currentQuality =
-        value;
-
-
-    if (hls) {
-
-        if (value === -1) {
-
-            /*
-               Automático
-            */
-
-            hls.currentLevel =
-                -1;
-
-        } else {
-
-            const levels =
-                hls.levels;
-
-
-            let selectedIndex =
-                -1;
-
-
-            /*
-               Buscar la calidad exacta
-            */
-
-            levels.forEach(
-                function(level, index) {
-
-                    if (
-                        Number(level.height) ===
-                        Number(value)
-                    ) {
-
-                        selectedIndex =
-                            index;
-
-                    }
-
-                }
-            );
-
-
-            if (
-                selectedIndex >= 0
-            ) {
-
-                hls.currentLevel =
-                    selectedIndex;
-
-            }
-
-        }
-
-    }
-
-
-    updateQualitySelection();
-
-
-    setStatus(
-        value === -1
-            ? "Calidad automática"
-            : "Calidad " + value + "p"
-    );
-
-}
-
-
-/* =====================================================
-   ACTUALIZAR CALIDAD SELECCIONADA
-===================================================== */
-
-function updateQualitySelection() {
-
-    const buttons =
-        qualityOptions.querySelectorAll(
-            "[data-quality]"
-        );
-
-
-    buttons.forEach(
-        function(button) {
-
-            const value =
-                Number(
-                    button.dataset.quality
-                );
-
-
-            const selected =
-                value ===
-                currentQuality;
-
-
-            button.classList.toggle(
-                "selected",
-                selected
-            );
-
-
-            const check =
-                button.querySelector(
-                    ".setting-check"
-                );
-
-
-            if (check) {
-
-                check.textContent =
-                    selected
-                        ? "✓"
-                        : "";
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   VELOCIDAD
-===================================================== */
-
-document
-    .querySelectorAll(
-        "[data-speed]"
-    )
-    .forEach(
-        function(button) {
-
-            button.addEventListener(
-                "click",
-                function() {
-
-                    const speed =
-                        Number(
-                            button.dataset.speed
-                        );
-
-
-                    setSpeed(
-                        speed
-                    );
-
-                }
-            );
-
-        }
-    );
-
-
-function setSpeed(speed) {
-
-    currentSpeed =
-        speed;
-
-
-    video.playbackRate =
-        speed;
-
-
-    updateSelected(
-        "[data-speed]",
-        String(speed)
-    );
-
-
-    setStatus(
-        speed === 1
-            ? "Velocidad normal"
-            : "Velocidad " + speed + "×"
-    );
-
-}
-
-
-/* =====================================================
-   ASPECTO
-===================================================== */
-
-document
-    .querySelectorAll(
-        "[data-aspect]"
-    )
-    .forEach(
-        function(button) {
-
-            button.addEventListener(
-                "click",
-                function() {
-
-                    setAspect(
-                        button.dataset.aspect
-                    );
-
-                }
-            );
-
-        }
-    );
-
-
-function setAspect(aspect) {
-
-    currentAspect =
-        aspect;
-
-
-    player.classList.remove(
-        "aspect-auto",
-        "aspect-169",
-        "aspect-43",
-        "aspect-expand",
-        "aspect-stretch"
-    );
-
-
-    player.classList.add(
-        "aspect-" + aspect
-    );
-
-
-    updateSelected(
-        "[data-aspect]",
-        aspect
-    );
-
-
-    let text =
-        "Aspecto automático";
-
-
-    if (aspect === "169") {
-
-        text =
-            "Aspecto 16:9";
-
-    }
-
-
-    if (aspect === "43") {
-
-        text =
-            "Aspecto 4:3";
-
-    }
-
-
-    if (aspect === "expand") {
-
-        text =
-            "Vídeo expandido";
-
-    }
-
-
-    if (aspect === "stretch") {
-
-        text =
-            "Vídeo estirado";
-
-    }
-
-
-    setStatus(text);
-
-}
-
-
-/* =====================================================
-   AUDIO
-===================================================== */
-
-document
-    .querySelectorAll(
-        "[data-audio]"
-    )
-    .forEach(
-        function(button) {
-
-            button.addEventListener(
-                "click",
-                async function() {
-
-                    const mode =
-                        button.dataset.audio;
-
-
-                    await setAudioMode(
-                        mode
-                    );
-
-                }
-            );
-
-        }
-    );
-
-
-/* =====================================================
-   CREAR AUDIO WEB
-===================================================== */
-
-function initializeAudio() {
-
-    if (audioContext) {
-
-        return true;
-
-    }
-
-
-    try {
-
-        audioContext =
-            new (
-                window.AudioContext ||
-                window.webkitAudioContext
-            )();
-
-
-        sourceNode =
-            audioContext.createMediaElementSource(
-                video
-            );
-
-
-        bassFilter =
-            audioContext.createBiquadFilter();
-
-
-        bassFilter.type =
-            "lowshelf";
-
-
-        bassFilter.frequency.value =
-            150;
-
-
-        bassFilter.gain.value =
-            0;
-
-
-        stereoNode =
-            audioContext.createStereoPanner();
-
-
-        stereoNode.pan.value =
-            0;
-
-
-        surroundDelay =
-            audioContext.createDelay(
-                0.5
-            );
-
-
-        surroundDelay.delayTime.value =
-            0.018;
-
-
-        audioGain =
-            audioContext.createGain();
-
-
-        audioGain.gain.value =
-            1;
-
-
-        sourceNode.connect(
-            bassFilter
-        );
-
-
-        bassFilter.connect(
-            stereoNode
-        );
-
-
-        stereoNode.connect(
-            surroundDelay
-        );
-
-
-        surroundDelay.connect(
-            audioGain
-        );
-
-
-        audioGain.connect(
-            audioContext.destination
-        );
-
-
-        return true;
-
-    } catch (e) {
-
-        console.warn(
-            "Web Audio no disponible:",
-            e
-        );
-
-
-        return false;
-
-    }
-
-}
-
-
-/* =====================================================
-   CAMBIAR AUDIO
-===================================================== */
-
-async function setAudioMode(mode) {
-
-    currentAudio =
-        mode;
-
-
-    /*
-       El modo normal puede funcionar
-       sin Web Audio.
-    */
-
-    if (mode === "normal") {
-
-        if (audioGain) {
-
-            audioGain.gain.value =
-                1;
-
-        }
-
-
-        if (bassFilter) {
-
-            bassFilter.gain.value =
-                0;
-
-        }
-
-
-        if (stereoNode) {
-
-            stereoNode.pan.value =
-                0;
-
-        }
-
-
-        if (surroundDelay) {
-
-            surroundDelay.delayTime.value =
-                0;
-
-        }
-
-
-        updateSelected(
-            "[data-audio]",
-            mode
-        );
-
-
-        setStatus(
-            "Sonido normal"
-        );
-
-
-        return;
-
-    }
-
-
-    const initialized =
-        initializeAudio();
-
-
-    if (!initialized) {
-
-        showError(
-            "El navegador no permite aplicar efectos de sonido."
-        );
-
-        return;
-
-    }
-
-
-    try {
-
-        if (
-            audioContext.state ===
-            "suspended"
-        ) {
-
-            await audioContext.resume();
-
-        }
-
-    } catch (e) {}
-
-
-    /*
-       RESTAURAR VALORES
-    */
-
-    bassFilter.gain.value =
-        0;
-
-    stereoNode.pan.value =
-        0;
-
-    surroundDelay.delayTime.value =
-        0;
-
-    audioGain.gain.value =
-        1;
-
-
-    /*
-       BAJOS
-    */
-
-    if (mode === "bass") {
-
-        bassFilter.gain.value =
-            8;
-
-
-        setStatus(
-            "Aumento de bajos"
-        );
-
-    }
-
-
-    /*
-       ESPACIAL
-    */
-
-    if (mode === "spatial") {
-
-        stereoNode.pan.value =
-            0.15;
-
-
-        surroundDelay.delayTime.value =
-            0.025;
-
-
-        setStatus(
-            "Sonido espacial"
-        );
-
-    }
-
-
-    /*
-       ENVOLVENTE
-    */
-
-    if (mode === "surround") {
-
-        /*
-           Efecto estéreo ampliado
-           mediante retraso muy corto.
-        */
-
-        stereoNode.pan.value =
-            0;
-
-
-        surroundDelay.delayTime.value =
-            0.035;
-
-
-        audioGain.gain.value =
-            0.9;
-
-
-        setStatus(
-            "Sonido envolvente"
-        );
-
-    }
-
-
-    updateSelected(
-        "[data-audio]",
-        mode
-    );
-
-}
-
-
-/* =====================================================
-   ACTUALIZAR OPCIÓN SELECCIONADA
-===================================================== */
-
-function updateSelected(
-    selector,
-    value
-) {
-
-    document
-        .querySelectorAll(selector)
-        .forEach(
-            function(button) {
-
-                const selected =
-                    button.dataset[
-                        selector
-                            .replace(
-                                "[data-",
-                                ""
-                            )
-                            .replace(
-                                "]",
-                                ""
-                            )
-                    ] === value;
-
-
-                button.classList.toggle(
-                    "selected",
-                    selected
-                );
-
-
-                const check =
-                    button.querySelector(
-                        ".setting-check"
-                    );
-
-
-                if (check) {
-
-                    check.textContent =
-                        selected
-                            ? "✓"
-                            : "";
-
-                }
-
-            }
-        );
-
-}
-
-
-/* =====================================================
-   BLOQUEAR PANTALLA
-===================================================== */
-
-lockButton.addEventListener(
-    "click",
-    function() {
-
-        lockScreen();
-
-    }
-);
-
-
-/* =====================================================
-   BLOQUEAR
-===================================================== */
-
-function lockScreen() {
-
-    isLocked =
-        true;
-
-
-    player.classList.add(
-        "locked"
-    );
-
-
-    lockIndicator.classList.add(
-        "active"
-    );
-
-
-    lockOverlay.classList.add(
-        "active"
-    );
-
-
-    settingsPanel.classList.remove(
-        "open"
-    );
-
-
-    settingsButton.classList.remove(
-        "active"
-    );
-
-
-    setStatus(
-        "Pantalla bloqueada"
-    );
-
-}
-
-
-/* =====================================================
-   DESBLOQUEAR
-===================================================== */
-
-function unlockScreen() {
-
-    if (!isLocked) {
-
-        return;
-
-    }
-
-
-    isLocked =
-        false;
-
-
-    player.classList.remove(
-        "locked"
-    );
-
-
-    lockIndicator.classList.remove(
-        "active"
-    );
-
-
-    lockOverlay.classList.remove(
-        "active"
-    );
-
-
-    setStatus(
-        "Pantalla desbloqueada"
-    );
-
-}
-
-
-/* =====================================================
-   DESBLOQUEAR CON PULSACIÓN
-===================================================== */
-
-let unlockTimer =
-    null;
-
-
-/*
-   Touch
-*/
-
-lockOverlay.addEventListener(
-    "touchstart",
-    function(event) {
-
-        if (!isLocked) {
-
-            return;
-
-        }
-
-
-        event.preventDefault();
-
-
-        unlockTimer =
-            setTimeout(
-                function() {
-
-                    unlockScreen();
-
-                },
-                1000
-            );
-
-    },
-    {
-        passive: false
-    }
-);
-
-
-lockOverlay.addEventListener(
-    "touchend",
-    function() {
-
-        clearTimeout(
-            unlockTimer
-        );
-
-    }
-);
-
-
-lockOverlay.addEventListener(
-    "touchcancel",
-    function() {
-
-        clearTimeout(
-            unlockTimer
-        );
-
-    }
-);
-
-
-/*
-   Mouse
-*/
-
-lockOverlay.addEventListener(
-    "mousedown",
-    function() {
-
-        if (!isLocked) {
-
-            return;
-
-        }
-
-
-        unlockTimer =
-            setTimeout(
-                function() {
-
-                    unlockScreen();
-
-                },
-                1000
-            );
-
-    }
-);
-
-
-lockOverlay.addEventListener(
-    "mouseup",
-    function() {
-
-        clearTimeout(
-            unlockTimer
-        );
-
-    }
-);
-
-
-/* =====================================================
-   BLOQUEO CON TECLADO
-===================================================== */
-
-document.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (
-            isLocked &&
-            event.key === "Escape"
-        ) {
-
-            unlockScreen();
-
-        }
-
-    }
-);
-
-
-/* =====================================================
-   INICIO
-===================================================== */
-
-setStatus(
-    "Listo para cargar un vídeo."
-);
-
+});
 </script>
-
 
 </body>
 </html>
