@@ -216,12 +216,49 @@
       width: 100%;
     }
 
-    /* BARRA DESLIZANTE CON BUFFER REAL */
+    /* BARRA DESLIZANTE CON BUFFER REAL Y MINIATURA PREVIEW */
     .scrubber-container {
       width: 100%;
       display: flex;
       align-items: center;
       position: relative;
+    }
+
+    .scrubber-thumbnail-preview {
+      position: absolute;
+      bottom: 25px;
+      transform: translateX(-50%);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+      z-index: 35;
+    }
+
+    .scrubber-thumbnail-preview.active {
+      display: flex;
+    }
+
+    .scrubber-preview-canvas {
+      width: 140px;
+      height: 78px;
+      border: 2px solid var(--purple-main);
+      border-radius: 6px;
+      background: #000;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8), 0 0 10px rgba(168, 85, 247, 0.4);
+      object-fit: cover;
+    }
+
+    .scrubber-preview-time {
+      font-size: 10px;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(20, 3, 38, 0.9);
+      border: 1px solid rgba(168, 85, 247, 0.5);
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 4px;
+      font-family: monospace;
     }
 
     .video-scrubber {
@@ -561,8 +598,12 @@
 
       <!-- ABAJO -->
       <div class="bottom-controls-wrapper">
-        <!-- BARRA DESLIZANTE CON BUFFER REAL -->
-        <div class="scrubber-container">
+        <!-- BARRA DESLIZANTE CON BUFFER REAL Y MINIATURA -->
+        <div class="scrubber-container" id="scrubberContainer">
+          <div class="scrubber-thumbnail-preview" id="thumbPreview">
+            <canvas class="scrubber-preview-canvas" id="previewCanvas"></canvas>
+            <span class="scrubber-preview-time" id="previewTime">0:00:00</span>
+          </div>
           <input type="range" class="video-scrubber" id="videoScrubber" min="0" max="100" value="0" step="0.05">
         </div>
 
@@ -721,6 +762,10 @@
       const volumeSlider = document.getElementById('volumeSlider');
 
       const videoScrubber = document.getElementById('videoScrubber');
+      const scrubberContainer = document.getElementById('scrubberContainer');
+      const thumbPreview = document.getElementById('thumbPreview');
+      const previewCanvas = document.getElementById('previewCanvas');
+      const previewTime = document.getElementById('previewTime');
       const currTimeElem = document.getElementById('currTime');
 
       const btnSettings = document.getElementById('btnSettings');
@@ -755,12 +800,18 @@
       let isEmbedMode = false;
       let audioCtx = null;
 
+      // Elemento de vídeo oculto exclusivamente para extraer los fotogramas del preview
+      const previewVideo = document.createElement('video');
+      previewVideo.crossOrigin = "anonymous";
+      previewVideo.preload = "metadata";
+      previewVideo.muted = true;
+      previewVideo.playsInline = true;
+
       // Puente Web Audio API corregido para forzar altavoz principal
       function initAudioRouting() {
         if (!audioCtx) {
           try {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
-            // { latencyHint: 'playback' } fuerza el canal multimedia en móviles
             audioCtx = new AudioContext({ latencyHint: 'playback' });
             const source = audioCtx.createMediaElementSource(video);
             source.connect(audioCtx.destination);
@@ -785,6 +836,8 @@
         video.pause();
         video.removeAttribute('src');
         video.load();
+        previewVideo.removeAttribute('src');
+        previewVideo.load();
         video.style.display = 'block';
         mainIframe.style.display = 'none';
         mainIframe.src = 'about:blank';
@@ -938,8 +991,53 @@
         videoScrubber.style.background = `linear-gradient(to right, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) ${bufPct}%, rgba(255, 255, 255, 0.2) ${bufPct}%, rgba(255, 255, 255, 0.2) 100%)`;
       }
 
-      videoScrubber.addEventListener('pointerdown', (e) => { e.stopPropagation(); isSeeking = true; });
-      videoScrubber.addEventListener('input', (e) => { e.stopPropagation(); isSeeking = true; const targetTime = (parseFloat(videoScrubber.value) / 100) * (video.duration || 0); if (timeMode === 0) currTimeElem.textContent = formatHMS(targetTime); else if (timeMode === 1) currTimeElem.textContent = "-" + formatHMS((video.duration || 0) - targetTime); });
+      /* LÓGICA COMPLETA Y AJUSTADA DE MINIATURA PREVIEW */
+      function handleScrubberHover(e) {
+        if (isEmbedMode || !video.duration) return;
+        
+        const rect = videoScrubber.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        let offsetX = clientX - rect.left;
+        offsetX = Math.max(0, Math.min(offsetX, rect.width));
+        
+        const pct = offsetX / rect.width;
+        const targetTime = pct * video.duration;
+
+        thumbPreview.style.left = `${offsetX}px`;
+        previewTime.textContent = formatHMS(targetTime);
+        thumbPreview.classList.add('active');
+
+        // Búsqueda del fotograma en el vídeo oculto
+        if (previewVideo.src) {
+          previewVideo.currentTime = targetTime;
+        }
+      }
+
+      previewVideo.addEventListener('seeked', () => {
+        const ctx = previewCanvas.getContext('2d');
+        previewCanvas.width = previewVideo.videoWidth || 140;
+        previewCanvas.height = previewVideo.videoHeight || 78;
+        ctx.drawImage(previewVideo, 0, 0, previewCanvas.width, previewCanvas.height);
+      });
+
+      function hideScrubberThumb() {
+        thumbPreview.classList.remove('active');
+      }
+
+      videoScrubber.addEventListener('pointerdown', (e) => { e.stopPropagation(); isSeeking = true; handleScrubberHover(e); });
+      videoScrubber.addEventListener('pointermove', (e) => { e.stopPropagation(); handleScrubberHover(e); });
+      videoScrubber.addEventListener('pointerup', hideScrubberThumb);
+      videoScrubber.addEventListener('pointerleave', hideScrubberThumb);
+      videoScrubber.addEventListener('touchmove', handleScrubberHover);
+      videoScrubber.addEventListener('touchend', hideScrubberThumb);
+
+      videoScrubber.addEventListener('input', (e) => { 
+        e.stopPropagation(); 
+        isSeeking = true; 
+        const targetTime = (parseFloat(videoScrubber.value) / 100) * (video.duration || 0); 
+        if (timeMode === 0) currTimeElem.textContent = formatHMS(targetTime); 
+        else if (timeMode === 1) currTimeElem.textContent = "-" + formatHMS((video.duration || 0) - targetTime); 
+      });
       videoScrubber.addEventListener('change', (e) => { e.stopPropagation(); if (!isEmbedMode && video.duration) seekVideo((parseFloat(videoScrubber.value) / 100) * video.duration); isSeeking = false; resetAutoHide(); });
 
       btnSettings.addEventListener('click', (e) => { e.stopPropagation(); settingsPanel.classList.toggle('active'); shortcutsPanel.classList.remove('active'); });
@@ -976,10 +1074,12 @@
 
         if (isDirect) {
           video.src = rawUrl;
+          previewVideo.src = rawUrl;
           video.play().catch(() => {});
         } else if (isHls) {
           if (video.canPlayType('application/vnd.apple.mpegurl')) {
             video.src = rawUrl;
+            previewVideo.src = rawUrl;
             video.play().catch(() => {});
           } else if (Hls.isSupported()) {
             hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
@@ -1000,6 +1100,7 @@
           }
         } else {
           video.src = rawUrl;
+          previewVideo.src = rawUrl;
           video.play().catch(() => {});
         }
         resetAutoHide();
@@ -1021,6 +1122,9 @@
         video.onerror = null;
         video.removeAttribute('src');
         video.load();
+        
+        previewVideo.removeAttribute('src');
+        previewVideo.load();
 
         const cleanUrl = rawUrl.toLowerCase();
         isEmbedMode = cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be') || cleanUrl.includes('embed') || cleanUrl.includes('drive.google.com');
