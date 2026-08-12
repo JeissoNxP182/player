@@ -501,6 +501,25 @@
       font-weight: 600;
       cursor: pointer;
     }
+
+    .toast-msg {
+      position: absolute;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20, 3, 38, 0.9);
+      border: 1px solid #e2e8f0;
+      color: #fff;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 11px;
+      z-index: 60;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .toast-msg.show { opacity: 1; }
   </style>
 </head>
 <body>
@@ -518,7 +537,7 @@
     </div>
 
     <!-- ELEMENTOS DE VIDEO E IFRAME PERSISTENTES -->
-    <video id="mainVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline></video>
+    <video id="mainVideo" preload="metadata" playsinline webkit-playsinline></video>
     <iframe id="mainIframe" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
 
     <!-- CAPA DE CONTROLES GENERALES -->
@@ -682,6 +701,8 @@
         <svg viewBox="0 0 24 24"><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/></svg>
       </button>
     </div>
+
+    <div class="toast-msg" id="toastMsg">Mensaje</div>
   </div>
 
   <!-- SECCIÓN SUPERIOR DE CARGA (DEBAJO DEL REPRODUCTOR) -->
@@ -745,6 +766,7 @@
 
       const urlInput = document.getElementById('urlInput');
       const btnLoad = document.getElementById('btnLoad');
+      const toastMsg = document.getElementById('toastMsg');
 
       let hlsInstance = null;
       let currentUrl = '';
@@ -754,50 +776,21 @@
       let timeMode = 0;
       let isEmbedMode = false;
 
-      // Variables para Web Audio API (Enrutamiento estricto multimedia)
-      let audioCtx = null;
-      let mediaSourceConnected = false;
-
-      function forceMediaAudioContext() {
-        try {
-          if (!audioCtx) {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            audioCtx = new AudioContext();
-          }
-          if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-          }
-          // Conectar el elemento video directamente al contexto de audio web para forzar canal A2DP/Multimedia
-          if (!mediaSourceConnected) {
-            const source = audioCtx.createMediaElementSource(video);
-            source.connect(audioCtx.destination);
-            mediaSourceConnected = true;
-          }
-        } catch (e) {
-          console.log("Audio routing bypass active", e);
-        }
-      }
-
-      // Gestión de historia (Botón atrás para cerrar reproductor)
+      // Historial seguro para evitar cierre completo de página al dar atrás
+      window.history.pushState({ player: true }, '', window.location.href);
       window.addEventListener('popstate', (e) => {
-        if (currentUrl) {
-          unloadVideoInternal();
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('url')) {
+          e.preventDefault();
+          history.pushState(null, '', window.location.pathname);
+          window.location.reload();
         }
       });
 
-      function unloadVideoInternal() {
-        currentUrl = '';
-        pendingUrl = '';
-        if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-        video.pause();
-        video.removeAttribute('src');
-        video.load();
-        video.style.display = 'block';
-        mainIframe.style.display = 'none';
-        mainIframe.src = 'about:blank';
-        controlsOverlay.classList.remove('active');
-        initialPlayOverlay.classList.remove('hidden');
-        videoTitleDisplay.textContent = '';
+      function showToast(txt) {
+        toastMsg.textContent = txt;
+        toastMsg.classList.add('show');
+        setTimeout(() => toastMsg.classList.remove('show'), 2000);
       }
 
       function getCleanTitle(url) {
@@ -806,6 +799,7 @@
           const segments = parsed.pathname.split('/').filter(Boolean);
           if (segments.length > 0) {
             let filename = decodeURIComponent(segments[segments.length - 1]);
+            // Reemplazar guiones bajos o porcentajes si vienen feos
             filename = filename.replace(/[_]/g, ' ').replace(/\.[^/.]+$/, '');
             return filename;
           }
@@ -828,7 +822,7 @@
       function togglePlay() {
         if (isEmbedMode) return;
         if (video.paused) {
-          video.play().catch(() => {});
+          video.play().catch(() => showToast('Toca Play'));
         } else {
           video.pause();
         }
@@ -836,7 +830,6 @@
 
       btnInitialPlay.addEventListener('click', (e) => {
         e.stopPropagation();
-        forceMediaAudioContext(); // <-- Enrutamiento estricto a los audífonos al tocar play
         initialPlayOverlay.classList.add('hidden');
         if (pendingUrl) {
           actualLoadAndPlay(pendingUrl);
@@ -865,11 +858,6 @@
 
       video.addEventListener('timeupdate', () => { if (!isSeeking) updateUI(); });
       video.addEventListener('progress', updateUI);
-
-      video.addEventListener('volumechange', () => {
-        volumeSlider.value = video.muted ? 0 : video.volume;
-        updateVolIcons();
-      });
 
       btnRewind.addEventListener('click', (e) => { e.stopPropagation(); if (!isEmbedMode) seekVideo(Math.max(0, video.currentTime - 10)); resetAutoHide(); });
       btnForward.addEventListener('click', (e) => { e.stopPropagation(); if (!isEmbedMode) seekVideo(Math.min(video.duration || 0, video.currentTime + 10)); resetAutoHide(); });
@@ -902,8 +890,8 @@
       btnCast.addEventListener('click', async (e) => {
         e.stopPropagation();
         if (!isEmbedMode && video.remote && typeof video.remote.prompt === 'function') {
-          try { await video.remote.prompt(); } catch(err) {}
-        }
+          try { await video.remote.prompt(); } catch(err) { showToast('Cast no disponible'); }
+        } else { showToast('Cast no disponible'); }
       });
 
       volumeSlider.addEventListener('input', (e) => { e.stopPropagation(); if (!isEmbedMode) { video.volume = parseFloat(e.target.value); video.muted = (video.volume === 0); } updateVolIcons(); });
@@ -952,10 +940,10 @@
       btnShortcuts.addEventListener('click', (e) => { e.stopPropagation(); shortcutsPanel.classList.toggle('active'); settingsPanel.classList.remove('active'); });
       btnCloseShortcuts.addEventListener('click', (e) => { e.stopPropagation(); shortcutsPanel.classList.remove('active'); });
 
-      selectSpeed.addEventListener('change', (e) => { if (!isEmbedMode) { video.playbackRate = parseFloat(e.target.value); } });
-      optLockScreen.addEventListener('click', () => { settingsPanel.classList.remove('active'); shortcutsPanel.classList.remove('active'); controlsOverlay.classList.remove('active'); lockOverlay.classList.add('active'); });
-      btnUnlock.addEventListener('click', () => { lockOverlay.classList.remove('active'); controlsOverlay.classList.add('active'); });
-      btnCopyLink.addEventListener('click', (e) => { e.stopPropagation(); if (currentUrl) { navigator.clipboard.writeText(currentUrl); } });
+      selectSpeed.addEventListener('change', (e) => { if (!isEmbedMode) { video.playbackRate = parseFloat(e.target.value); showToast(`Velocidad: ${e.target.value}x`); } });
+      optLockScreen.addEventListener('click', () => { settingsPanel.classList.remove('active'); shortcutsPanel.classList.remove('active'); controlsOverlay.classList.remove('active'); lockOverlay.classList.add('active'); showToast('Bloqueado'); });
+      btnUnlock.addEventListener('click', () => { lockOverlay.classList.remove('active'); controlsOverlay.classList.add('active'); showToast('Desbloqueado'); });
+      btnCopyLink.addEventListener('click', (e) => { e.stopPropagation(); if (currentUrl) { navigator.clipboard.writeText(currentUrl); showToast('Enlace copiado'); } });
       btnDownload.addEventListener('click', (e) => { e.stopPropagation(); if (currentUrl) { const a = document.createElement('a'); a.href = currentUrl; a.download = ''; a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a); } });
       btnPip.addEventListener('click', async (e) => { e.stopPropagation(); if (!isEmbedMode) { if (document.pictureInPictureElement) await document.exitPictureInPicture(); else if (document.pictureInPictureEnabled) await video.requestPictureInPicture(); } });
       btnFullscreen.addEventListener('click', (e) => { e.stopPropagation(); if (!document.fullscreenElement) { playerWrapper.requestFullscreen(); iconFS.style.display = 'none'; iconExitFS.style.display = 'block'; } else { document.exitFullscreen(); iconFS.style.display = 'block'; iconExitFS.style.display = 'none'; } });
@@ -965,8 +953,8 @@
         const key = e.key.toLowerCase();
         switch (key) {
           case ' ': case 'k': e.preventDefault(); togglePlay(); resetAutoHide(); break;
-          case 'arrowleft': case 'j': e.preventDefault(); seekVideo(Math.max(0, video.currentTime - 10)); resetAutoHide(); break;
-          case 'arrowright': case 'l': e.preventDefault(); seekVideo(Math.min(video.duration || 0, video.currentTime + 10)); resetAutoHide(); break;
+          case 'arrowleft': case 'j': e.preventDefault(); seekVideo(Math.max(0, video.currentTime - 10)); resetAutoHide(); showToast('-10s'); break;
+          case 'arrowright': case 'l': e.preventDefault(); seekVideo(Math.min(video.duration || 0, video.currentTime + 10)); resetAutoHide(); showToast('+10s'); break;
           case 'arrowup': e.preventDefault(); video.volume = Math.min(1, video.volume + 0.05); video.muted = (video.volume === 0); volumeSlider.value = video.volume; updateVolIcons(); resetAutoHide(); break;
           case 'arrowdown': e.preventDefault(); video.volume = Math.max(0, video.volume - 0.05); video.muted = (video.volume === 0); volumeSlider.value = video.volume; updateVolIcons(); resetAutoHide(); break;
           case 'm': e.preventDefault(); video.muted = !video.muted; volumeSlider.value = video.muted ? 0 : (video.volume || 1); updateVolIcons(); resetAutoHide(); break;
@@ -982,7 +970,7 @@
 
         if (isDirect) {
           video.src = rawUrl;
-          video.play().catch(() => {});
+          video.play().then(() => showToast('Reproduciendo')).catch(() => showToast('Pulsa Play'));
         } else if (isHls) {
           if (video.canPlayType('application/vnd.apple.mpegurl')) {
             video.src = rawUrl;
@@ -999,14 +987,19 @@
                 switch (data.type) {
                   case Hls.ErrorTypes.NETWORK_ERROR: hlsInstance.startLoad(); break;
                   case Hls.ErrorTypes.MEDIA_ERROR: hlsInstance.recoverMediaError(); break;
-                  default: hlsInstance.destroy(); break;
+                  default: hlsInstance.destroy(); showToast('Error HLS'); break;
                 }
               }
             });
+          } else {
+            showToast('HLS no soportado');
           }
         } else {
           video.src = rawUrl;
-          video.play().catch(() => {});
+          video.play().catch(() => showToast('Reproduciendo'));
+          video.onerror = () => {
+            showToast('Error al cargar el vídeo');
+          };
         }
         resetAutoHide();
       }
@@ -1017,9 +1010,8 @@
         pendingUrl = rawUrl;
         urlInput.value = '';
 
+        // Mostrar un título limpio y corto derivado de la URL
         videoTitleDisplay.textContent = getCleanTitle(rawUrl);
-
-        history.pushState({ videoLoaded: true }, '');
 
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
         video.pause();
@@ -1040,6 +1032,7 @@
           mainIframe.src = finalEmbedUrl;
           controlsOverlay.style.display = 'none';
           initialPlayOverlay.classList.add('hidden');
+          showToast('Cargando...');
         } else {
           mainIframe.style.display = 'none';
           mainIframe.src = 'about:blank';
@@ -1048,6 +1041,7 @@
           controlsOverlay.classList.remove('active');
           
           initialPlayOverlay.classList.remove('hidden');
+          showToast('Vídeo listo');
         }
       }
 
