@@ -57,11 +57,60 @@
       height: 100%;
       border: none;
       object-fit: contain;
+      transition: transform 0.2s ease, object-fit 0.2s ease;
+    }
+
+    /* ESTILO ESPEJO AL APLICAR CLASE */
+    video.mirror-mode {
+      transform: scaleX(-1);
     }
 
     iframe {
       display: none;
       z-index: 5;
+    }
+
+    /* ZONAS TÁCTILES PARA DOBLE TAP EN MÓVIL/PC */
+    .touch-zones {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      z-index: 15;
+      pointer-events: auto;
+    }
+
+    .touch-zone-left, .touch-zone-right {
+      flex: 1;
+      height: 100%;
+    }
+
+    /* FEEDBACK VISUAL DEL DOBLE TAP */
+    .tap-feedback {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(168, 85, 247, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 28;
+    }
+
+    .tap-feedback.left { left: 15%; }
+    .tap-feedback.right { right: 15%; }
+
+    .tap-feedback.animate {
+      opacity: 1;
+      transform: translateY(-50%) scale(1.1);
     }
 
     /* MARCA PERSONAL Y TÍTULO LIMPIO DEL VÍDEO */
@@ -160,13 +209,14 @@
       pointer-events: auto;
     }
 
-    /* FILA SUPERIOR CONTROLES (DERECHA) */
+    /* FILA SUPERIOR CONTROLES (DERECHA Y HERRAMIENTAS NUEVAS) */
     .top-controls {
       display: flex;
       justify-content: flex-end;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       width: 100%;
+      flex-wrap: wrap;
     }
 
     /* CONTROLES CENTRALES (ATRASAR - PLAY - ADELANTAR) */
@@ -216,49 +266,12 @@
       width: 100%;
     }
 
-    /* BARRA DESLIZANTE CON BUFFER REAL Y MINIATURA PREVIEW */
+    /* BARRA DESLIZANTE CON BUFFER REAL Y PREVIEW */
     .scrubber-container {
       width: 100%;
       display: flex;
       align-items: center;
       position: relative;
-    }
-
-    .scrubber-thumbnail-preview {
-      position: absolute;
-      bottom: 25px;
-      transform: translateX(-50%);
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      pointer-events: none;
-      z-index: 35;
-    }
-
-    .scrubber-thumbnail-preview.active {
-      display: flex;
-    }
-
-    .scrubber-preview-canvas {
-      width: 140px;
-      height: 78px;
-      border: 2px solid var(--purple-main);
-      border-radius: 6px;
-      background: #000;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8), 0 0 10px rgba(168, 85, 247, 0.4);
-      object-fit: cover;
-    }
-
-    .scrubber-preview-time {
-      font-size: 10px;
-      font-weight: 700;
-      color: #fff;
-      background: rgba(20, 3, 38, 0.9);
-      border: 1px solid rgba(168, 85, 247, 0.5);
-      padding: 2px 6px;
-      border-radius: 4px;
-      margin-top: 4px;
-      font-family: monospace;
     }
 
     .video-scrubber {
@@ -284,6 +297,39 @@
       border: 2px solid var(--purple-main);
       box-shadow: 0 0 8px var(--purple-main);
       cursor: pointer;
+    }
+
+    /* PREVIEW DE MINIATURA EN HOVER DEL SCRUBBER */
+    .scrubber-tooltip {
+      position: absolute;
+      bottom: 14px;
+      transform: translateX(-50%);
+      background: rgba(20, 3, 38, 0.95);
+      border: 1px solid var(--purple-main);
+      border-radius: 6px;
+      padding: 4px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      z-index: 25;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    }
+
+    .scrubber-tooltip canvas {
+      width: 100px;
+      height: 56px;
+      border-radius: 4px;
+      background: #000;
+      object-fit: cover;
+    }
+
+    .scrubber-tooltip span {
+      font-size: 10px;
+      font-family: monospace;
+      color: #e2e8f0;
+      font-weight: 700;
     }
 
     .bottom-row {
@@ -328,11 +374,12 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: background 0.15s, color 0.15s;
     }
 
-    .icon-btn:active {
+    .icon-btn:active, .icon-btn.active {
       background: rgba(168, 85, 247, 0.3);
+      color: var(--purple-main);
     }
 
     .icon-btn svg {
@@ -492,7 +539,6 @@
       flex-direction: column;
       gap: 10px;
       background: var(--purple-deep);
-      flex-grow: 1;
     }
 
     .url-title {
@@ -538,6 +584,92 @@
       font-weight: 600;
       cursor: pointer;
     }
+
+    /* LISTA DE REPRODUCCIÓN - ÚLTIMAS 10 PELÍCULAS/VÍDEOS */
+    .playlist-section {
+      padding: 0 16px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: var(--purple-deep);
+      flex-grow: 1;
+      overflow: hidden;
+    }
+
+    .playlist-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .playlist-title span.clear-btn {
+      font-size: 10px;
+      color: #a855f7;
+      cursor: pointer;
+      text-transform: none;
+    }
+
+    .playlist-grid {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--purple-main) transparent;
+    }
+
+    .playlist-card {
+      min-width: 140px;
+      max-width: 140px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 8px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .playlist-card:hover {
+      background: rgba(168, 85, 247, 0.15);
+      border-color: var(--purple-main);
+    }
+
+    .playlist-card-thumb {
+      width: 100%;
+      height: 70px;
+      background: #0d021a;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .playlist-card-thumb svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--purple-main);
+      opacity: 0.7;
+    }
+
+    .playlist-card-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: #e2e8f0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   </style>
 </head>
 <body>
@@ -547,6 +679,16 @@
     <div class="brand-watermark">JeissoNxP182</div>
     <div class="video-title-display" id="videoTitleDisplay"></div>
 
+    <!-- FEEDBACK DE DOBLE TAP -->
+    <div class="tap-feedback left" id="tapFeedbackLeft">-10s</div>
+    <div class="tap-feedback right" id="tapFeedbackRight">+10s</div>
+
+    <!-- ZONAS DE INTERACCIÓN TÁCTIL (DOBLE TAP) -->
+    <div class="touch-zones" id="touchZones">
+      <div class="touch-zone-left" id="zoneLeft"></div>
+      <div class="touch-zone-right" id="zoneRight"></div>
+    </div>
+
     <!-- CAPA INICIAL EXCLUSIVA (SOLO PLAY GRANDE AL CARGAR) -->
     <div class="initial-play-overlay" id="initialPlayOverlay">
       <button class="btn-initial-play" id="btnInitialPlay" title="Reproducir">
@@ -555,7 +697,7 @@
     </div>
 
     <!-- ELEMENTOS DE VIDEO E IFRAME PERSISTENTES -->
-    <video id="mainVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline></video>
+    <video id="mainVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline crossOrigin="anonymous"></video>
     <iframe id="mainIframe" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
 
     <!-- CAPA DE CONTROLES GENERALES -->
@@ -563,6 +705,16 @@
       
       <!-- ARRIBA A LA DERECHA -->
       <div class="top-controls">
+        <!-- BOTÓN TIJERAS PARA SCREENSHOT -->
+        <button class="icon-btn" id="btnScreenshot" title="Hacer captura de pantalla (Tijeras)">
+          <svg viewBox="0 0 24 24"><path d="M9.64 7.64c.23-.5.36-1.05.36-1.64 0-2.21-1.79-4-4-4S2 3.79 2 6s1.79 4 4 4c.59 0 1.14-.13 1.64-.36L10 12l-2.36 2.36C7.14 14.13 6.59 14 6 14c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4c0-.59-.13-1.14-.36-1.64L12 14l7 7h3v-1L9.64 7.64zM6 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0 12c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm13-8c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zM12 3c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/></svg>
+        </button>
+
+        <!-- BOTÓN ESPEJO CLIP VIDEO -->
+        <button class="icon-btn" id="btnMirror" title="Efecto Espejo (Voltear horizontalmente)">
+          <svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
+        </button>
+
         <button class="icon-btn" id="btnShortcuts" title="Atajos de teclado">
           <svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2H2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-3 0h2v2H5v-2zm0-3h2v2H5V8zm11 10H8v-2h8v2zm1-3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
         </button>
@@ -598,11 +750,11 @@
 
       <!-- ABAJO -->
       <div class="bottom-controls-wrapper">
-        <!-- BARRA DESLIZANTE CON BUFFER REAL Y MINIATURA -->
+        <!-- BARRA DESLIZANTE CON BUFFER REAL Y MINIATURA DE PREVIEW -->
         <div class="scrubber-container" id="scrubberContainer">
-          <div class="scrubber-thumbnail-preview" id="thumbPreview">
-            <canvas class="scrubber-preview-canvas" id="previewCanvas"></canvas>
-            <span class="scrubber-preview-time" id="previewTime">0:00:00</span>
+          <div class="scrubber-tooltip" id="scrubberTooltip">
+            <canvas id="thumbCanvas"></canvas>
+            <span id="thumbTime">0:00:00</span>
           </div>
           <input type="range" class="video-scrubber" id="videoScrubber" min="0" max="100" value="0" step="0.05">
         </div>
@@ -646,7 +798,7 @@
       </div>
     </div>
 
-    <!-- PANELS / MODALES -->
+    <!-- PANELS / MODALES DE CONFIGURACIÓN -->
     <div class="settings-panel" id="settingsPanel">
       <div class="settings-item">
         <span>Calidad</span>
@@ -664,6 +816,27 @@
           <option value="1.25">1.25x</option>
           <option value="1.5">1.5x</option>
           <option value="2">2.0x</option>
+        </select>
+      </div>
+
+      <!-- AJUSTE DE RELACIÓN DE ASPECTO -->
+      <div class="settings-item">
+        <span>Relación de Aspecto</span>
+        <select id="selectAspect">
+          <option value="contain" selected>Ajustar (Original / Contener)</option>
+          <option value="cover">Recortar para llenar (Cover)</option>
+          <option value="fill">Estirar pantalla completa (Fill)</option>
+        </select>
+      </div>
+
+      <!-- MODOS DE SONIDO (WEB AUDIO API) -->
+      <div class="settings-item">
+        <span>Modo de Sonido</span>
+        <select id="selectAudioMode">
+          <option value="stereo" selected>Estéreo Normal</option>
+          <option value="bass">Realce de Graves (Bass Boost)</option>
+          <option value="vocal">Enfoque Vocal / Diálogos</option>
+          <option value="mono">Audio Mono</option>
         </select>
       </div>
 
@@ -714,6 +887,10 @@
           <span class="shortcut-key">P</span>
           <span class="shortcut-desc">Modo PiP (Vídeo flotante)</span>
         </div>
+        <div class="shortcut-card">
+          <span class="shortcut-key">S</span>
+          <span class="shortcut-desc">Captura de pantalla (Screenshot)</span>
+        </div>
       </div>
     </div>
 
@@ -731,6 +908,17 @@
     <div class="input-wrapper">
       <input type="text" id="urlInput" class="url-input" placeholder="Pega tu URL de vídeo aquí..." />
       <button id="btnLoad" class="btn-load">Cargar</button>
+    </div>
+  </div>
+
+  <!-- LISTA DE REPRODUCCIÓN (ÚLTIMOS 10 VÍDEOS) -->
+  <div class="playlist-section">
+    <div class="playlist-title">
+      <span>🎬 Historial Reciente (Últimas 10)</span>
+      <span class="clear-btn" id="btnClearPlaylist">Borrar historial</span>
+    </div>
+    <div class="playlist-grid" id="playlistGrid">
+      <!-- Tarjetas agregadas dinámicamente -->
     </div>
   </div>
 
@@ -763,15 +951,17 @@
 
       const videoScrubber = document.getElementById('videoScrubber');
       const scrubberContainer = document.getElementById('scrubberContainer');
-      const thumbPreview = document.getElementById('thumbPreview');
-      const previewCanvas = document.getElementById('previewCanvas');
-      const previewTime = document.getElementById('previewTime');
+      const scrubberTooltip = document.getElementById('scrubberTooltip');
+      const thumbCanvas = document.getElementById('thumbCanvas');
+      const thumbTime = document.getElementById('thumbTime');
       const currTimeElem = document.getElementById('currTime');
 
       const btnSettings = document.getElementById('btnSettings');
       const settingsPanel = document.getElementById('settingsPanel');
       const selectSpeed = document.getElementById('selectSpeed');
       const selectQuality = document.getElementById('selectQuality');
+      const selectAspect = document.getElementById('selectAspect');
+      const selectAudioMode = document.getElementById('selectAudioMode');
       const optLockScreen = document.getElementById('optLockScreen');
       const lockOverlay = document.getElementById('lockOverlay');
       const btnUnlock = document.getElementById('btnUnlock');
@@ -788,8 +978,20 @@
       const btnPip = document.getElementById('btnPip');
       const btnCast = document.getElementById('btnCast');
 
+      const btnScreenshot = document.getElementById('btnScreenshot');
+      const btnMirror = document.getElementById('btnMirror');
+
       const urlInput = document.getElementById('urlInput');
       const btnLoad = document.getElementById('btnLoad');
+
+      const playlistGrid = document.getElementById('playlistGrid');
+      const btnClearPlaylist = document.getElementById('btnClearPlaylist');
+
+      const touchZones = document.getElementById('touchZones');
+      const zoneLeft = document.getElementById('zoneLeft');
+      const zoneRight = document.getElementById('zoneRight');
+      const tapFeedbackLeft = document.getElementById('tapFeedbackLeft');
+      const tapFeedbackRight = document.getElementById('tapFeedbackRight');
 
       let hlsInstance = null;
       let currentUrl = '';
@@ -798,23 +1000,45 @@
       let isSeeking = false;
       let timeMode = 0;
       let isEmbedMode = false;
+      
+      // Web Audio API & Filtros Ecualizadores
       let audioCtx = null;
+      let audioSource = null;
+      let bassFilter = null;
+      let vocalFilter = null;
 
-      // Elemento de vídeo oculto exclusivamente para extraer los fotogramas del preview
+      // Video secundario en memoria para miniaturas scrubber
       const previewVideo = document.createElement('video');
-      previewVideo.crossOrigin = "anonymous";
-      previewVideo.preload = "metadata";
+      previewVideo.preload = 'auto';
       previewVideo.muted = true;
       previewVideo.playsInline = true;
+      previewVideo.crossOrigin = 'anonymous';
 
-      // Puente Web Audio API corregido para forzar altavoz principal
+      // --- 1. PROCESAMIENTO WEB AUDIO API Y MODOS DE SONIDO ---
       function initAudioRouting() {
         if (!audioCtx) {
           try {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             audioCtx = new AudioContext({ latencyHint: 'playback' });
-            const source = audioCtx.createMediaElementSource(video);
-            source.connect(audioCtx.destination);
+            audioSource = audioCtx.createMediaElementSource(video);
+
+            // Filtro para realce de graves (Bass Boost)
+            bassFilter = audioCtx.createBiquadFilter();
+            bassFilter.type = 'lowshelf';
+            bassFilter.frequency.value = 200;
+            bassFilter.gain.value = 0;
+
+            // Filtro para realce de voz (Vocal Peak)
+            vocalFilter = audioCtx.createBiquadFilter();
+            vocalFilter.type = 'peaking';
+            vocalFilter.frequency.value = 2500;
+            vocalFilter.Q.value = 1;
+            vocalFilter.gain.value = 0;
+
+            // Encadenamiento
+            audioSource.connect(bassFilter);
+            bassFilter.connect(vocalFilter);
+            vocalFilter.connect(audioCtx.destination);
           } catch (err) {}
         }
         if (audioCtx && audioCtx.state === 'suspended') {
@@ -822,11 +1046,178 @@
         }
       }
 
-      // Gestión de historia (Botón atrás para cerrar reproductor)
-      window.addEventListener('popstate', (e) => {
-        if (currentUrl) {
-          unloadVideoInternal();
+      selectAudioMode.addEventListener('change', (e) => {
+        initAudioRouting();
+        if (!bassFilter || !vocalFilter) return;
+        const mode = e.target.value;
+        
+        if (mode === 'bass') {
+          bassFilter.gain.value = 10;
+          vocalFilter.gain.value = 0;
+        } else if (mode === 'vocal') {
+          bassFilter.gain.value = -3;
+          vocalFilter.gain.value = 8;
+        } else {
+          bassFilter.gain.value = 0;
+          vocalFilter.gain.value = 0;
         }
+      });
+
+      // --- 2. GESTIÓN DE HISTORIAL (ÚLTIMAS 10 PELÍCULAS) ---
+      function getHistory() {
+        try {
+          return JSON.parse(localStorage.getItem('jn_player_history') || '[]');
+        } catch { return []; }
+      }
+
+      function addToHistory(url) {
+        if (!url) return;
+        let history = getHistory();
+        history = history.filter(item => item.url !== url);
+        history.unshift({
+          url: url,
+          title: getCleanTitle(url),
+          date: new Date().toLocaleDateString()
+        });
+        if (history.length > 10) history = history.slice(0, 10);
+        localStorage.setItem('jn_player_history', JSON.stringify(history));
+        renderPlaylist();
+      }
+
+      function renderPlaylist() {
+        const history = getHistory();
+        playlistGrid.innerHTML = '';
+
+        if (history.length === 0) {
+          playlistGrid.innerHTML = '<div style="font-size:12px; color:#64748b;">No hay películas o vídeos en tu historial.</div>';
+          return;
+        }
+
+        history.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'playlist-card';
+          card.innerHTML = `
+            <div class="playlist-card-thumb">
+              <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+            </div>
+            <div class="playlist-card-name" title="${item.title}">${item.title}</div>
+          `;
+          card.addEventListener('click', () => {
+            loadVideo(item.url);
+          });
+          playlistGrid.appendChild(card);
+        });
+      }
+
+      btnClearPlaylist.addEventListener('click', () => {
+        localStorage.removeItem('jn_player_history');
+        renderPlaylist();
+      });
+
+      // --- 3. DOBLE TAP (10S ADELANTE / ATRÁS) EN MÓVIL Y PC ---
+      let lastTapLeft = 0;
+      let lastTapRight = 0;
+
+      zoneLeft.addEventListener('click', (e) => {
+        const now = Date.now();
+        if (now - lastTapLeft < 300) {
+          e.stopPropagation();
+          if (!isEmbedMode) seekVideo(Math.max(0, video.currentTime - 10));
+          showTapFeedback(tapFeedbackLeft);
+          resetAutoHide();
+        } else {
+          handlePlayerClick(e);
+        }
+        lastTapLeft = now;
+      });
+
+      zoneRight.addEventListener('click', (e) => {
+        const now = Date.now();
+        if (now - lastTapRight < 300) {
+          e.stopPropagation();
+          if (!isEmbedMode) seekVideo(Math.min(video.duration || 0, video.currentTime + 10));
+          showTapFeedback(tapFeedbackRight);
+          resetAutoHide();
+        } else {
+          handlePlayerClick(e);
+        }
+        lastTapRight = now;
+      });
+
+      function showTapFeedback(elem) {
+        elem.classList.add('animate');
+        setTimeout(() => elem.classList.remove('animate'), 400);
+      }
+
+      // --- 4. BOTONES ESPEJO Y TIJERAS (SCREENSHOT) ---
+      btnMirror.addEventListener('click', (e) => {
+        e.stopPropagation();
+        video.classList.toggle('mirror-mode');
+        btnMirror.classList.toggle('active');
+      });
+
+      btnScreenshot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (isEmbedMode || !video.videoWidth) return;
+        
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+
+          if (video.classList.contains('mirror-mode')) {
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+          }
+
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          
+          const a = document.createElement('a');
+          a.download = `screenshot_${getCleanTitle(currentUrl)}_${Math.floor(video.currentTime)}s.png`;
+          a.href = canvas.toDataURL('image/png');
+          a.click();
+        } catch (err) {
+          alert('No se pudo generar la captura por restricciones de CORS en este vídeo externo.');
+        }
+      });
+
+      // --- 5. PREVIEW EN SCRUBBER (MINIATURA AL PASAR EL CURSOR) ---
+      scrubberContainer.addEventListener('mousemove', (e) => {
+        if (isEmbedMode || !video.duration) return;
+        const rect = videoScrubber.getBoundingClientRect();
+        const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        const targetTime = pos * video.duration;
+
+        scrubberTooltip.style.left = `${pos * 100}%`;
+        scrubberTooltip.style.display = 'flex';
+        thumbTime.textContent = formatHMS(targetTime);
+
+        if (previewVideo.src !== video.src) previewVideo.src = video.src;
+        previewVideo.currentTime = targetTime;
+      });
+
+      previewVideo.addEventListener('seeked', () => {
+        const ctx = thumbCanvas.getContext('2d');
+        thumbCanvas.width = 100;
+        thumbCanvas.height = 56;
+        try {
+          ctx.drawImage(previewVideo, 0, 0, thumbCanvas.width, thumbCanvas.height);
+        } catch(e) {}
+      });
+
+      scrubberContainer.addEventListener('mouseleave', () => {
+        scrubberTooltip.style.display = 'none';
+      });
+
+      // RELACIÓN DE ASPECTO
+      selectAspect.addEventListener('change', (e) => {
+        video.style.objectFit = e.target.value;
+      });
+
+      // --- SISTEMA ORIGINAL DEL REPRODUCTOR (MANTENIDO ÍNTEGRO) ---
+      window.addEventListener('popstate', (e) => {
+        if (currentUrl) unloadVideoInternal();
       });
 
       function unloadVideoInternal() {
@@ -836,8 +1227,6 @@
         video.pause();
         video.removeAttribute('src');
         video.load();
-        previewVideo.removeAttribute('src');
-        previewVideo.load();
         video.style.display = 'block';
         mainIframe.style.display = 'none';
         mainIframe.src = 'about:blank';
@@ -927,7 +1316,7 @@
         else video.currentTime = timeSec;
       }
 
-      playerWrapper.addEventListener('click', (e) => {
+      function handlePlayerClick(e) {
         if (isEmbedMode || !initialPlayOverlay.classList.contains('hidden')) return;
         if (e.target.closest('.controls-overlay') || e.target.closest('.settings-panel') || e.target.closest('.shortcuts-panel') || e.target.closest('.lock-overlay')) {
           if (e.target === controlsOverlay) {
@@ -944,7 +1333,7 @@
           controlsOverlay.classList.add('active');
           resetAutoHide();
         }
-      });
+      }
 
       btnCast.addEventListener('click', async (e) => {
         e.stopPropagation();
@@ -991,53 +1380,8 @@
         videoScrubber.style.background = `linear-gradient(to right, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) ${bufPct}%, rgba(255, 255, 255, 0.2) ${bufPct}%, rgba(255, 255, 255, 0.2) 100%)`;
       }
 
-      /* LÓGICA COMPLETA Y AJUSTADA DE MINIATURA PREVIEW */
-      function handleScrubberHover(e) {
-        if (isEmbedMode || !video.duration) return;
-        
-        const rect = videoScrubber.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        let offsetX = clientX - rect.left;
-        offsetX = Math.max(0, Math.min(offsetX, rect.width));
-        
-        const pct = offsetX / rect.width;
-        const targetTime = pct * video.duration;
-
-        thumbPreview.style.left = `${offsetX}px`;
-        previewTime.textContent = formatHMS(targetTime);
-        thumbPreview.classList.add('active');
-
-        // Búsqueda del fotograma en el vídeo oculto
-        if (previewVideo.src) {
-          previewVideo.currentTime = targetTime;
-        }
-      }
-
-      previewVideo.addEventListener('seeked', () => {
-        const ctx = previewCanvas.getContext('2d');
-        previewCanvas.width = previewVideo.videoWidth || 140;
-        previewCanvas.height = previewVideo.videoHeight || 78;
-        ctx.drawImage(previewVideo, 0, 0, previewCanvas.width, previewCanvas.height);
-      });
-
-      function hideScrubberThumb() {
-        thumbPreview.classList.remove('active');
-      }
-
-      videoScrubber.addEventListener('pointerdown', (e) => { e.stopPropagation(); isSeeking = true; handleScrubberHover(e); });
-      videoScrubber.addEventListener('pointermove', (e) => { e.stopPropagation(); handleScrubberHover(e); });
-      videoScrubber.addEventListener('pointerup', hideScrubberThumb);
-      videoScrubber.addEventListener('pointerleave', hideScrubberThumb);
-      videoScrubber.addEventListener('touchmove', handleScrubberHover);
-      videoScrubber.addEventListener('touchend', hideScrubberThumb);
-
-      videoScrubber.addEventListener('input', (e) => { 
-        e.stopPropagation(); 
-        isSeeking = true; 
-        const targetTime = (parseFloat(videoScrubber.value) / 100) * (video.duration || 0); 
-        if (timeMode === 0) currTimeElem.textContent = formatHMS(targetTime); 
-        else if (timeMode === 1) currTimeElem.textContent = "-" + formatHMS((video.duration || 0) - targetTime); 
-      });
+      videoScrubber.addEventListener('pointerdown', (e) => { e.stopPropagation(); isSeeking = true; });
+      videoScrubber.addEventListener('input', (e) => { e.stopPropagation(); isSeeking = true; const targetTime = (parseFloat(videoScrubber.value) / 100) * (video.duration || 0); if (timeMode === 0) currTimeElem.textContent = formatHMS(targetTime); else if (timeMode === 1) currTimeElem.textContent = "-" + formatHMS((video.duration || 0) - targetTime); });
       videoScrubber.addEventListener('change', (e) => { e.stopPropagation(); if (!isEmbedMode && video.duration) seekVideo((parseFloat(videoScrubber.value) / 100) * video.duration); isSeeking = false; resetAutoHide(); });
 
       btnSettings.addEventListener('click', (e) => { e.stopPropagation(); settingsPanel.classList.toggle('active'); shortcutsPanel.classList.remove('active'); });
@@ -1064,6 +1408,7 @@
           case 'm': e.preventDefault(); video.muted = !video.muted; volumeSlider.value = video.muted ? 0 : (video.volume || 1); updateVolIcons(); resetAutoHide(); break;
           case 'f': e.preventDefault(); btnFullscreen.click(); break;
           case 'p': e.preventDefault(); btnPip.click(); break;
+          case 's': e.preventDefault(); btnScreenshot.click(); break;
         }
       });
 
@@ -1074,12 +1419,10 @@
 
         if (isDirect) {
           video.src = rawUrl;
-          previewVideo.src = rawUrl;
           video.play().catch(() => {});
         } else if (isHls) {
           if (video.canPlayType('application/vnd.apple.mpegurl')) {
             video.src = rawUrl;
-            previewVideo.src = rawUrl;
             video.play().catch(() => {});
           } else if (Hls.isSupported()) {
             hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
@@ -1100,7 +1443,6 @@
           }
         } else {
           video.src = rawUrl;
-          previewVideo.src = rawUrl;
           video.play().catch(() => {});
         }
         resetAutoHide();
@@ -1112,9 +1454,9 @@
         pendingUrl = rawUrl;
         urlInput.value = '';
 
+        addToHistory(rawUrl);
         videoTitleDisplay.textContent = getCleanTitle(rawUrl);
 
-        // Añadimos al historial para que el botón atrás funcione
         history.pushState({ videoLoaded: true }, '');
 
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
@@ -1122,9 +1464,6 @@
         video.onerror = null;
         video.removeAttribute('src');
         video.load();
-        
-        previewVideo.removeAttribute('src');
-        previewVideo.load();
 
         const cleanUrl = rawUrl.toLowerCase();
         isEmbedMode = cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be') || cleanUrl.includes('embed') || cleanUrl.includes('drive.google.com');
@@ -1153,6 +1492,8 @@
       btnLoad.addEventListener('click', () => loadVideo(urlInput.value.trim()));
       urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadVideo(urlInput.value.trim()); });
       
+      renderPlaylist();
+
       const urlParams = new URLSearchParams(window.location.search);
       const videoParam = urlParams.get('url');
       if (videoParam) {
