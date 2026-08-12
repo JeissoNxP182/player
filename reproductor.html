@@ -754,18 +754,28 @@
       let timeMode = 0;
       let isEmbedMode = false;
 
-      // Función para anclar el audio al perfil Multimedia (evita modo llamada/manos libres)
+      // Variables para Web Audio API (Enrutamiento estricto multimedia)
+      let audioCtx = null;
+      let mediaSourceConnected = false;
+
       function forceMediaAudioContext() {
         try {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          if (AudioContext) {
-            const audioCtx = new AudioContext();
-            const oscillator = audioCtx.createOscillator();
-            oscillator.connect(audioCtx.destination);
-            oscillator.start(0);
-            oscillator.stop(0.01);
+          if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
           }
-        } catch (e) {}
+          if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+          // Conectar el elemento video directamente al contexto de audio web para forzar canal A2DP/Multimedia
+          if (!mediaSourceConnected) {
+            const source = audioCtx.createMediaElementSource(video);
+            source.connect(audioCtx.destination);
+            mediaSourceConnected = true;
+          }
+        } catch (e) {
+          console.log("Audio routing bypass active", e);
+        }
       }
 
       // Gestión de historia (Botón atrás para cerrar reproductor)
@@ -826,7 +836,7 @@
 
       btnInitialPlay.addEventListener('click', (e) => {
         e.stopPropagation();
-        forceMediaAudioContext(); // <-- Forzar perfil multimedia aquí
+        forceMediaAudioContext(); // <-- Enrutamiento estricto a los audífonos al tocar play
         initialPlayOverlay.classList.add('hidden');
         if (pendingUrl) {
           actualLoadAndPlay(pendingUrl);
