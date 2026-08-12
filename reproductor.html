@@ -755,12 +755,13 @@
       let isEmbedMode = false;
       let audioCtx = null;
 
-      // Puente Web Audio API para forzar salida exclusiva por el Altavoz multimedia (evita earpiece / altavoz de llamada)
+      // Puente Web Audio API corregido para forzar altavoz principal
       function initAudioRouting() {
         if (!audioCtx) {
           try {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
-            audioCtx = new AudioContext();
+            // { latencyHint: 'playback' } fuerza el canal multimedia en móviles
+            audioCtx = new AudioContext({ latencyHint: 'playback' });
             const source = audioCtx.createMediaElementSource(video);
             source.connect(audioCtx.destination);
           } catch (err) {}
@@ -770,10 +771,9 @@
         }
       }
 
-      // Gestión limpia del historial (Botón atrás)
+      // Gestión de historia (Botón atrás para cerrar reproductor)
       window.addEventListener('popstate', (e) => {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (!urlParams.get('url') && currentUrl) {
+        if (currentUrl) {
           unloadVideoInternal();
         }
       });
@@ -788,7 +788,6 @@
         video.style.display = 'block';
         mainIframe.style.display = 'none';
         mainIframe.src = 'about:blank';
-        controlsOverlay.style.display = 'flex';
         controlsOverlay.classList.remove('active');
         initialPlayOverlay.classList.remove('hidden');
         videoTitleDisplay.textContent = '';
@@ -861,7 +860,6 @@
       video.addEventListener('timeupdate', () => { if (!isSeeking) updateUI(); });
       video.addEventListener('progress', updateUI);
 
-      // Sincronización automática de volumen con los botones físicos del celular
       video.addEventListener('volumechange', () => {
         volumeSlider.value = video.muted ? 0 : video.volume;
         updateVolIcons();
@@ -1015,9 +1013,8 @@
 
         videoTitleDisplay.textContent = getCleanTitle(rawUrl);
 
-        if (!window.location.search.includes('url=')) {
-          history.pushState({ videoLoaded: true }, '', '?url=' + encodeURIComponent(rawUrl));
-        }
+        // Añadimos al historial para que el botón atrás funcione
+        history.pushState({ videoLoaded: true }, '');
 
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
         video.pause();
