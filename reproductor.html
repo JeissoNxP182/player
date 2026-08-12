@@ -1,181 +1,1035 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
 <meta charset="UTF-8">
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+>
 
 <title>Reproductor</title>
 
-<!-- HLS.js -->
+
+<!-- =====================================================
+     HLS.JS
+===================================================== -->
+
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17"></script>
+
 
 <style>
 
-    * {
-        box-sizing: border-box;
-    }
+/* =====================================================
+   BASE
+===================================================== */
 
-    html,
-    body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        min-height: 100%;
-    }
+* {
+    box-sizing: border-box;
+}
 
-    body {
-        background: #140326;
-        color: #ffffff;
-        font-family: Arial, Helvetica, sans-serif;
-    }
+html,
+body {
+    margin: 0;
+    padding: 0;
 
-    /* ==============================
-       CONTENEDOR
-    ============================== */
+    width: 100%;
+    min-height: 100%;
+
+    background: #140326;
+}
+
+body {
+
+    color: #ffffff;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+
+/* =====================================================
+   CONTENEDOR
+===================================================== */
+
+.container {
+
+    width: 100%;
+
+    max-width: 900px;
+
+    margin: 0 auto;
+
+    padding: 15px;
+}
+
+
+/* =====================================================
+   REPRODUCTOR
+===================================================== */
+
+.player {
+
+    position: relative;
+
+    width: 100%;
+
+    background: #000000;
+
+    border: 1px solid #6b21a8;
+
+    overflow: hidden;
+}
+
+
+/* =====================================================
+   VIDEO
+===================================================== */
+
+video {
+
+    display: block;
+
+    width: 100%;
+
+    height: auto;
+
+    min-height: 220px;
+
+    background: #000000;
+
+    object-fit: contain;
+
+    transition:
+        object-fit .2s ease,
+        aspect-ratio .2s ease;
+}
+
+
+/* =====================================================
+   RELACIONES DE ASPECTO
+===================================================== */
+
+.player.aspect-auto video {
+
+    object-fit: contain;
+
+}
+
+
+.player.aspect-169 video {
+
+    aspect-ratio: 16 / 9;
+
+    object-fit: contain;
+
+}
+
+
+.player.aspect-43 video {
+
+    aspect-ratio: 4 / 3;
+
+    object-fit: contain;
+
+}
+
+
+.player.aspect-expand video {
+
+    aspect-ratio: auto;
+
+    object-fit: cover;
+
+}
+
+
+.player.aspect-stretch video {
+
+    aspect-ratio: auto;
+
+    object-fit: fill;
+
+}
+
+
+/* =====================================================
+   BOTÓN DE CONFIGURACIÓN
+===================================================== */
+
+.settings-button {
+
+    position: absolute;
+
+    top: 10px;
+
+    right: 10px;
+
+    z-index: 50;
+
+    width: 38px;
+
+    height: 38px;
+
+    border: 1px solid rgba(255,255,255,.35);
+
+    border-radius: 50%;
+
+    background: rgba(20,3,38,.85);
+
+    color: #ffffff;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    cursor: pointer;
+
+    font-size: 21px;
+
+    line-height: 1;
+
+    backdrop-filter: blur(5px);
+
+    -webkit-backdrop-filter: blur(5px);
+
+    transition:
+        background .15s ease,
+        transform .15s ease;
+}
+
+
+.settings-button:hover {
+
+    background: #6b21a8;
+
+}
+
+
+.settings-button:active {
+
+    transform: scale(.92);
+
+}
+
+
+.settings-button.active {
+
+    background: #7e22ce;
+
+}
+
+
+/* =====================================================
+   PANEL DE CONFIGURACIÓN
+===================================================== */
+
+.settings-panel {
+
+    position: absolute;
+
+    top: 55px;
+
+    right: 10px;
+
+    z-index: 60;
+
+    width: 245px;
+
+    max-width: calc(100% - 20px);
+
+    max-height: calc(100% - 65px);
+
+    overflow-y: auto;
+
+    background: #1b0633;
+
+    border: 1px solid #7e22ce;
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 10px 35px rgba(0,0,0,.7);
+
+    display: none;
+}
+
+
+.settings-panel.open {
+
+    display: block;
+
+}
+
+
+/* =====================================================
+   SCROLL PANEL
+===================================================== */
+
+.settings-panel::-webkit-scrollbar {
+
+    width: 5px;
+
+}
+
+
+.settings-panel::-webkit-scrollbar-thumb {
+
+    background: #6b21a8;
+
+    border-radius: 5px;
+
+}
+
+
+/* =====================================================
+   TÍTULO PANEL
+===================================================== */
+
+.settings-header {
+
+    padding: 12px;
+
+    border-bottom:
+        1px solid rgba(168,85,247,.25);
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+}
+
+
+/* =====================================================
+   OPCIONES
+===================================================== */
+
+.setting-group {
+
+    padding: 9px 0;
+
+    border-bottom:
+        1px solid rgba(168,85,247,.12);
+}
+
+
+.setting-group:last-child {
+
+    border-bottom: none;
+
+}
+
+
+.setting-title {
+
+    padding:
+        4px 12px 7px;
+
+    color: #c084fc;
+
+    font-size: 11px;
+
+    text-transform: uppercase;
+
+    letter-spacing: .4px;
+}
+
+
+.setting-option {
+
+    width: 100%;
+
+    min-height: 38px;
+
+    padding:
+        8px 12px;
+
+    border: none;
+
+    background: transparent;
+
+    color: #ffffff;
+
+    text-align: left;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+}
+
+
+.setting-option:hover {
+
+    background: rgba(168,85,247,.15);
+
+}
+
+
+.setting-option:active {
+
+    background: rgba(168,85,247,.25);
+
+}
+
+
+.setting-option.selected {
+
+    color: #c084fc;
+
+    background:
+        rgba(168,85,247,.12);
+
+}
+
+
+.setting-check {
+
+    color: #a855f7;
+
+    font-weight: bold;
+
+}
+
+
+/* =====================================================
+   BLOQUEO
+===================================================== */
+
+.lock-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 100;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: transparent;
+
+}
+
+
+.lock-overlay.active {
+
+    display: flex;
+
+}
+
+
+.lock-message {
+
+    padding:
+        8px 13px;
+
+    border-radius: 20px;
+
+    background:
+        rgba(0,0,0,.65);
+
+    color: #ffffff;
+
+    font-size: 12px;
+
+    pointer-events: none;
+
+}
+
+
+/* =====================================================
+   ICONO BLOQUEO
+===================================================== */
+
+.lock-indicator {
+
+    position: absolute;
+
+    top: 10px;
+
+    left: 10px;
+
+    z-index: 110;
+
+    display: none;
+
+    width: 34px;
+
+    height: 34px;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        rgba(20,3,38,.85);
+
+    border:
+        1px solid rgba(255,255,255,.3);
+
+    font-size: 16px;
+
+    pointer-events: none;
+}
+
+
+.lock-indicator.active {
+
+    display: flex;
+
+}
+
+
+/* =====================================================
+   CAJA URL
+===================================================== */
+
+.url-box {
+
+    margin-top: 15px;
+
+    padding: 12px;
+
+    background: #1b0633;
+
+    border: 1px solid #6b21a8;
+}
+
+
+/* =====================================================
+   INPUT
+===================================================== */
+
+.url-input {
+
+    width: 100%;
+
+    height: 42px;
+
+    padding: 0 10px;
+
+    background: #0c0118;
+
+    color: #ffffff;
+
+    border: 1px solid #7e22ce;
+
+    outline: none;
+
+    font-size: 14px;
+}
+
+
+.url-input:focus {
+
+    border-color: #a855f7;
+
+}
+
+
+.url-input::placeholder {
+
+    color: #8b7a99;
+
+}
+
+
+/* =====================================================
+   BOTÓN CARGAR
+===================================================== */
+
+.load-button {
+
+    width: 100%;
+
+    height: 42px;
+
+    margin-top: 8px;
+
+    background: #7e22ce;
+
+    color: #ffffff;
+
+    border: 1px solid #a855f7;
+
+    cursor: pointer;
+
+    font-size: 14px;
+
+    font-weight: bold;
+}
+
+
+.load-button:active {
+
+    background: #6b21a8;
+
+}
+
+
+/* =====================================================
+   ESTADO
+===================================================== */
+
+.status {
+
+    margin-top: 8px;
+
+    font-size: 12px;
+
+    color: #c084fc;
+
+    min-height: 18px;
+
+}
+
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+.error {
+
+    margin-top: 8px;
+
+    font-size: 12px;
+
+    color: #f87171;
+
+    display: none;
+}
+
+
+.error.show {
+
+    display: block;
+
+}
+
+
+/* =====================================================
+   MODO BLOQUEADO
+===================================================== */
+
+.player.locked video {
+
+    pointer-events: none;
+
+}
+
+
+.player.locked .settings-button {
+
+    display: none;
+
+}
+
+
+/* =====================================================
+   MÓVIL
+===================================================== */
+
+@media(max-width:600px) {
 
     .container {
-        width: 100%;
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 15px;
+
+        padding: 8px;
+
     }
 
-    /* ==============================
-       REPRODUCTOR
-    ============================== */
+    .settings-panel {
 
-    .player {
-        width: 100%;
-        background: #000000;
-        border: 1px solid #6b21a8;
+        width: 230px;
+
     }
 
     video {
-        display: block;
-        width: 100%;
-        height: auto;
-        min-height: 220px;
-        background: #000000;
+
+        min-height: 200px;
+
     }
 
-    /* ==============================
-       CAJA URL
-    ============================== */
-
-    .url-box {
-        margin-top: 15px;
-        padding: 12px;
-        background: #1b0633;
-        border: 1px solid #6b21a8;
-    }
-
-    .url-input {
-        width: 100%;
-        height: 42px;
-        padding: 0 10px;
-
-        background: #0c0118;
-        color: #ffffff;
-
-        border: 1px solid #7e22ce;
-        outline: none;
-
-        font-size: 14px;
-    }
-
-    .url-input:focus {
-        border-color: #a855f7;
-    }
-
-    .url-input::placeholder {
-        color: #8b7a99;
-    }
-
-    /* ==============================
-       BOTÓN
-    ============================== */
-
-    .load-button {
-        width: 100%;
-        height: 42px;
-
-        margin-top: 8px;
-
-        background: #7e22ce;
-        color: #ffffff;
-
-        border: 1px solid #a855f7;
-
-        cursor: pointer;
-
-        font-size: 14px;
-        font-weight: bold;
-    }
-
-    .load-button:active {
-        background: #6b21a8;
-    }
-
-    /* ==============================
-       ESTADO
-    ============================== */
-
-    .status {
-        margin-top: 8px;
-
-        font-size: 12px;
-        color: #c084fc;
-
-        min-height: 18px;
-    }
-
-    /* ==============================
-       ERROR
-    ============================== */
-
-    .error {
-        margin-top: 8px;
-
-        font-size: 12px;
-        color: #f87171;
-
-        display: none;
-    }
-
-    .error.show {
-        display: block;
-    }
+}
 
 </style>
+
 </head>
+
 
 <body>
 
+
 <div class="container">
 
-    <!-- ==========================
-         REPRODUCTOR
-    =========================== -->
 
-    <div class="player">
+    <!-- =================================================
+         REPRODUCTOR
+    ================================================== -->
+
+    <div
+        class="player aspect-auto"
+        id="player"
+    >
+
+
+        <!-- VIDEO -->
 
         <video
             id="video"
             controls
             playsinline
-            preload="metadata">
-        </video>
+            preload="metadata"
+        ></video>
+
+
+        <!-- =================================================
+             BOTÓN TUERCA
+        ================================================== -->
+
+        <button
+            class="settings-button"
+            id="settingsButton"
+            type="button"
+            aria-label="Configuración"
+        >
+            ⚙
+        </button>
+
+
+        <!-- =================================================
+             PANEL DE CONFIGURACIÓN
+        ================================================== -->
+
+        <div
+            class="settings-panel"
+            id="settingsPanel"
+        >
+
+
+            <div class="settings-header">
+                Configuración
+            </div>
+
+
+            <!-- =============================================
+                 CALIDAD
+            ============================================== -->
+
+            <div class="setting-group">
+
+                <div class="setting-title">
+                    Calidad
+                </div>
+
+                <div id="qualityOptions">
+
+                    <button
+                        class="setting-option selected"
+                        type="button"
+                        data-quality="-1"
+                    >
+
+                        <span>
+                            Automático
+                        </span>
+
+                        <span class="setting-check">
+                            ✓
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =============================================
+                 VELOCIDAD
+            ============================================== -->
+
+            <div class="setting-group">
+
+                <div class="setting-title">
+                    Velocidad
+                </div>
+
+
+                <button
+                    class="setting-option"
+                    type="button"
+                    data-speed="0.25"
+                >
+                    <span>0.25× Lento</span>
+                    <span></span>
+                </button>
+
+
+                <button
+                    class="setting-option"
+                    type="button"
+                    data-speed="0.5"
+                >
+                    <span>0.5× Muy lento</span>
+                    <span></span>
+                </button>
+
+
+                <button
+                    class="setting-option"
+                    type="button"
+                    data-speed="0.75"
+                >
+                    <span>0.75×</span>
+                    <span></span>
+                </button>
+
+
+                <button
+                    class="setting-option selected"
+                    type="button"
+                    data-speed="1"
+                >
+                    <span>1× Normal</span>
+                    <span class="setting-check">✓</span>
+                </button>
+
+
+                <button
+                    class="setting-option"
+                    type="button"
+                    data-speed="1.25"
+                >
+                    <span>1.25×</span>
+                    <span></span>
+                </button>
+
+
+                <button
+                    class="setting-option"
+                    type="button"
+                    data-speed="1.5"
+                >
+                    <span>1.5× Rápido</span>
+                    <span></span>
+                </button>
+
+
+                <button
+                    class="setting-option"
+                    type="button"
+                    data-speed="1.75"
+                >
+                    <span>1.75×</span>
+                    <span></span>
+                </button>
+
+
+                <button
+                    class="setting-option"
+                    type="button"
+                    data-speed="2"
+                >
+                    <span>2× Muy rápido</span>
+                    <span></span>
+                </button>
+
+            </div>
+
+
+            <!-- =============================================
+                 ASPECTO
+            ============================================== -->
+
+            <div class="setting-group">
+
+                <div class="setting-title">
+                    Relación de aspecto
+                </div>
+
+
+                <button
+                    class="setting-option selected"
+                    type="button"
+                    data-aspect="auto"
+                >
+                    <span>Automático</span>
+                    <span class="setting-check">✓</span>
+                </button>
+
+
+                <button
+                    class="setting-option"
+                    type="button"
+                    data-aspect="169"
+                >
+                    <span>16:9</span>
+                    <span></span>
+                </button>
+
+
+                <button
+                    class="setting-option"
+                    type="button"
+                    data-aspect="43"
+                >
+                    <span>4:3</span>
+                    <span></span>
+                </button>
+
+
+                <button
+                    class="setting-option"
+                    type="button"
+                    data-aspect="expand"
+                >
+                    <span>Expandir</span>
+                    <span></span>
+                </button>
+
+
+                <button
+                    class="setting-option"
+                    type="button"
+                    data-aspect="stretch"
+                >
+                    <span>Estirar</span>
+                    <span></span>
+                </button>
+
+            </div>
+
+
+            <!-- =============================================
+                 SONIDO
+            ============================================== -->
+
+            <div class="setting-group">
+
+                <div class="setting-title">
+                    Sonido
+                </div>
+
+
+                <button
+                    class="setting-option selected"
+                    type="button"
+                    data-audio="normal"
+                >
+                    <span>Normal</span>
+                    <span class="setting-check">✓</span>
+                </button>
+
+
+                <button
+                    class="setting-option"
+                    type="button"
+                    data-audio="bass"
+                >
+                    <span>Aumento de bajos</span>
+                    <span></span>
+                </button>
+
+
+                <button
+                    class="setting-option"
+                    type="button"
+                    data-audio="spatial"
+                >
+                    <span>Sonido espacial</span>
+                    <span></span>
+                </button>
+
+
+                <button
+                    class="setting-option"
+                    type="button"
+                    data-audio="surround"
+                >
+                    <span>Sonido envolvente</span>
+                    <span></span>
+                </button>
+
+            </div>
+
+
+            <!-- =============================================
+                 BLOQUEAR
+            ============================================== -->
+
+            <div class="setting-group">
+
+                <button
+                    class="setting-option"
+                    id="lockButton"
+                    type="button"
+                >
+
+                    <span>
+                        🔒 Bloquear pantalla
+                    </span>
+
+                    <span></span>
+
+                </button>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             INDICADOR BLOQUEO
+        ================================================== -->
+
+        <div
+            class="lock-indicator"
+            id="lockIndicator"
+        >
+            🔒
+        </div>
+
+
+        <div
+            class="lock-overlay"
+            id="lockOverlay"
+        >
+
+            <div class="lock-message">
+                Pantalla bloqueada · mantén pulsado para desbloquear
+            </div>
+
+        </div>
+
 
     </div>
 
 
-    <!-- ==========================
+    <!-- =================================================
          URL
-    =========================== -->
+    ================================================== -->
 
     <div class="url-box">
+
 
         <input
             id="urlInput"
@@ -186,23 +1040,30 @@
             spellcheck="false"
         >
 
+
         <button
             id="loadButton"
-            class="load-button">
+            class="load-button"
+            type="button"
+        >
             Cargar
         </button>
 
+
         <div
             id="status"
-            class="status">
-        </div>
+            class="status"
+        ></div>
+
 
         <div
             id="error"
-            class="error">
-        </div>
+            class="error"
+        ></div>
+
 
     </div>
+
 
 </div>
 
@@ -212,12 +1073,15 @@
 "use strict";
 
 
-/* ==========================================
+/* =====================================================
    ELEMENTOS
-========================================== */
+===================================================== */
 
 const video =
     document.getElementById("video");
+
+const player =
+    document.getElementById("player");
 
 const urlInput =
     document.getElementById("urlInput");
@@ -231,17 +1095,64 @@ const status =
 const error =
     document.getElementById("error");
 
+const settingsButton =
+    document.getElementById("settingsButton");
 
-/* ==========================================
-   HLS
-========================================== */
+const settingsPanel =
+    document.getElementById("settingsPanel");
+
+const lockButton =
+    document.getElementById("lockButton");
+
+const lockOverlay =
+    document.getElementById("lockOverlay");
+
+const lockIndicator =
+    document.getElementById("lockIndicator");
+
+const qualityOptions =
+    document.getElementById("qualityOptions");
+
+
+/* =====================================================
+   VARIABLES
+===================================================== */
 
 let hls = null;
 
+let currentUrl = "";
 
-/* ==========================================
+let currentQuality = -1;
+
+let currentSpeed = 1;
+
+let currentAspect = "auto";
+
+let currentAudio = "normal";
+
+let isLocked = false;
+
+
+/* =====================================================
+   AUDIO WEB AUDIO API
+===================================================== */
+
+let audioContext = null;
+
+let sourceNode = null;
+
+let bassFilter = null;
+
+let stereoNode = null;
+
+let surroundDelay = null;
+
+let audioGain = null;
+
+
+/* =====================================================
    ESTADO
-========================================== */
+===================================================== */
 
 function setStatus(text) {
 
@@ -268,38 +1179,50 @@ function hideError() {
 }
 
 
-/* ==========================================
-   DESTRUIR HLS ANTERIOR
-========================================== */
+/* =====================================================
+   DESTRUIR HLS
+===================================================== */
 
 function destroyHLS() {
 
     if (!hls) {
+
         return;
+
     }
 
+
     try {
+
         hls.destroy();
+
     } catch (e) {
+
         console.warn(e);
+
     }
+
 
     hls = null;
 
 }
 
 
-/* ==========================================
-   LIMPIAR REPRODUCTOR
-========================================== */
+/* =====================================================
+   LIMPIAR VIDEO
+===================================================== */
 
 function clearPlayer() {
 
     destroyHLS();
 
+
     try {
+
         video.pause();
+
     } catch (e) {}
+
 
     video.removeAttribute("src");
 
@@ -308,9 +1231,9 @@ function clearPlayer() {
 }
 
 
-/* ==========================================
+/* =====================================================
    DETECTAR HLS
-========================================== */
+===================================================== */
 
 function isHLS(url) {
 
@@ -319,29 +1242,27 @@ function isHLS(url) {
             .split("#")[0]
             .toLowerCase();
 
+
     return (
-        cleanUrl.includes(".m3u8") ||
-        cleanUrl.includes("application/vnd.apple.mpegurl")
+        cleanUrl.includes(".m3u8")
     );
 
 }
 
 
-/* ==========================================
+/* =====================================================
    CARGAR HLS
-========================================== */
+===================================================== */
 
 function loadHLS(url) {
 
-    setStatus("Cargando HLS...");
+    setStatus(
+        "Cargando HLS..."
+    );
 
 
     /*
-       HLS nativo.
-
-       Safari, iPhone, iPad y algunos
-       navegadores pueden reproducir
-       .m3u8 directamente.
+       HLS NATIVO
     */
 
     if (
@@ -354,7 +1275,9 @@ function loadHLS(url) {
 
         video.load();
 
-        setStatus("HLS listo.");
+        setStatus(
+            "HLS listo."
+        );
 
         return;
 
@@ -362,7 +1285,7 @@ function loadHLS(url) {
 
 
     /*
-       HLS.js
+       HLS.JS
     */
 
     if (
@@ -383,7 +1306,7 @@ function loadHLS(url) {
     ) {
 
         showError(
-            "Este navegador no soporta reproducción HLS."
+            "Este navegador no soporta HLS."
         );
 
         return;
@@ -399,23 +1322,48 @@ function loadHLS(url) {
 
         backBufferLength: 60,
 
-        maxBufferLength: 30
+        maxBufferLength: 30,
+
+        maxMaxBufferLength: 60,
+
+        startLevel: -1,
+
+        capLevelToPlayerSize: true
 
     });
 
 
+    /*
+       Adjuntar vídeo
+    */
+
     hls.attachMedia(video);
 
+
+    /*
+       Media conectada
+    */
 
     hls.on(
         Hls.Events.MEDIA_ATTACHED,
         function() {
+
+            if (!hls) {
+
+                return;
+
+            }
+
 
             hls.loadSource(url);
 
         }
     );
 
+
+    /*
+       MANIFEST
+    */
 
     hls.on(
         Hls.Events.MANIFEST_PARSED,
@@ -425,22 +1373,74 @@ function loadHLS(url) {
                 "HLS cargado correctamente."
             );
 
+
+            buildQualityMenu();
+
         }
     );
 
+
+    /*
+       ERROR HLS
+    */
 
     hls.on(
         Hls.Events.ERROR,
         function(event, data) {
 
             console.warn(
-                "HLS error:",
+                "HLS:",
                 data
             );
 
 
             if (!data.fatal) {
+
                 return;
+
+            }
+
+
+            if (
+                data.type ===
+                Hls.ErrorTypes.NETWORK_ERROR
+            ) {
+
+                setStatus(
+                    "Problema de conexión HLS."
+                );
+
+
+                try {
+
+                    hls.startLoad();
+
+                } catch (e) {}
+
+                return;
+
+            }
+
+
+            if (
+                data.type ===
+                Hls.ErrorTypes.MEDIA_ERROR
+            ) {
+
+                try {
+
+                    hls.recoverMediaError();
+
+                } catch (e) {
+
+                    showError(
+                        "No se pudo recuperar el vídeo."
+                    );
+
+                }
+
+                return;
+
             }
 
 
@@ -454,11 +1454,11 @@ function loadHLS(url) {
 }
 
 
-/* ==========================================
-   CARGAR MP4 / VIDEO DIRECTO
-========================================== */
+/* =====================================================
+   CARGAR VIDEO DIRECTO
+===================================================== */
 
-function loadVideo(url) {
+function loadDirectVideo(url) {
 
     setStatus(
         "Cargando vídeo..."
@@ -469,29 +1469,12 @@ function loadVideo(url) {
 
     video.load();
 
-
-    video.addEventListener(
-        "loadedmetadata",
-        function onMetadata() {
-
-            video.removeEventListener(
-                "loadedmetadata",
-                onMetadata
-            );
-
-            setStatus(
-                "Vídeo listo."
-            );
-
-        }
-    );
-
 }
 
 
-/* ==========================================
-   CARGAR URL
-========================================== */
+/* =====================================================
+   CARGAR FUENTE
+===================================================== */
 
 function loadSource() {
 
@@ -516,27 +1499,28 @@ function loadSource() {
     clearPlayer();
 
 
-    /*
-       Detectamos automáticamente
-       si es HLS o vídeo directo.
-    */
+    currentUrl =
+        url;
 
-    if (isHLS(url)) {
+
+    if (
+        isHLS(url)
+    ) {
 
         loadHLS(url);
 
     } else {
 
-        loadVideo(url);
+        loadDirectVideo(url);
 
     }
 
 }
 
 
-/* ==========================================
+/* =====================================================
    BOTÓN CARGAR
-========================================== */
+===================================================== */
 
 loadButton.addEventListener(
     "click",
@@ -544,9 +1528,9 @@ loadButton.addEventListener(
 );
 
 
-/* ==========================================
+/* =====================================================
    ENTER
-========================================== */
+===================================================== */
 
 urlInput.addEventListener(
     "keydown",
@@ -564,16 +1548,34 @@ urlInput.addEventListener(
 );
 
 
-/* ==========================================
-   ERRORES DEL VÍDEO
-========================================== */
+/* =====================================================
+   VIDEO READY
+===================================================== */
+
+video.addEventListener(
+    "loadedmetadata",
+    function() {
+
+        setStatus(
+            "Vídeo listo."
+        );
+
+    }
+);
+
+
+/* =====================================================
+   VIDEO ERROR
+===================================================== */
 
 video.addEventListener(
     "error",
     function() {
 
         if (!video.error) {
+
             return;
+
         }
 
 
@@ -624,7 +1626,1161 @@ video.addEventListener(
     }
 );
 
+
+/* =====================================================
+   MENÚ CONFIGURACIÓN
+===================================================== */
+
+settingsButton.addEventListener(
+    "click",
+    function(event) {
+
+        event.stopPropagation();
+
+
+        if (isLocked) {
+
+            return;
+
+        }
+
+
+        const isOpen =
+            settingsPanel.classList.toggle(
+                "open"
+            );
+
+
+        settingsButton.classList.toggle(
+            "active",
+            isOpen
+        );
+
+    }
+);
+
+
+/* =====================================================
+   CERRAR MENÚ AL TOCAR AFUERA
+===================================================== */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        if (
+            !settingsPanel.contains(event.target) &&
+            event.target !== settingsButton
+        ) {
+
+            settingsPanel.classList.remove(
+                "open"
+            );
+
+            settingsButton.classList.remove(
+                "active"
+            );
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   CALIDAD HLS
+===================================================== */
+
+function buildQualityMenu() {
+
+    qualityOptions.innerHTML = "";
+
+
+    /*
+       AUTO
+    */
+
+    addQualityOption(
+        -1,
+        "Automático"
+    );
+
+
+    if (
+        !hls ||
+        !hls.levels ||
+        !hls.levels.length
+    ) {
+
+        return;
+
+    }
+
+
+    const levels =
+        hls.levels;
+
+
+    const qualities = [];
+
+
+    levels.forEach(
+        function(level, index) {
+
+            const height =
+                Number(level.height);
+
+
+            if (
+                Number.isFinite(height) &&
+                height > 0
+            ) {
+
+                qualities.push({
+
+                    height: height,
+
+                    index: index
+
+                });
+
+            }
+
+        }
+    );
+
+
+    /*
+       Ordenar de mayor a menor
+    */
+
+    qualities.sort(
+        function(a, b) {
+
+            return b.height - a.height;
+
+        }
+    );
+
+
+    /*
+       Evitar duplicados
+    */
+
+    const added =
+        new Set();
+
+
+    qualities.forEach(
+        function(item) {
+
+            if (
+                added.has(item.height)
+            ) {
+
+                return;
+
+            }
+
+
+            added.add(
+                item.height
+            );
+
+
+            addQualityOption(
+                item.height,
+                item.height + "p"
+            );
+
+        }
+    );
+
+
+    /*
+       Restaurar selección
+    */
+
+    updateQualitySelection();
+
+}
+
+
+/* =====================================================
+   CREAR OPCIÓN CALIDAD
+===================================================== */
+
+function addQualityOption(
+    value,
+    label
+) {
+
+    const button =
+        document.createElement(
+            "button"
+        );
+
+
+    button.type =
+        "button";
+
+
+    button.className =
+        "setting-option";
+
+
+    button.dataset.quality =
+        value;
+
+
+    const text =
+        document.createElement(
+            "span"
+        );
+
+
+    text.textContent =
+        label;
+
+
+    const check =
+        document.createElement(
+            "span"
+        );
+
+
+    check.className =
+        "setting-check";
+
+
+    button.appendChild(
+        text
+    );
+
+
+    button.appendChild(
+        check
+    );
+
+
+    button.addEventListener(
+        "click",
+        function() {
+
+            setQuality(
+                Number(value)
+            );
+
+        }
+    );
+
+
+    qualityOptions.appendChild(
+        button
+    );
+
+}
+
+
+/* =====================================================
+   CAMBIAR CALIDAD
+===================================================== */
+
+function setQuality(value) {
+
+    currentQuality =
+        value;
+
+
+    if (hls) {
+
+        if (value === -1) {
+
+            /*
+               Automático
+            */
+
+            hls.currentLevel =
+                -1;
+
+        } else {
+
+            const levels =
+                hls.levels;
+
+
+            let selectedIndex =
+                -1;
+
+
+            /*
+               Buscar la calidad exacta
+            */
+
+            levels.forEach(
+                function(level, index) {
+
+                    if (
+                        Number(level.height) ===
+                        Number(value)
+                    ) {
+
+                        selectedIndex =
+                            index;
+
+                    }
+
+                }
+            );
+
+
+            if (
+                selectedIndex >= 0
+            ) {
+
+                hls.currentLevel =
+                    selectedIndex;
+
+            }
+
+        }
+
+    }
+
+
+    updateQualitySelection();
+
+
+    setStatus(
+        value === -1
+            ? "Calidad automática"
+            : "Calidad " + value + "p"
+    );
+
+}
+
+
+/* =====================================================
+   ACTUALIZAR CALIDAD SELECCIONADA
+===================================================== */
+
+function updateQualitySelection() {
+
+    const buttons =
+        qualityOptions.querySelectorAll(
+            "[data-quality]"
+        );
+
+
+    buttons.forEach(
+        function(button) {
+
+            const value =
+                Number(
+                    button.dataset.quality
+                );
+
+
+            const selected =
+                value ===
+                currentQuality;
+
+
+            button.classList.toggle(
+                "selected",
+                selected
+            );
+
+
+            const check =
+                button.querySelector(
+                    ".setting-check"
+                );
+
+
+            if (check) {
+
+                check.textContent =
+                    selected
+                        ? "✓"
+                        : "";
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   VELOCIDAD
+===================================================== */
+
+document
+    .querySelectorAll(
+        "[data-speed]"
+    )
+    .forEach(
+        function(button) {
+
+            button.addEventListener(
+                "click",
+                function() {
+
+                    const speed =
+                        Number(
+                            button.dataset.speed
+                        );
+
+
+                    setSpeed(
+                        speed
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+function setSpeed(speed) {
+
+    currentSpeed =
+        speed;
+
+
+    video.playbackRate =
+        speed;
+
+
+    updateSelected(
+        "[data-speed]",
+        String(speed)
+    );
+
+
+    setStatus(
+        speed === 1
+            ? "Velocidad normal"
+            : "Velocidad " + speed + "×"
+    );
+
+}
+
+
+/* =====================================================
+   ASPECTO
+===================================================== */
+
+document
+    .querySelectorAll(
+        "[data-aspect]"
+    )
+    .forEach(
+        function(button) {
+
+            button.addEventListener(
+                "click",
+                function() {
+
+                    setAspect(
+                        button.dataset.aspect
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+function setAspect(aspect) {
+
+    currentAspect =
+        aspect;
+
+
+    player.classList.remove(
+        "aspect-auto",
+        "aspect-169",
+        "aspect-43",
+        "aspect-expand",
+        "aspect-stretch"
+    );
+
+
+    player.classList.add(
+        "aspect-" + aspect
+    );
+
+
+    updateSelected(
+        "[data-aspect]",
+        aspect
+    );
+
+
+    let text =
+        "Aspecto automático";
+
+
+    if (aspect === "169") {
+
+        text =
+            "Aspecto 16:9";
+
+    }
+
+
+    if (aspect === "43") {
+
+        text =
+            "Aspecto 4:3";
+
+    }
+
+
+    if (aspect === "expand") {
+
+        text =
+            "Vídeo expandido";
+
+    }
+
+
+    if (aspect === "stretch") {
+
+        text =
+            "Vídeo estirado";
+
+    }
+
+
+    setStatus(text);
+
+}
+
+
+/* =====================================================
+   AUDIO
+===================================================== */
+
+document
+    .querySelectorAll(
+        "[data-audio]"
+    )
+    .forEach(
+        function(button) {
+
+            button.addEventListener(
+                "click",
+                async function() {
+
+                    const mode =
+                        button.dataset.audio;
+
+
+                    await setAudioMode(
+                        mode
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+/* =====================================================
+   CREAR AUDIO WEB
+===================================================== */
+
+function initializeAudio() {
+
+    if (audioContext) {
+
+        return true;
+
+    }
+
+
+    try {
+
+        audioContext =
+            new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+
+
+        sourceNode =
+            audioContext.createMediaElementSource(
+                video
+            );
+
+
+        bassFilter =
+            audioContext.createBiquadFilter();
+
+
+        bassFilter.type =
+            "lowshelf";
+
+
+        bassFilter.frequency.value =
+            150;
+
+
+        bassFilter.gain.value =
+            0;
+
+
+        stereoNode =
+            audioContext.createStereoPanner();
+
+
+        stereoNode.pan.value =
+            0;
+
+
+        surroundDelay =
+            audioContext.createDelay(
+                0.5
+            );
+
+
+        surroundDelay.delayTime.value =
+            0.018;
+
+
+        audioGain =
+            audioContext.createGain();
+
+
+        audioGain.gain.value =
+            1;
+
+
+        sourceNode.connect(
+            bassFilter
+        );
+
+
+        bassFilter.connect(
+            stereoNode
+        );
+
+
+        stereoNode.connect(
+            surroundDelay
+        );
+
+
+        surroundDelay.connect(
+            audioGain
+        );
+
+
+        audioGain.connect(
+            audioContext.destination
+        );
+
+
+        return true;
+
+    } catch (e) {
+
+        console.warn(
+            "Web Audio no disponible:",
+            e
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+/* =====================================================
+   CAMBIAR AUDIO
+===================================================== */
+
+async function setAudioMode(mode) {
+
+    currentAudio =
+        mode;
+
+
+    /*
+       El modo normal puede funcionar
+       sin Web Audio.
+    */
+
+    if (mode === "normal") {
+
+        if (audioGain) {
+
+            audioGain.gain.value =
+                1;
+
+        }
+
+
+        if (bassFilter) {
+
+            bassFilter.gain.value =
+                0;
+
+        }
+
+
+        if (stereoNode) {
+
+            stereoNode.pan.value =
+                0;
+
+        }
+
+
+        if (surroundDelay) {
+
+            surroundDelay.delayTime.value =
+                0;
+
+        }
+
+
+        updateSelected(
+            "[data-audio]",
+            mode
+        );
+
+
+        setStatus(
+            "Sonido normal"
+        );
+
+
+        return;
+
+    }
+
+
+    const initialized =
+        initializeAudio();
+
+
+    if (!initialized) {
+
+        showError(
+            "El navegador no permite aplicar efectos de sonido."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        if (
+            audioContext.state ===
+            "suspended"
+        ) {
+
+            await audioContext.resume();
+
+        }
+
+    } catch (e) {}
+
+
+    /*
+       RESTAURAR VALORES
+    */
+
+    bassFilter.gain.value =
+        0;
+
+    stereoNode.pan.value =
+        0;
+
+    surroundDelay.delayTime.value =
+        0;
+
+    audioGain.gain.value =
+        1;
+
+
+    /*
+       BAJOS
+    */
+
+    if (mode === "bass") {
+
+        bassFilter.gain.value =
+            8;
+
+
+        setStatus(
+            "Aumento de bajos"
+        );
+
+    }
+
+
+    /*
+       ESPACIAL
+    */
+
+    if (mode === "spatial") {
+
+        stereoNode.pan.value =
+            0.15;
+
+
+        surroundDelay.delayTime.value =
+            0.025;
+
+
+        setStatus(
+            "Sonido espacial"
+        );
+
+    }
+
+
+    /*
+       ENVOLVENTE
+    */
+
+    if (mode === "surround") {
+
+        /*
+           Efecto estéreo ampliado
+           mediante retraso muy corto.
+        */
+
+        stereoNode.pan.value =
+            0;
+
+
+        surroundDelay.delayTime.value =
+            0.035;
+
+
+        audioGain.gain.value =
+            0.9;
+
+
+        setStatus(
+            "Sonido envolvente"
+        );
+
+    }
+
+
+    updateSelected(
+        "[data-audio]",
+        mode
+    );
+
+}
+
+
+/* =====================================================
+   ACTUALIZAR OPCIÓN SELECCIONADA
+===================================================== */
+
+function updateSelected(
+    selector,
+    value
+) {
+
+    document
+        .querySelectorAll(selector)
+        .forEach(
+            function(button) {
+
+                const selected =
+                    button.dataset[
+                        selector
+                            .replace(
+                                "[data-",
+                                ""
+                            )
+                            .replace(
+                                "]",
+                                ""
+                            )
+                    ] === value;
+
+
+                button.classList.toggle(
+                    "selected",
+                    selected
+                );
+
+
+                const check =
+                    button.querySelector(
+                        ".setting-check"
+                    );
+
+
+                if (check) {
+
+                    check.textContent =
+                        selected
+                            ? "✓"
+                            : "";
+
+                }
+
+            }
+        );
+
+}
+
+
+/* =====================================================
+   BLOQUEAR PANTALLA
+===================================================== */
+
+lockButton.addEventListener(
+    "click",
+    function() {
+
+        lockScreen();
+
+    }
+);
+
+
+/* =====================================================
+   BLOQUEAR
+===================================================== */
+
+function lockScreen() {
+
+    isLocked =
+        true;
+
+
+    player.classList.add(
+        "locked"
+    );
+
+
+    lockIndicator.classList.add(
+        "active"
+    );
+
+
+    lockOverlay.classList.add(
+        "active"
+    );
+
+
+    settingsPanel.classList.remove(
+        "open"
+    );
+
+
+    settingsButton.classList.remove(
+        "active"
+    );
+
+
+    setStatus(
+        "Pantalla bloqueada"
+    );
+
+}
+
+
+/* =====================================================
+   DESBLOQUEAR
+===================================================== */
+
+function unlockScreen() {
+
+    if (!isLocked) {
+
+        return;
+
+    }
+
+
+    isLocked =
+        false;
+
+
+    player.classList.remove(
+        "locked"
+    );
+
+
+    lockIndicator.classList.remove(
+        "active"
+    );
+
+
+    lockOverlay.classList.remove(
+        "active"
+    );
+
+
+    setStatus(
+        "Pantalla desbloqueada"
+    );
+
+}
+
+
+/* =====================================================
+   DESBLOQUEAR CON PULSACIÓN
+===================================================== */
+
+let unlockTimer =
+    null;
+
+
+/*
+   Touch
+*/
+
+lockOverlay.addEventListener(
+    "touchstart",
+    function(event) {
+
+        if (!isLocked) {
+
+            return;
+
+        }
+
+
+        event.preventDefault();
+
+
+        unlockTimer =
+            setTimeout(
+                function() {
+
+                    unlockScreen();
+
+                },
+                1000
+            );
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+lockOverlay.addEventListener(
+    "touchend",
+    function() {
+
+        clearTimeout(
+            unlockTimer
+        );
+
+    }
+);
+
+
+lockOverlay.addEventListener(
+    "touchcancel",
+    function() {
+
+        clearTimeout(
+            unlockTimer
+        );
+
+    }
+);
+
+
+/*
+   Mouse
+*/
+
+lockOverlay.addEventListener(
+    "mousedown",
+    function() {
+
+        if (!isLocked) {
+
+            return;
+
+        }
+
+
+        unlockTimer =
+            setTimeout(
+                function() {
+
+                    unlockScreen();
+
+                },
+                1000
+            );
+
+    }
+);
+
+
+lockOverlay.addEventListener(
+    "mouseup",
+    function() {
+
+        clearTimeout(
+            unlockTimer
+        );
+
+    }
+);
+
+
+/* =====================================================
+   BLOQUEO CON TECLADO
+===================================================== */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            isLocked &&
+            event.key === "Escape"
+        ) {
+
+            unlockScreen();
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   INICIO
+===================================================== */
+
+setStatus(
+    "Listo para cargar un vídeo."
+);
+
 </script>
+
 
 </body>
 </html>
