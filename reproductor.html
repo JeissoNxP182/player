@@ -25,13 +25,45 @@
 
     body {
       width: 100vw;
-      height: 100vh;
+      min-height: 100vh;
       background: var(--purple-deep);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       color: var(--text-color);
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
+      padding-bottom: 20px;
+    }
+
+    /* Cabecera independiente fuera del reproductor */
+    .header-info-container {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(14, 2, 28, 0.85);
+      border-bottom: 1px solid rgba(168, 85, 247, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .brand-watermark {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: var(--silver-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 8px rgba(168, 85, 247, 0.4);
+    }
+
+    .video-title-display {
+      font-size: 12px;
+      font-weight: 500;
+      color: #cbd5e1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 0.9;
     }
 
     .player-wrapper {
@@ -58,37 +90,6 @@
     iframe {
       display: none;
       z-index: 5;
-    }
-
-    .brand-watermark {
-      position: absolute;
-      top: 12px;
-      left: 14px;
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      background: var(--silver-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 2px 8px rgba(168, 85, 247, 0.4);
-      z-index: 25;
-      pointer-events: none;
-    }
-
-    .video-title-display {
-      position: absolute;
-      top: 36px;
-      left: 14px;
-      font-size: 11px;
-      font-weight: 500;
-      color: #cbd5e1;
-      max-width: 70%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      z-index: 25;
-      pointer-events: none;
-      opacity: 0.85;
     }
 
     .initial-play-overlay {
@@ -390,7 +391,6 @@
       position: relative;
     }
 
-    /* ===== DROPDOWNS PERSONALIZADOS (compactos y no invasivos) ===== */
     .custom-select {
       position: relative;
       min-width: 130px;
@@ -449,57 +449,6 @@
     .custom-option:hover,
     .custom-option.selected {
       background: rgba(168, 85, 247, 0.25);
-    }
-
-    /* Ecualizador */
-    .equalizer-box {
-      display: none;
-      flex-direction: column;
-      gap: 12px;
-      padding: 12px;
-      margin-top: -4px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(168, 85, 247, 0.25);
-      border-radius: 10px;
-    }
-
-    .equalizer-box.active {
-      display: flex;
-    }
-
-    .equalizer-title {
-      color: var(--purple-main);
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .eq-row {
-      display: grid;
-      grid-template-columns: 42px 1fr 48px;
-      align-items: center;
-      gap: 8px;
-      font-size: 10px;
-      color: #cbd5e1;
-    }
-
-    .eq-row input[type="range"] {
-      width: 100%;
-      accent-color: var(--purple-main);
-    }
-
-    .eq-value {
-      text-align: right;
-      font-family: monospace;
-      color: #e2e8f0;
-    }
-
-    .surround-status {
-      font-size: 10px;
-      color: #94a3b8;
-      text-align: center;
-      margin-top: -4px;
     }
 
     .shortcuts-panel {
@@ -701,36 +650,17 @@
       color: #64748b;
       font-style: italic;
     }
-
-    @media (max-width: 600px) {
-      .settings-panel {
-        padding: 14px;
-        gap: 12px;
-      }
-      .settings-item {
-        font-size: 12px;
-      }
-      .custom-select {
-        min-width: 120px;
-      }
-      .custom-select-btn {
-        font-size: 11px;
-        padding: 5px 8px;
-      }
-      .equalizer-box {
-        padding: 10px;
-      }
-      .eq-row {
-        grid-template-columns: 38px 1fr 44px;
-      }
-    }
   </style>
 </head>
 <body>
-  <div class="player-wrapper" id="playerWrapper">
-    <div class="brand-watermark">JeissoNxP182</div>
-    <div class="video-title-display" id="videoTitleDisplay"></div>
 
+  <!-- Cabecera independiente con el nombre y la marca fuera del reproductor -->
+  <div class="header-info-container">
+    <div class="brand-watermark">JeissoNxP182</div>
+    <div class="video-title-display" id="videoTitleDisplay">Ningún vídeo cargado</div>
+  </div>
+
+  <div class="player-wrapper" id="playerWrapper">
     <div class="initial-play-overlay" id="initialPlayOverlay">
       <button class="btn-initial-play" id="btnInitialPlay" title="Reproducir">
         <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -765,7 +695,7 @@
           <svg id="centerIconPause" viewBox="0 0 24 24" style="width:34px;height:34px;fill:currentColor;display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
         </button>
         <button class="btn-center" id="btnForward" title="+10 Segundos">
-          <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;"><path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88-3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8z"/></svg>
+          <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;"><path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88-3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8 z"/></svg>
         </button>
       </div>
 
@@ -808,7 +738,7 @@
       </div>
     </div>
 
-    <!-- PANEL DE AJUSTES -->
+    <!-- PANEL DE AJUSTES (Sin opción de sonido) -->
     <div class="settings-panel" id="settingsPanel">
       <div class="settings-item">
         <span>Calidad</span>
@@ -848,52 +778,6 @@
             <div class="custom-option" data-value="1:1">1:1</div>
           </div>
         </div>
-      </div>
-
-      <div class="settings-item">
-        <span>Sonido</span>
-        <div class="custom-select" id="soundSelect">
-          <button class="custom-select-btn" data-value="normal">Normal</button>
-          <div class="custom-select-options">
-            <div class="custom-option selected" data-value="normal">Normal</div>
-            <div class="custom-option" data-value="bass">Graves</div>
-            <div class="custom-option" data-value="treble">Agudos</div>
-            <div class="custom-option" data-value="voice">Voz</div>
-            <div class="custom-option" data-value="power">Potente</div>
-            <div class="custom-option" data-value="surround">Envolvente</div>
-            <div class="custom-option" data-value="custom">Ecualizador</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="equalizer-box" id="equalizerBox">
-        <div class="equalizer-title">Ecualizador personalizado</div>
-        <div class="eq-row">
-          <span>60Hz</span>
-          <input type="range" id="eq60" min="-12" max="12" step="1" value="0">
-          <span class="eq-value" id="eq60Value">0 dB</span>
-        </div>
-        <div class="eq-row">
-          <span>250Hz</span>
-          <input type="range" id="eq250" min="-12" max="12" step="1" value="0">
-          <span class="eq-value" id="eq250Value">0 dB</span>
-        </div>
-        <div class="eq-row">
-          <span>1kHz</span>
-          <input type="range" id="eq1k" min="-12" max="12" step="1" value="0">
-          <span class="eq-value" id="eq1kValue">0 dB</span>
-        </div>
-        <div class="eq-row">
-          <span>4kHz</span>
-          <input type="range" id="eq4k" min="-12" max="12" step="1" value="0">
-          <span class="eq-value" id="eq4kValue">0 dB</span>
-        </div>
-        <div class="eq-row">
-          <span>12kHz</span>
-          <input type="range" id="eq12k" min="-12" max="12" step="1" value="0">
-          <span class="eq-value" id="eq12kValue">0 dB</span>
-        </div>
-        <div class="surround-status" id="surroundStatus">Procesamiento estéreo normal</div>
       </div>
 
       <div class="settings-item" id="optMirror" style="cursor:pointer;">
@@ -977,18 +861,6 @@
       const currTimeElem = document.getElementById('currTime');
       const btnSettings = document.getElementById('btnSettings');
       const settingsPanel = document.getElementById('settingsPanel');
-      const equalizerBox = document.getElementById('equalizerBox');
-      const eq60 = document.getElementById('eq60');
-      const eq250 = document.getElementById('eq250');
-      const eq1k = document.getElementById('eq1k');
-      const eq4k = document.getElementById('eq4k');
-      const eq12k = document.getElementById('eq12k');
-      const eq60Value = document.getElementById('eq60Value');
-      const eq250Value = document.getElementById('eq250Value');
-      const eq1kValue = document.getElementById('eq1kValue');
-      const eq4kValue = document.getElementById('eq4kValue');
-      const eq12kValue = document.getElementById('eq12kValue');
-      const surroundStatus = document.getElementById('surroundStatus');
       const optMirror = document.getElementById('optMirror');
       const mirrorText = document.getElementById('mirrorText');
       const optLockScreen = document.getElementById('optLockScreen');
@@ -1016,7 +888,6 @@
       let timeMode = 0;
       let isEmbedMode = false;
 
-      /* ===== DROPDOWNS PERSONALIZADOS ===== */
       function initCustomSelects() {
         document.querySelectorAll('.custom-select').forEach(select => {
           const btn = select.querySelector('.custom-select-btn');
@@ -1024,7 +895,6 @@
 
           btn.addEventListener('click', e => {
             e.stopPropagation();
-            // Cerrar otros
             document.querySelectorAll('.custom-select-options.open').forEach(o => {
               if (o !== options) o.classList.remove('open');
             });
@@ -1038,20 +908,16 @@
               const value = opt.dataset.value;
               const text = opt.textContent;
 
-              // Actualizar UI
               btn.textContent = text;
               btn.dataset.value = value;
               options.querySelectorAll('.custom-option').forEach(o => o.classList.remove('selected'));
               opt.classList.add('selected');
               options.classList.remove('open');
 
-              // Acciones según el select
               if (select.id === 'speedSelect') {
                 if (!isEmbedMode) video.playbackRate = parseFloat(value);
               } else if (select.id === 'aspectSelect') {
                 applyAspectRatio(value);
-              } else if (select.id === 'soundSelect') {
-                applySoundMode(value);
               } else if (select.id === 'qualitySelect') {
                 if (hlsInstance && value !== '-1') {
                   hlsInstance.currentLevel = parseInt(value);
@@ -1064,223 +930,58 @@
           });
         });
 
-        // Cerrar al hacer clic fuera
         document.addEventListener('click', () => {
           document.querySelectorAll('.custom-select-options.open').forEach(o => o.classList.remove('open'));
         });
       }
       initCustomSelects();
 
-      /* ===== LISTA DE REPRODUCCIÓN ===== */
+      function getCleanTitle(url) {
+        try {
+          const parsed = new URL(url);
+          const segments = parsed.pathname.split('/').filter(Boolean);
+          if (segments.length > 0) {
+            let filename = decodeURIComponent(segments[segments.length - 1]);
+            filename = filename.replace(/[_]/g, ' ').replace(/\.[^/.]+$/, '');
+            return filename;
+          }
+          return parsed.hostname;
+        } catch {
+          return url;
+        }
+      }
+
       function saveToPlaylistHistory(url) {
         if (!url) return;
-        let playlist = JSON.parse(localStorage.getItem('jn_playlist_history') || '[]');
-        playlist = playlist.filter(item => item !== url);
-        playlist.unshift(url);
+        const title = getCleanTitle(url);
+        let playlist = JSON.parse(localStorage.getItem('jn_playlist_history_full') || '[]');
+        playlist = playlist.filter(item => item.url !== url);
+        playlist.unshift({ url, title });
         if (playlist.length > 10) playlist = playlist.slice(0, 10);
-        localStorage.setItem('jn_playlist_history', JSON.stringify(playlist));
+        localStorage.setItem('jn_playlist_history_full', JSON.stringify(playlist));
         renderPlaylist();
       }
 
       function renderPlaylist() {
-        const playlist = JSON.parse(localStorage.getItem('jn_playlist_history') || '[]');
+        const playlist = JSON.parse(localStorage.getItem('jn_playlist_history_full') || '[]');
         if (playlist.length === 0) {
           playlistContainer.innerHTML = '<li class="playlist-empty">No hay vídeos en el historial reciente.</li>';
           return;
         }
         playlistContainer.innerHTML = '';
-        playlist.forEach(urlItem => {
+        playlist.forEach(item => {
           const li = document.createElement('li');
           li.className = 'playlist-item';
-          const title = getCleanTitle(urlItem);
           li.innerHTML = `
-            <span class="playlist-item-title" title="\( {urlItem}"> \){title}</span>
+            <span class="playlist-item-title" title="${item.url}">${item.title}</span>
             <span class="playlist-item-play">▶ Cargar</span>
           `;
-          li.addEventListener('click', () => loadVideo(urlItem));
+          li.addEventListener('click', () => loadVideo(item.url));
           playlistContainer.appendChild(li);
         });
       }
 
-      /* ===== SISTEMA DE SONIDO (ARREGLADO) ===== */
-      let audioContext = null;
-      let mediaSourceNode = null;
-      let eqFilters = [];
-      let surroundDelay = null;
-      let surroundGain = null;
-      let audioGraphReady = false;
       let mirrorEnabled = false;
-
-      function createAudioGraph() {
-        if (audioGraphReady) return true;
-        try {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (!AudioContextClass) return false;
-
-          audioContext = new AudioContextClass();
-          mediaSourceNode = audioContext.createMediaElementSource(video);
-
-          const frequencies = [60, 250, 1000, 4000, 12000];
-          eqFilters = frequencies.map((frequency, index) => {
-            const filter = audioContext.createBiquadFilter();
-            if (index === 0) filter.type = 'lowshelf';
-            else if (index === frequencies.length - 1) filter.type = 'highshelf';
-            else filter.type = 'peaking';
-            filter.frequency.value = frequency;
-            filter.Q.value = 1;
-            filter.gain.value = 0;
-            return filter;
-          });
-
-          surroundDelay = audioContext.createDelay(0.05);
-          surroundGain = audioContext.createGain();
-          surroundDelay.delayTime.value = 0.018;
-          surroundGain.gain.value = 0;
-
-          let currentNode = mediaSourceNode;
-          eqFilters.forEach(filter => {
-            currentNode.connect(filter);
-            currentNode = filter;
-          });
-
-          currentNode.connect(surroundDelay);
-          surroundDelay.connect(surroundGain);
-          surroundGain.connect(audioContext.destination);
-          currentNode.connect(audioContext.destination);
-
-          audioGraphReady = true;
-          return true;
-        } catch (error) {
-          console.warn('No se pudo inicializar el ecualizador (posible CORS):', error);
-          audioGraphReady = false;
-          return false;
-        }
-      }
-
-      async function resumeAudioContext() {
-        if (audioContext && audioContext.state === 'suspended') {
-          try { await audioContext.resume(); } catch (e) {}
-        }
-      }
-
-      function setEQValues(values) {
-        if (!eqFilters.length) return;
-        eqFilters.forEach((filter, index) => {
-          filter.gain.value = values[index];
-        });
-        eq60.value = values[0];
-        eq250.value = values[1];
-        eq1k.value = values[2];
-        eq4k.value = values[3];
-        eq12k.value = values[4];
-        updateEQLabels();
-      }
-
-      function updateEQLabels() {
-        eq60Value.textContent = `${eq60.value} dB`;
-        eq250Value.textContent = `${eq250.value} dB`;
-        eq1kValue.textContent = `${eq1k.value} dB`;
-        eq4kValue.textContent = `${eq4k.value} dB`;
-        eq12kValue.textContent = `${eq12k.value} dB`;
-      }
-
-      function applySoundMode(mode) {
-        if (isEmbedMode) return;
-
-        // Solo creamos el grafo cuando realmente se necesita
-        if (mode === 'normal') {
-          if (audioGraphReady) {
-            setEQValues([0, 0, 0, 0, 0]);
-            if (surroundGain) surroundGain.gain.value = 0;
-          }
-          equalizerBox.classList.remove('active');
-          surroundStatus.textContent = 'Procesamiento estéreo normal';
-          return;
-        }
-
-        // Intentamos crear el grafo
-        if (!createAudioGraph()) {
-          // Falló → volvemos a Normal y avisamos
-          const soundBtn = document.querySelector('#soundSelect .custom-select-btn');
-          const normalOpt = document.querySelector('#soundSelect .custom-option[data-value="normal"]');
-          if (soundBtn && normalOpt) {
-            soundBtn.textContent = 'Normal';
-            soundBtn.dataset.value = 'normal';
-            document.querySelectorAll('#soundSelect .custom-option').forEach(o => o.classList.remove('selected'));
-            normalOpt.classList.add('selected');
-          }
-          surroundStatus.textContent = 'Ecualizador no disponible (CORS o navegador)';
-          equalizerBox.classList.remove('active');
-          return;
-        }
-
-        const presets = {
-          bass: [7, 5, 2, 0, -1],
-          treble: [-1, 0, 1, 5, 7],
-          voice: [-3, 1, 5, 4, 1],
-          power: [6, 3, 2, 3, 5],
-          surround: [2, 1, 0, 2, 3],
-          custom: [
-            Number(eq60.value),
-            Number(eq250.value),
-            Number(eq1k.value),
-            Number(eq4k.value),
-            Number(eq12k.value)
-          ]
-        };
-
-        const values = presets[mode] || [0, 0, 0, 0, 0];
-        setEQValues(values);
-
-        if (mode === 'surround') {
-          surroundGain.gain.value = 0.22;
-          surroundStatus.textContent = 'Efecto envolvente estéreo activado';
-        } else {
-          surroundGain.gain.value = 0;
-          surroundStatus.textContent = mode === 'custom' ? 'Ecualizador personalizado' : 'Procesamiento estéreo normal';
-        }
-
-        equalizerBox.classList.toggle('active', mode === 'custom');
-        resumeAudioContext();
-      }
-
-      function updateCustomEQ() {
-        if (!audioGraphReady) {
-          if (!createAudioGraph()) return;
-        }
-        const values = [
-          Number(eq60.value),
-          Number(eq250.value),
-          Number(eq1k.value),
-          Number(eq4k.value),
-          Number(eq12k.value)
-        ];
-        setEQValues(values);
-        if (surroundGain) surroundGain.gain.value = 0;
-
-        // Forzar modo custom en el dropdown
-        const soundBtn = document.querySelector('#soundSelect .custom-select-btn');
-        const customOpt = document.querySelector('#soundSelect .custom-option[data-value="custom"]');
-        if (soundBtn && customOpt) {
-          soundBtn.textContent = 'Ecualizador';
-          soundBtn.dataset.value = 'custom';
-          document.querySelectorAll('#soundSelect .custom-option').forEach(o => o.classList.remove('selected'));
-          customOpt.classList.add('selected');
-        }
-        surroundStatus.textContent = 'Ecualizador personalizado';
-        equalizerBox.classList.add('active');
-        resumeAudioContext();
-      }
-
-      [eq60, eq250, eq1k, eq4k, eq12k].forEach(slider => {
-        slider.addEventListener('input', e => {
-          e.stopPropagation();
-          updateCustomEQ();
-          resetAutoHide();
-        });
-      });
-
-      /* ===== RELACIÓN DE ASPECTO Y ESPEJO ===== */
       function applyAspectRatio(mode) {
         if (mode === 'auto' || mode === 'original') {
           video.style.objectFit = 'contain';
@@ -1312,7 +1013,6 @@
         if (!isEmbedMode) applyMirror();
       });
 
-      /* ===== PREVIEW Y UTILIDADES ===== */
       const previewVideo = document.createElement('video');
       previewVideo.crossOrigin = "anonymous";
       previewVideo.preload = "metadata";
@@ -1332,7 +1032,6 @@
         video.style.transform = 'scaleX(1)';
         mirrorText.textContent = 'Modo espejo: Desactivado';
 
-        // Reset dropdowns
         const aspectBtn = document.querySelector('#aspectSelect .custom-select-btn');
         if (aspectBtn) {
           aspectBtn.textContent = 'Automática';
@@ -1341,20 +1040,6 @@
         document.querySelectorAll('#aspectSelect .custom-option').forEach(o => o.classList.remove('selected'));
         const autoOpt = document.querySelector('#aspectSelect .custom-option[data-value="auto"]');
         if (autoOpt) autoOpt.classList.add('selected');
-
-        const soundBtn = document.querySelector('#soundSelect .custom-select-btn');
-        if (soundBtn) {
-          soundBtn.textContent = 'Normal';
-          soundBtn.dataset.value = 'normal';
-        }
-        document.querySelectorAll('#soundSelect .custom-option').forEach(o => o.classList.remove('selected'));
-        const normalOpt = document.querySelector('#soundSelect .custom-option[data-value="normal"]');
-        if (normalOpt) normalOpt.classList.add('selected');
-
-        equalizerBox.classList.remove('active');
-        setEQValues([0, 0, 0, 0, 0]);
-        if (surroundGain) surroundGain.gain.value = 0;
-        if (surroundStatus) surroundStatus.textContent = 'Procesamiento estéreo normal';
       }
 
       function unloadVideoInternal() {
@@ -1374,23 +1059,8 @@
         mainIframe.src = 'about:blank';
         controlsOverlay.classList.remove('active');
         initialPlayOverlay.classList.remove('hidden');
-        videoTitleDisplay.textContent = '';
+        videoTitleDisplay.textContent = 'Ningún vídeo cargado';
         resetMediaSettings();
-      }
-
-      function getCleanTitle(url) {
-        try {
-          const parsed = new URL(url);
-          const segments = parsed.pathname.split('/').filter(Boolean);
-          if (segments.length > 0) {
-            let filename = decodeURIComponent(segments[segments.length - 1]);
-            filename = filename.replace(/[_]/g, ' ').replace(/\.[^/.]+$/, '');
-            return filename;
-          }
-          return parsed.hostname;
-        } catch {
-          return url;
-        }
       }
 
       function resetAutoHide() {
@@ -1406,14 +1076,12 @@
       function togglePlay() {
         if (isEmbedMode) return;
         if (video.paused) {
-          resumeAudioContext();
           video.play().catch(() => {});
         } else {
           video.pause();
         }
       }
 
-      /* ===== EVENTOS DE REPRODUCCIÓN ===== */
       btnInitialPlay.addEventListener('click', e => {
         e.stopPropagation();
         initialPlayOverlay.classList.add('hidden');
@@ -1421,7 +1089,6 @@
         video.volume = 1;
         volumeSlider.value = 1;
         updateVolIcons();
-        resumeAudioContext();
         if (pendingUrl) {
           actualLoadAndPlay(pendingUrl);
         } else {
@@ -1446,7 +1113,6 @@
         centerIconPause.style.display = 'block';
         bottomIconPlay.style.display = 'none';
         bottomIconPause.style.display = 'block';
-        resumeAudioContext();
         resetAutoHide();
       });
 
@@ -1551,7 +1217,7 @@
         const h = Math.floor(sec / 3600);
         const m = Math.floor((sec % 3600) / 60);
         const s = Math.floor(sec % 60);
-        return `\( {h}: \){m < 10 ? '0' : ''}\( {m}: \){s < 10 ? '0' : ''}${s}`;
+        return `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
       }
 
       currTimeElem.addEventListener('click', e => {
@@ -1649,7 +1315,6 @@
         resetAutoHide();
       });
 
-      /* ===== AJUSTES Y ATAJOS ===== */
       btnSettings.addEventListener('click', e => {
         e.stopPropagation();
         settingsPanel.classList.toggle('active');
@@ -1723,7 +1388,6 @@
         }
       });
 
-      /* ===== TECLADO ===== */
       document.addEventListener('keydown', e => {
         if (
           document.activeElement === urlInput ||
@@ -1786,7 +1450,6 @@
         }
       });
 
-      /* ===== CARGA DE VÍDEO ===== */
       function actualLoadAndPlay(rawUrl) {
         const cleanUrl = rawUrl.toLowerCase();
         const isDirect = cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.webm') || cleanUrl.endsWith('.ogg');
@@ -1796,7 +1459,6 @@
         video.volume = 1;
         volumeSlider.value = 1;
         updateVolIcons();
-        resumeAudioContext();
 
         if (isDirect) {
           video.src = rawUrl;
@@ -1812,7 +1474,6 @@
             hlsInstance.loadSource(rawUrl);
             hlsInstance.attachMedia(video);
             hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-              // Rellenar calidades
               const qualityOptions = document.querySelector('#qualitySelect .custom-select-options');
               qualityOptions.innerHTML = '<div class="custom-option selected" data-value="-1">Automática</div>';
               hlsInstance.levels.forEach((level, i) => {
@@ -1822,7 +1483,6 @@
                 opt.textContent = level.height ? `${level.height}p` : `Nivel ${i}`;
                 qualityOptions.appendChild(opt);
               });
-              // Re-bind clicks
               qualityOptions.querySelectorAll('.custom-option').forEach(opt => {
                 opt.addEventListener('click', e => {
                   e.stopPropagation();
@@ -1870,7 +1530,9 @@
         currentUrl = rawUrl;
         pendingUrl = rawUrl;
         urlInput.value = '';
-        videoTitleDisplay.textContent = getCleanTitle(rawUrl);
+        
+        const cleanTitleText = getCleanTitle(rawUrl);
+        videoTitleDisplay.textContent = cleanTitleText;
         saveToPlaylistHistory(rawUrl);
         history.pushState({ videoLoaded: true }, '');
 
