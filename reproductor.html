@@ -96,7 +96,7 @@
       opacity: 0.85;
     }
 
-    /* CAPA INICIAL EXCLUSIVA (SOLO PLAY GRANDE) */
+    /* CAPA INICIAL EXCLUSIVA */
     .initial-play-overlay {
       position: absolute;
       inset: 0;
@@ -160,7 +160,7 @@
       pointer-events: auto;
     }
 
-    /* FILA SUPERIOR CONTROLES (DERECHA) */
+    /* FILA SUPERIOR CONTROLES */
     .top-controls {
       display: flex;
       justify-content: flex-end;
@@ -169,7 +169,7 @@
       width: 100%;
     }
 
-    /* CONTROLES CENTRALES (ATRASAR - PLAY - ADELANTAR) */
+    /* CONTROLES CENTRALES */
     .center-controls {
       position: absolute;
       top: 50%;
@@ -208,7 +208,7 @@
       border-color: #cbd5e1;
     }
 
-    /* FILA INFERIOR CONTROLES */
+    /* FILA INFERIOR */
     .bottom-controls-wrapper {
       display: flex;
       flex-direction: column;
@@ -216,7 +216,6 @@
       width: 100%;
     }
 
-    /* BARRA DESLIZANTE CON BUFFER REAL Y MINIATURA PREVIEW */
     .scrubber-container {
       width: 100%;
       display: flex;
@@ -298,7 +297,6 @@
       gap: 10px;
     }
 
-    /* CONTADOR UNIFICADO CONMUTABLE */
     .time-counter {
       font-size: 11px;
       font-weight: 700;
@@ -316,7 +314,7 @@
       background: rgba(168, 85, 247, 0.4);
     }
 
-    /* ESTILO GENERAL DE BOTONES / ICONOS */
+    /* ESTILO GENERAL DE BOTONES */
     .icon-btn {
       background: none;
       border: none;
@@ -369,11 +367,12 @@
       cursor: pointer;
     }
 
-    /* MENU DESPLEGABLE DE OPCIONES (TUERCA) */
+    /* MENU DESPLEGABLE DE OPCIONES */
     .settings-panel {
       position: absolute;
       bottom: 0;
-      left: 0; right: 0;
+      left: 0;
+      right: 0;
       background: rgba(20, 3, 38, 0.96);
       border-top: 1px solid var(--purple-main);
       border-radius: 16px 16px 0 0;
@@ -383,9 +382,13 @@
       gap: 14px;
       z-index: 40;
       backdrop-filter: blur(10px);
+      max-height: 82%;
+      overflow-y: auto;
     }
 
-    .settings-panel.active { display: flex; }
+    .settings-panel.active {
+      display: flex;
+    }
 
     .settings-item {
       display: flex;
@@ -393,6 +396,7 @@
       align-items: center;
       font-size: 13px;
       color: #e2e8f0;
+      gap: 12px;
     }
 
     .settings-item select {
@@ -403,9 +407,61 @@
       border-radius: 6px;
       outline: none;
       font-size: 12px;
+      max-width: 55%;
     }
 
-    /* MODAL DE ATAJOS DE TECLADO */
+    /* ECUALIZADOR */
+    .equalizer-box {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px;
+      margin-top: -4px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(168, 85, 247, 0.25);
+      border-radius: 10px;
+    }
+
+    .equalizer-box.active {
+      display: flex;
+    }
+
+    .equalizer-title {
+      color: var(--purple-main);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .eq-row {
+      display: grid;
+      grid-template-columns: 42px 1fr 48px;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      color: #cbd5e1;
+    }
+
+    .eq-row input[type="range"] {
+      width: 100%;
+      accent-color: var(--purple-main);
+    }
+
+    .eq-value {
+      text-align: right;
+      font-family: monospace;
+      color: #e2e8f0;
+    }
+
+    .surround-status {
+      font-size: 10px;
+      color: #94a3b8;
+      text-align: center;
+      margin-top: -4px;
+    }
+
+    /* MODAL DE ATAJOS */
     .shortcuts-panel {
       position: absolute;
       inset: 0;
@@ -418,7 +474,9 @@
       overflow-y: auto;
     }
 
-    .shortcuts-panel.active { display: flex; }
+    .shortcuts-panel.active {
+      display: flex;
+    }
 
     .shortcuts-header {
       display: flex;
@@ -471,7 +529,7 @@
       color: #e2e8f0;
     }
 
-    /* BLOQUEO DE PANTALLA */
+    /* BLOQUEO */
     .lock-overlay {
       position: absolute;
       inset: 0;
@@ -483,9 +541,11 @@
       padding: 12px;
     }
 
-    .lock-overlay.active { display: flex; }
+    .lock-overlay.active {
+      display: flex;
+    }
 
-    /* CONTENEDOR DE ENLACE DEBAJO DEL REPRODUCTOR */
+    /* URL */
     .url-section {
       padding: 16px;
       display: flex;
@@ -538,118 +598,225 @@
       font-weight: 600;
       cursor: pointer;
     }
+
+    @media (max-width: 600px) {
+      .settings-panel {
+        padding: 14px;
+        gap: 12px;
+      }
+
+      .settings-item {
+        font-size: 12px;
+      }
+
+      .settings-item select {
+        font-size: 11px;
+      }
+
+      .equalizer-box {
+        padding: 10px;
+      }
+
+      .eq-row {
+        grid-template-columns: 38px 1fr 44px;
+      }
+    }
   </style>
 </head>
+
 <body>
 
   <!-- REPRODUCTOR -->
   <div class="player-wrapper" id="playerWrapper">
+
     <div class="brand-watermark">JeissoNxP182</div>
     <div class="video-title-display" id="videoTitleDisplay"></div>
 
-    <!-- CAPA INICIAL EXCLUSIVA (SOLO PLAY GRANDE AL CARGAR) -->
+    <!-- CAPA INICIAL -->
     <div class="initial-play-overlay" id="initialPlayOverlay">
       <button class="btn-initial-play" id="btnInitialPlay" title="Reproducir">
-        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
       </button>
     </div>
 
-    <!-- ELEMENTOS DE VIDEO E IFRAME PERSISTENTES -->
-    <video id="mainVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline></video>
-    <iframe id="mainIframe" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+    <!-- VIDEO / IFRAME -->
+    <video
+      id="mainVideo"
+      preload="metadata"
+      playsinline
+      webkit-playsinline
+      x5-playsinline>
+    </video>
 
-    <!-- CAPA DE CONTROLES GENERALES -->
+    <iframe
+      id="mainIframe"
+      allow="autoplay; encrypted-media; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+
+    <!-- CONTROLES -->
     <div class="controls-overlay" id="controlsOverlay">
-      
-      <!-- ARRIBA A LA DERECHA -->
+
+      <!-- ARRIBA -->
       <div class="top-controls">
+
         <button class="icon-btn" id="btnShortcuts" title="Atajos de teclado">
-          <svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2H2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-3 0h2v2H5v-2zm0-3h2v2H5V8zm11 10H8v-2h8v2zm1-3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
+          <svg viewBox="0 0 24 24">
+            <path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2H2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-3 0h2v2H5v-2zm0-3h2v2H5V8zm11 10H8v-2h8v2zm1-3h-2v-2h2v2zm0-3h-2V8h2v2z"/>
+          </svg>
         </button>
 
         <button class="icon-btn" id="btnCast" title="Transmitir">
-          <svg viewBox="0 0 24 24"><path d="M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+          <svg viewBox="0 0 24 24">
+            <path d="M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+          </svg>
         </button>
 
         <button class="icon-btn" id="btnPip" title="PiP (Vídeo pequeño)">
-          <svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V5c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 0H3V5h18v14z"/></svg>
+          <svg viewBox="0 0 24 24">
+            <path d="M19 11h-8v6h8v-6zm4 8V5c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 0H3V5h18v14z"/>
+          </svg>
         </button>
 
         <button class="icon-btn" id="btnSettings" title="Ajustes">
-          <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5-3.5z"/></svg>
+          <svg viewBox="0 0 24 24">
+            <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.03.24-.24.42-.49.42h-4c-.25 0-.46-.18-.49-.42l-.38-2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61.25 1.17.59 1.69.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.13-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
+          </svg>
         </button>
+
       </div>
 
-      <!-- TRES OPCIONES CENTRALES -->
+      <!-- CENTRO -->
       <div class="center-controls">
+
         <button class="btn-center" id="btnRewind" title="-10 Segundos">
-          <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+          <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;">
+            <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+          </svg>
         </button>
 
         <button class="btn-center play-main" id="btnCenterPlay" title="Pausar / Reproducir">
-          <svg id="centerIconPlay" viewBox="0 0 24 24" style="width:34px;height:34px;fill:currentColor;"><path d="M8 5v14l11-7z"/></svg>
-          <svg id="centerIconPause" viewBox="0 0 24 24" style="width:34px;height:34px;fill:currentColor;display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          <svg id="centerIconPlay" viewBox="0 0 24 24" style="width:34px;height:34px;fill:currentColor;">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+
+          <svg id="centerIconPause" viewBox="0 0 24 24" style="width:34px;height:34px;fill:currentColor;display:none;">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+          </svg>
         </button>
 
         <button class="btn-center" id="btnForward" title="+10 Segundos">
-          <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;"><path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88 3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8z"/></svg>
+          <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;">
+            <path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88-3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8z"/>
+          </svg>
         </button>
+
       </div>
 
       <!-- ABAJO -->
       <div class="bottom-controls-wrapper">
-        <!-- BARRA DESLIZANTE CON BUFFER REAL Y MINIATURA -->
+
         <div class="scrubber-container" id="scrubberContainer">
+
           <div class="scrubber-thumbnail-preview" id="thumbPreview">
             <canvas class="scrubber-preview-canvas" id="previewCanvas"></canvas>
             <span class="scrubber-preview-time" id="previewTime">0:00:00</span>
           </div>
-          <input type="range" class="video-scrubber" id="videoScrubber" min="0" max="100" value="0" step="0.05">
+
+          <input
+            type="range"
+            class="video-scrubber"
+            id="videoScrubber"
+            min="0"
+            max="100"
+            value="0"
+            step="0.05">
+
         </div>
 
         <div class="bottom-row">
-          <!-- ABAJO A LA IZQUIERDA -->
+
           <div class="bottom-left">
+
             <button class="icon-btn" id="btnBottomPlay">
-              <svg id="bottomIconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              <svg id="bottomIconPause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+              <svg id="bottomIconPlay" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+
+              <svg id="bottomIconPause" viewBox="0 0 24 24" style="display:none;">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+              </svg>
             </button>
 
             <div class="volume-group">
+
               <button class="icon-btn" id="btnMute">
-                <svg id="iconVolHigh" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-                <svg id="iconVolMute" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+
+                <svg id="iconVolHigh" viewBox="0 0 24 24">
+                  <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                </svg>
+
+                <svg id="iconVolMute" viewBox="0 0 24 24" style="display:none;">
+                  <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                </svg>
+
               </button>
-              <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1">
+
+              <input
+                type="range"
+                class="volume-slider"
+                id="volumeSlider"
+                min="0"
+                max="1"
+                step="0.05"
+                value="1">
+
             </div>
 
-            <!-- UNICO CONTADOR MODO CONMUTABLE -->
-            <div class="time-counter" id="currTime" title="Clic para cambiar modo de tiempo">0:00:00</div>
+            <div class="time-counter" id="currTime" title="Clic para cambiar modo de tiempo">
+              0:00:00
+            </div>
+
           </div>
 
-          <!-- ABAJO A LA DERECHA -->
           <div class="bottom-right">
+
             <button class="icon-btn" id="btnCopyLink" title="Copiar Enlace">
-              <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+              <svg viewBox="0 0 24 24">
+                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+              </svg>
             </button>
 
             <button class="icon-btn" id="btnDownload" title="Descargar Vídeo">
-              <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+              <svg viewBox="0 0 24 24">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+              </svg>
             </button>
 
             <button class="icon-btn" id="btnFullscreen" title="Maximizar">
-              <svg id="iconFS" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-              <svg id="iconExitFS" viewBox="0 0 24 24" style="display:none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
+              <svg id="iconFS" viewBox="0 0 24 24">
+                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+              </svg>
+
+              <svg id="iconExitFS" viewBox="0 0 24 24" style="display:none;">
+                <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
+              </svg>
             </button>
+
           </div>
+
         </div>
       </div>
     </div>
 
-    <!-- PANELS / MODALES -->
+    <!-- PANEL DE AJUSTES -->
     <div class="settings-panel" id="settingsPanel">
+
       <div class="settings-item">
         <span>Calidad</span>
+
         <select id="selectQuality">
           <option value="-1">Automática</option>
         </select>
@@ -657,6 +824,7 @@
 
       <div class="settings-item">
         <span>Velocidad de reproducción</span>
+
         <select id="selectSpeed">
           <option value="0.5">0.5x</option>
           <option value="0.75">0.75x</option>
@@ -667,92 +835,220 @@
         </select>
       </div>
 
+      <!-- NUEVO: RELACIÓN DE ASPECTO -->
+      <div class="settings-item">
+        <span>Relación de aspecto</span>
+
+        <select id="selectAspectRatio">
+          <option value="auto">Automática</option>
+          <option value="original">Original</option>
+          <option value="16:9">16:9</option>
+          <option value="4:3">4:3</option>
+          <option value="21:9">21:9</option>
+          <option value="1:1">1:1</option>
+        </select>
+      </div>
+
+      <!-- NUEVO: SONIDO -->
+      <div class="settings-item">
+        <span>Sonido</span>
+
+        <select id="selectSoundMode">
+          <option value="normal">Normal</option>
+          <option value="bass">Graves</option>
+          <option value="treble">Agudos</option>
+          <option value="voice">Voz</option>
+          <option value="power">Potente</option>
+          <option value="surround">Envolvente</option>
+          <option value="custom">Ecualizador</option>
+        </select>
+      </div>
+
+      <!-- ECUALIZADOR -->
+      <div class="equalizer-box" id="equalizerBox">
+
+        <div class="equalizer-title">
+          Ecualizador personalizado
+        </div>
+
+        <div class="eq-row">
+          <span>60Hz</span>
+          <input type="range" id="eq60" min="-12" max="12" step="1" value="0">
+          <span class="eq-value" id="eq60Value">0 dB</span>
+        </div>
+
+        <div class="eq-row">
+          <span>250Hz</span>
+          <input type="range" id="eq250" min="-12" max="12" step="1" value="0">
+          <span class="eq-value" id="eq250Value">0 dB</span>
+        </div>
+
+        <div class="eq-row">
+          <span>1kHz</span>
+          <input type="range" id="eq1k" min="-12" max="12" step="1" value="0">
+          <span class="eq-value" id="eq1kValue">0 dB</span>
+        </div>
+
+        <div class="eq-row">
+          <span>4kHz</span>
+          <input type="range" id="eq4k" min="-12" max="12" step="1" value="0">
+          <span class="eq-value" id="eq4kValue">0 dB</span>
+        </div>
+
+        <div class="eq-row">
+          <span>12kHz</span>
+          <input type="range" id="eq12k" min="-12" max="12" step="1" value="0">
+          <span class="eq-value" id="eq12kValue">0 dB</span>
+        </div>
+
+        <div class="surround-status" id="surroundStatus">
+          Procesamiento estéreo normal
+        </div>
+
+      </div>
+
+      <!-- NUEVO: MODO ESPEJO -->
+      <div class="settings-item" id="optMirror" style="cursor:pointer;">
+        <span id="mirrorText">Modo espejo: Desactivado</span>
+
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;">
+          <path d="M16 3H8v2h8V3zM5 7h14v10H5V7zm2 2v6h10V9H7zm5 12h2v-2h-2v2z"/>
+        </svg>
+      </div>
+
       <div class="settings-item" id="optLockScreen" style="cursor:pointer;">
         <span>Bloquear pantalla</span>
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;">
+          <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+        </svg>
       </div>
+
     </div>
 
-    <!-- PANEL MODAL DE ATAJOS DE TECLADO -->
+    <!-- ATAJOS -->
     <div class="shortcuts-panel" id="shortcutsPanel">
+
       <div class="shortcuts-header">
-        <span class="shortcuts-title">⌨️ Atajos de Teclado</span>
+
+        <span class="shortcuts-title">
+          ⌨️ Atajos de Teclado
+        </span>
+
         <button class="icon-btn" id="btnCloseShortcuts" style="width:28px;height:28px;">
-          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          <svg viewBox="0 0 24 24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
         </button>
+
       </div>
+
       <div class="shortcuts-grid">
+
         <div class="shortcut-card">
           <span class="shortcut-key">Espacio / K</span>
           <span class="shortcut-desc">Pausar / Reproducir</span>
         </div>
+
         <div class="shortcut-card">
           <span class="shortcut-key">⬆️ Arriba</span>
           <span class="shortcut-desc">Subir Volumen (+5%)</span>
         </div>
+
         <div class="shortcut-card">
           <span class="shortcut-key">⬇️ Abajo</span>
           <span class="shortcut-desc">Bajar Volumen (-5%)</span>
         </div>
+
         <div class="shortcut-card">
           <span class="shortcut-key">⬅️ Izquierda / J</span>
           <span class="shortcut-desc">Retroceder 10s</span>
         </div>
+
         <div class="shortcut-card">
           <span class="shortcut-key">➡️ Derecha / L</span>
           <span class="shortcut-desc">Adelantar 10s</span>
         </div>
+
         <div class="shortcut-card">
           <span class="shortcut-key">M</span>
           <span class="shortcut-desc">Silenciar / Activar sonido</span>
         </div>
+
         <div class="shortcut-card">
           <span class="shortcut-key">F</span>
           <span class="shortcut-desc">Pantalla Completa</span>
         </div>
+
         <div class="shortcut-card">
           <span class="shortcut-key">P</span>
           <span class="shortcut-desc">Modo PiP (Vídeo flotante)</span>
         </div>
+
       </div>
     </div>
 
-    <!-- CAPA DE DESBLOQUEO -->
+    <!-- BLOQUEO -->
     <div class="lock-overlay" id="lockOverlay">
-      <button class="icon-btn" id="btnUnlock" style="background:rgba(20,3,38,0.8); border:1px solid var(--purple-main);">
-        <svg viewBox="0 0 24 24"><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/></svg>
+
+      <button
+        class="icon-btn"
+        id="btnUnlock"
+        style="background:rgba(20,3,38,0.8); border:1px solid var(--purple-main);">
+
+        <svg viewBox="0 0 24 24">
+          <path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/>
+        </svg>
+
       </button>
+
     </div>
+
   </div>
 
-  <!-- SECCIÓN SUPERIOR DE CARGA (DEBAJO DEL REPRODUCTOR) -->
+  <!-- CARGA DE FUENTE -->
   <div class="url-section">
-    <div class="url-title">Cargar Fuente de Vídeo (.mp4 / .m3u8 / Youtube / Embed)</div>
-    <div class="input-wrapper">
-      <input type="text" id="urlInput" class="url-input" placeholder="Pega tu URL de vídeo aquí..." />
-      <button id="btnLoad" class="btn-load">Cargar</button>
+
+    <div class="url-title">
+      Cargar Fuente de Vídeo (.mp4 / .m3u8 / Youtube / Embed)
     </div>
+
+    <div class="input-wrapper">
+
+      <input
+        type="text"
+        id="urlInput"
+        class="url-input"
+        placeholder="Pega tu URL de vídeo aquí...">
+
+      <button id="btnLoad" class="btn-load">
+        Cargar
+      </button>
+
+    </div>
+
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+
       const video = document.getElementById('mainVideo');
       const mainIframe = document.getElementById('mainIframe');
       const playerWrapper = document.getElementById('playerWrapper');
       const videoTitleDisplay = document.getElementById('videoTitleDisplay');
-      
+
       const initialPlayOverlay = document.getElementById('initialPlayOverlay');
       const btnInitialPlay = document.getElementById('btnInitialPlay');
       const controlsOverlay = document.getElementById('controlsOverlay');
-      
+
       const btnCenterPlay = document.getElementById('btnCenterPlay');
       const centerIconPlay = document.getElementById('centerIconPlay');
       const centerIconPause = document.getElementById('centerIconPause');
-      
+
       const btnBottomPlay = document.getElementById('btnBottomPlay');
       const bottomIconPlay = document.getElementById('bottomIconPlay');
       const bottomIconPause = document.getElementById('bottomIconPause');
-      
+
       const btnRewind = document.getElementById('btnRewind');
       const btnForward = document.getElementById('btnForward');
 
@@ -762,7 +1058,6 @@
       const volumeSlider = document.getElementById('volumeSlider');
 
       const videoScrubber = document.getElementById('videoScrubber');
-      const scrubberContainer = document.getElementById('scrubberContainer');
       const thumbPreview = document.getElementById('thumbPreview');
       const previewCanvas = document.getElementById('previewCanvas');
       const previewTime = document.getElementById('previewTime');
@@ -772,6 +1067,29 @@
       const settingsPanel = document.getElementById('settingsPanel');
       const selectSpeed = document.getElementById('selectSpeed');
       const selectQuality = document.getElementById('selectQuality');
+
+      /* NUEVOS CONTROLES */
+      const selectAspectRatio = document.getElementById('selectAspectRatio');
+      const selectSoundMode = document.getElementById('selectSoundMode');
+      const equalizerBox = document.getElementById('equalizerBox');
+
+      const eq60 = document.getElementById('eq60');
+      const eq250 = document.getElementById('eq250');
+      const eq1k = document.getElementById('eq1k');
+      const eq4k = document.getElementById('eq4k');
+      const eq12k = document.getElementById('eq12k');
+
+      const eq60Value = document.getElementById('eq60Value');
+      const eq250Value = document.getElementById('eq250Value');
+      const eq1kValue = document.getElementById('eq1kValue');
+      const eq4kValue = document.getElementById('eq4kValue');
+      const eq12kValue = document.getElementById('eq12kValue');
+
+      const surroundStatus = document.getElementById('surroundStatus');
+
+      const optMirror = document.getElementById('optMirror');
+      const mirrorText = document.getElementById('mirrorText');
+
       const optLockScreen = document.getElementById('optLockScreen');
       const lockOverlay = document.getElementById('lockOverlay');
       const btnUnlock = document.getElementById('btnUnlock');
@@ -799,355 +1117,1740 @@
       let timeMode = 0;
       let isEmbedMode = false;
 
-      // Elemento de vídeo oculto exclusivamente para extraer los fotogramas del preview
-      const previewVideo = document.createElement('video');
+      /* =========================================================
+         NUEVO SISTEMA DE SONIDO
+         ========================================================= */
+
+      let audioContext = null;
+      let mediaSourceNode = null;
+      let eqFilters = [];
+      let surroundDelay = null;
+      let surroundGain = null;
+      let audioGraphReady = false;
+
+      let mirrorEnabled = false;
+
+      function createAudioGraph() {
+
+        if (audioGraphReady) return true;
+
+        try {
+
+          const AudioContextClass =
+            window.AudioContext ||
+            window.webkitAudioContext;
+
+          if (!AudioContextClass) return false;
+
+          audioContext = new AudioContextClass();
+
+          mediaSourceNode =
+            audioContext.createMediaElementSource(video);
+
+          const frequencies = [60, 250, 1000, 4000, 12000];
+
+          eqFilters = frequencies.map((frequency, index) => {
+
+            const filter = audioContext.createBiquadFilter();
+
+            if (index === 0) {
+              filter.type = 'lowshelf';
+            } else if (index === frequencies.length - 1) {
+              filter.type = 'highshelf';
+            } else {
+              filter.type = 'peaking';
+            }
+
+            filter.frequency.value = frequency;
+            filter.Q.value = 1;
+            filter.gain.value = 0;
+
+            return filter;
+          });
+
+          surroundDelay = audioContext.createDelay(0.05);
+          surroundGain = audioContext.createGain();
+
+          surroundDelay.delayTime.value = 0.018;
+          surroundGain.gain.value = 0;
+
+          let currentNode = mediaSourceNode;
+
+          eqFilters.forEach(filter => {
+            currentNode.connect(filter);
+            currentNode = filter;
+          });
+
+          currentNode.connect(surroundDelay);
+          surroundDelay.connect(surroundGain);
+          surroundGain.connect(audioContext.destination);
+
+          /*
+           * También conectamos la señal directa.
+           * De esta manera el modo normal conserva el audio original.
+           */
+          currentNode.connect(audioContext.destination);
+
+          audioGraphReady = true;
+
+          return true;
+
+        } catch (error) {
+
+          console.warn(
+            'No se pudo inicializar el ecualizador:',
+            error
+          );
+
+          return false;
+        }
+      }
+
+      async function resumeAudioContext() {
+
+        if (!audioContext) {
+          createAudioGraph();
+        }
+
+        if (
+          audioContext &&
+          audioContext.state === 'suspended'
+        ) {
+          try {
+            await audioContext.resume();
+          } catch (error) {}
+        }
+      }
+
+      function setEQValues(values) {
+
+        if (!eqFilters.length) return;
+
+        eqFilters.forEach((filter, index) => {
+          filter.gain.value = values[index];
+        });
+
+        eq60.value = values[0];
+        eq250.value = values[1];
+        eq1k.value = values[2];
+        eq4k.value = values[3];
+        eq12k.value = values[4];
+
+        updateEQLabels();
+      }
+
+      function updateEQLabels() {
+
+        eq60Value.textContent =
+          `${eq60.value} dB`;
+
+        eq250Value.textContent =
+          `${eq250.value} dB`;
+
+        eq1kValue.textContent =
+          `${eq1k.value} dB`;
+
+        eq4kValue.textContent =
+          `${eq4k.value} dB`;
+
+        eq12kValue.textContent =
+          `${eq12k.value} dB`;
+      }
+
+      function applySoundMode(mode) {
+
+        if (isEmbedMode) return;
+
+        createAudioGraph();
+
+        if (!audioGraphReady) return;
+
+        const presets = {
+
+          normal: [0, 0, 0, 0, 0],
+
+          bass: [7, 5, 2, 0, -1],
+
+          treble: [-1, 0, 1, 5, 7],
+
+          voice: [-3, 1, 5, 4, 1],
+
+          power: [6, 3, 2, 3, 5],
+
+          surround: [2, 1, 0, 2, 3],
+
+          custom: [
+            Number(eq60.value),
+            Number(eq250.value),
+            Number(eq1k.value),
+            Number(eq4k.value),
+            Number(eq12k.value)
+          ]
+
+        };
+
+        const values =
+          presets[mode] || presets.normal;
+
+        setEQValues(values);
+
+        if (mode === 'surround') {
+
+          surroundGain.gain.value = 0.22;
+
+          surroundStatus.textContent =
+            'Efecto envolvente estéreo activado';
+
+        } else {
+
+          surroundGain.gain.value = 0;
+
+          surroundStatus.textContent =
+            mode === 'custom'
+              ? 'Ecualizador personalizado'
+              : 'Procesamiento estéreo normal';
+        }
+
+        equalizerBox.classList.toggle(
+          'active',
+          mode === 'custom'
+        );
+
+        resumeAudioContext();
+      }
+
+      function updateCustomEQ() {
+
+        if (!audioGraphReady) {
+          createAudioGraph();
+        }
+
+        if (!audioGraphReady) return;
+
+        const values = [
+          Number(eq60.value),
+          Number(eq250.value),
+          Number(eq1k.value),
+          Number(eq4k.value),
+          Number(eq12k.value)
+        ];
+
+        setEQValues(values);
+
+        surroundGain.gain.value = 0;
+
+        selectSoundMode.value = 'custom';
+
+        surroundStatus.textContent =
+          'Ecualizador personalizado';
+
+        equalizerBox.classList.add('active');
+
+        resumeAudioContext();
+      }
+
+      [
+        eq60,
+        eq250,
+        eq1k,
+        eq4k,
+        eq12k
+      ].forEach(slider => {
+
+        slider.addEventListener('input', e => {
+
+          e.stopPropagation();
+
+          updateCustomEQ();
+
+          resetAutoHide();
+
+        });
+
+      });
+
+      selectSoundMode.addEventListener('change', e => {
+
+        e.stopPropagation();
+
+        applySoundMode(
+          selectSoundMode.value
+        );
+
+        resetAutoHide();
+
+      });
+
+      /* =========================================================
+         RELACIÓN DE ASPECTO
+         ========================================================= */
+
+      function applyAspectRatio(mode) {
+
+        if (mode === 'auto') {
+
+          video.style.objectFit = 'contain';
+
+        } else if (mode === 'original') {
+
+          video.style.objectFit = 'contain';
+
+        } else {
+
+          video.style.objectFit = 'contain';
+
+          const ratioMap = {
+            '16:9': '16 / 9',
+            '4:3': '4 / 3',
+            '21:9': '21 / 9',
+            '1:1': '1 / 1'
+          };
+
+          const ratio = ratioMap[mode];
+
+          if (ratio) {
+
+            /*
+             * Mantiene el vídeo centrado y utiliza
+             * el aspect-ratio para conservar la proporción.
+             */
+            video.style.aspectRatio = ratio;
+
+            video.style.width = '100%';
+            video.style.height = '100%';
+          }
+        }
+
+        if (
+          mode === 'auto' ||
+          mode === 'original'
+        ) {
+          video.style.aspectRatio = 'auto';
+          video.style.width = '100%';
+          video.style.height = '100%';
+        }
+
+        resetAutoHide();
+      }
+
+      selectAspectRatio.addEventListener(
+        'change',
+        e => {
+
+          e.stopPropagation();
+
+          applyAspectRatio(
+            selectAspectRatio.value
+          );
+
+        }
+      );
+
+      /* =========================================================
+         MODO ESPEJO
+         ========================================================= */
+
+      function applyMirror() {
+
+        mirrorEnabled = !mirrorEnabled;
+
+        video.style.transform =
+          mirrorEnabled
+            ? 'scaleX(-1)'
+            : 'scaleX(1)';
+
+        mirrorText.textContent =
+          mirrorEnabled
+            ? 'Modo espejo: Activado'
+            : 'Modo espejo: Desactivado';
+
+        resetAutoHide();
+      }
+
+      optMirror.addEventListener(
+        'click',
+        e => {
+
+          e.stopPropagation();
+
+          if (!isEmbedMode) {
+            applyMirror();
+          }
+
+        }
+      );
+
+      /* =========================================================
+         PREVIEW
+         ========================================================= */
+
+      const previewVideo =
+        document.createElement('video');
+
       previewVideo.crossOrigin = "anonymous";
       previewVideo.preload = "metadata";
       previewVideo.muted = true;
       previewVideo.playsInline = true;
 
-      // Gestión de historia (Botón atrás para cerrar reproductor)
-      window.addEventListener('popstate', (e) => {
-        if (currentUrl) {
-          unloadVideoInternal();
+      /* HISTORIA */
+
+      window.addEventListener(
+        'popstate',
+        () => {
+
+          if (currentUrl) {
+            unloadVideoInternal();
+          }
+
         }
-      });
+      );
+
+      function resetMediaSettings() {
+
+        video.style.objectFit = 'contain';
+        video.style.aspectRatio = 'auto';
+        video.style.width = '100%';
+        video.style.height = '100%';
+
+        mirrorEnabled = false;
+
+        video.style.transform = 'scaleX(1)';
+
+        mirrorText.textContent =
+          'Modo espejo: Desactivado';
+
+        selectAspectRatio.value = 'auto';
+        selectSoundMode.value = 'normal';
+
+        equalizerBox.classList.remove('active');
+
+        setEQValues([0, 0, 0, 0, 0]);
+
+        if (surroundGain) {
+          surroundGain.gain.value = 0;
+        }
+
+        if (surroundStatus) {
+          surroundStatus.textContent =
+            'Procesamiento estéreo normal';
+        }
+      }
 
       function unloadVideoInternal() {
+
         currentUrl = '';
         pendingUrl = '';
-        if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+
+        if (hlsInstance) {
+          hlsInstance.destroy();
+          hlsInstance = null;
+        }
+
         video.pause();
         video.removeAttribute('src');
         video.load();
+
         previewVideo.removeAttribute('src');
         previewVideo.load();
+
         video.style.display = 'block';
+
         mainIframe.style.display = 'none';
         mainIframe.src = 'about:blank';
+
         controlsOverlay.classList.remove('active');
         initialPlayOverlay.classList.remove('hidden');
+
         videoTitleDisplay.textContent = '';
+
+        resetMediaSettings();
       }
 
       function getCleanTitle(url) {
+
         try {
+
           const parsed = new URL(url);
-          const segments = parsed.pathname.split('/').filter(Boolean);
+          const segments =
+            parsed.pathname.split('/').filter(Boolean);
+
           if (segments.length > 0) {
-            let filename = decodeURIComponent(segments[segments.length - 1]);
-            filename = filename.replace(/[_]/g, ' ').replace(/\.[^/.]+$/, '');
+
+            let filename =
+              decodeURIComponent(
+                segments[segments.length - 1]
+              );
+
+            filename =
+              filename
+                .replace(/[_]/g, ' ')
+                .replace(/\.[^/.]+$/, '');
+
             return filename;
           }
+
           return parsed.hostname;
+
         } catch {
+
           return url;
         }
       }
 
+      /* =========================================================
+         AUTO OCULTAR
+         AHORA 10 SEGUNDOS
+         ========================================================= */
+
       function resetAutoHide() {
+
         clearTimeout(controlsTimer);
+
         if (!isEmbedMode && !video.paused) {
+
           controlsTimer = setTimeout(() => {
+
             controlsOverlay.classList.remove('active');
             settingsPanel.classList.remove('active');
-          }, 4000);
+
+          }, 10000);
+
         }
       }
 
       function togglePlay() {
+
         if (isEmbedMode) return;
+
         if (video.paused) {
+
+          resumeAudioContext();
+
           video.play().catch(() => {});
+
         } else {
+
           video.pause();
+
         }
       }
 
-      btnInitialPlay.addEventListener('click', (e) => {
-        e.stopPropagation();
-        initialPlayOverlay.classList.add('hidden');
-        
-        // Garantizar desbloqueo de audio y volumen activo al hacer clic
-        video.muted = false;
-        video.volume = 1;
-        volumeSlider.value = 1;
-        updateVolIcons();
+      btnInitialPlay.addEventListener(
+        'click',
+        e => {
 
-        if (pendingUrl) {
-          actualLoadAndPlay(pendingUrl);
+          e.stopPropagation();
+
+          initialPlayOverlay.classList.add('hidden');
+
+          video.muted = false;
+          video.volume = 1;
+
+          volumeSlider.value = 1;
+
+          updateVolIcons();
+
+          resumeAudioContext();
+
+          if (pendingUrl) {
+            actualLoadAndPlay(pendingUrl);
+          }
+
         }
-      });
+      );
 
-      btnCenterPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); resetAutoHide(); });
-      btnBottomPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); resetAutoHide(); });
+      btnCenterPlay.addEventListener(
+        'click',
+        e => {
 
-      video.addEventListener('play', () => {
-        centerIconPlay.style.display = 'none';
-        centerIconPause.style.display = 'block';
-        bottomIconPlay.style.display = 'none';
-        bottomIconPause.style.display = 'block';
-        resetAutoHide();
-      });
+          e.stopPropagation();
 
-      video.addEventListener('pause', () => {
-        centerIconPlay.style.display = 'block';
-        centerIconPause.style.display = 'none';
-        bottomIconPlay.style.display = 'block';
-        bottomIconPause.style.display = 'none';
-        clearTimeout(controlsTimer);
-        controlsOverlay.classList.add('active');
-      });
+          togglePlay();
 
-      video.addEventListener('timeupdate', () => { if (!isSeeking) updateUI(); });
-      video.addEventListener('progress', updateUI);
+          resetAutoHide();
 
-      video.addEventListener('volumechange', () => {
-        volumeSlider.value = video.muted ? 0 : video.volume;
-        updateVolIcons();
-      });
+        }
+      );
 
-      btnRewind.addEventListener('click', (e) => { e.stopPropagation(); if (!isEmbedMode) seekVideo(Math.max(0, video.currentTime - 10)); resetAutoHide(); });
-      btnForward.addEventListener('click', (e) => { e.stopPropagation(); if (!isEmbedMode) seekVideo(Math.min(video.duration || 0, video.currentTime + 10)); resetAutoHide(); });
+      btnBottomPlay.addEventListener(
+        'click',
+        e => {
+
+          e.stopPropagation();
+
+          togglePlay();
+
+          resetAutoHide();
+
+        }
+      );
+
+      video.addEventListener(
+        'play',
+        () => {
+
+          centerIconPlay.style.display = 'none';
+          centerIconPause.style.display = 'block';
+
+          bottomIconPlay.style.display = 'none';
+          bottomIconPause.style.display = 'block';
+
+          resumeAudioContext();
+
+          resetAutoHide();
+
+        }
+      );
+
+      video.addEventListener(
+        'pause',
+        () => {
+
+          centerIconPlay.style.display = 'block';
+          centerIconPause.style.display = 'none';
+
+          bottomIconPlay.style.display = 'block';
+          bottomIconPause.style.display = 'none';
+
+          clearTimeout(controlsTimer);
+
+          controlsOverlay.classList.add('active');
+
+        }
+      );
+
+      video.addEventListener(
+        'timeupdate',
+        () => {
+
+          if (!isSeeking) {
+            updateUI();
+          }
+
+        }
+      );
+
+      video.addEventListener(
+        'progress',
+        updateUI
+      );
+
+      video.addEventListener(
+        'volumechange',
+        () => {
+
+          volumeSlider.value =
+            video.muted
+              ? 0
+              : video.volume;
+
+          updateVolIcons();
+
+        }
+      );
+
+      btnRewind.addEventListener(
+        'click',
+        e => {
+
+          e.stopPropagation();
+
+          if (!isEmbedMode) {
+
+            seekVideo(
+              Math.max(
+                0,
+                video.currentTime - 10
+              )
+            );
+
+          }
+
+          resetAutoHide();
+
+        }
+      );
+
+      btnForward.addEventListener(
+        'click',
+        e => {
+
+          e.stopPropagation();
+
+          if (!isEmbedMode) {
+
+            seekVideo(
+              Math.min(
+                video.duration || 0,
+                video.currentTime + 10
+              )
+            );
+
+          }
+
+          resetAutoHide();
+
+        }
+      );
 
       function seekVideo(timeSec) {
+
         if (isEmbedMode) return;
-        if (video.fastSeek) video.fastSeek(timeSec);
-        else video.currentTime = timeSec;
+
+        if (video.fastSeek) {
+          video.fastSeek(timeSec);
+        } else {
+          video.currentTime = timeSec;
+        }
+
       }
 
-      playerWrapper.addEventListener('click', (e) => {
-        if (isEmbedMode || !initialPlayOverlay.classList.contains('hidden')) return;
-        if (e.target.closest('.controls-overlay') || e.target.closest('.settings-panel') || e.target.closest('.shortcuts-panel') || e.target.closest('.lock-overlay')) {
-          if (e.target === controlsOverlay) {
+      playerWrapper.addEventListener(
+        'click',
+        e => {
+
+          if (
+            isEmbedMode ||
+            !initialPlayOverlay.classList.contains('hidden')
+          ) {
+            return;
+          }
+
+          if (
+            e.target.closest('.controls-overlay') ||
+            e.target.closest('.settings-panel') ||
+            e.target.closest('.shortcuts-panel') ||
+            e.target.closest('.lock-overlay')
+          ) {
+
+            if (e.target === controlsOverlay) {
+
+              controlsOverlay.classList.remove('active');
+              settingsPanel.classList.remove('active');
+
+            }
+
+            return;
+          }
+
+          const isActive =
+            controlsOverlay.classList.contains('active');
+
+          if (isActive) {
+
             controlsOverlay.classList.remove('active');
             settingsPanel.classList.remove('active');
+
+          } else {
+
+            controlsOverlay.classList.add('active');
+
+            resetAutoHide();
+
           }
-          return;
-        }
-        const isActive = controlsOverlay.classList.contains('active');
-        if (isActive) {
-          controlsOverlay.classList.remove('active');
-          settingsPanel.classList.remove('active');
-        } else {
-          controlsOverlay.classList.add('active');
-          resetAutoHide();
-        }
-      });
 
-      btnCast.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        if (!isEmbedMode && video.remote && typeof video.remote.prompt === 'function') {
-          try { await video.remote.prompt(); } catch(err) {}
         }
-      });
+      );
 
-      volumeSlider.addEventListener('input', (e) => { e.stopPropagation(); if (!isEmbedMode) { video.volume = parseFloat(e.target.value); video.muted = (video.volume === 0); } updateVolIcons(); });
-      btnMute.addEventListener('click', (e) => { e.stopPropagation(); if (!isEmbedMode) { video.muted = !video.muted; volumeSlider.value = video.muted ? 0 : (video.volume || 1); } updateVolIcons(); });
+      btnCast.addEventListener(
+        'click',
+        async e => {
+
+          e.stopPropagation();
+
+          if (
+            !isEmbedMode &&
+            video.remote &&
+            typeof video.remote.prompt === 'function'
+          ) {
+
+            try {
+              await video.remote.prompt();
+            } catch (err) {}
+
+          }
+
+        }
+      );
+
+      volumeSlider.addEventListener(
+        'input',
+        e => {
+
+          e.stopPropagation();
+
+          if (!isEmbedMode) {
+
+            video.volume =
+              parseFloat(e.target.value);
+
+            video.muted =
+              video.volume === 0;
+
+          }
+
+          updateVolIcons();
+
+        }
+      );
+
+      btnMute.addEventListener(
+        'click',
+        e => {
+
+          e.stopPropagation();
+
+          if (!isEmbedMode) {
+
+            video.muted =
+              !video.muted;
+
+            volumeSlider.value =
+              video.muted
+                ? 0
+                : (video.volume || 1);
+
+          }
+
+          updateVolIcons();
+
+        }
+      );
 
       function updateVolIcons() {
-        if (video.muted || video.volume === 0) { iconVolHigh.style.display = 'none'; iconVolMute.style.display = 'block'; } 
-        else { iconVolHigh.style.display = 'block'; iconVolMute.style.display = 'none'; }
+
+        if (
+          video.muted ||
+          video.volume === 0
+        ) {
+
+          iconVolHigh.style.display = 'none';
+          iconVolMute.style.display = 'block';
+
+        } else {
+
+          iconVolHigh.style.display = 'block';
+          iconVolMute.style.display = 'none';
+
+        }
+
       }
 
       function formatHMS(sec) {
-        if (isNaN(sec) || !isFinite(sec) || sec < 0) return "0:00:00";
-        const h = Math.floor(sec / 3600);
-        const m = Math.floor((sec % 3600) / 60);
-        const s = Math.floor(sec % 60);
+
+        if (
+          isNaN(sec) ||
+          !isFinite(sec) ||
+          sec < 0
+        ) {
+          return "0:00:00";
+        }
+
+        const h =
+          Math.floor(sec / 3600);
+
+        const m =
+          Math.floor(
+            (sec % 3600) / 60
+          );
+
+        const s =
+          Math.floor(sec % 60);
+
         return `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+
       }
 
-      currTimeElem.addEventListener('click', (e) => { e.stopPropagation(); timeMode = (timeMode + 1) % 3; updateUI(); resetAutoHide(); });
+      currTimeElem.addEventListener(
+        'click',
+        e => {
+
+          e.stopPropagation();
+
+          timeMode =
+            (timeMode + 1) % 3;
+
+          updateUI();
+
+          resetAutoHide();
+
+        }
+      );
 
       function updateUI() {
+
         if (isEmbedMode) return;
-        const dur = video.duration || 0;
-        const cur = video.currentTime || 0;
-        if (timeMode === 0) currTimeElem.textContent = formatHMS(cur);
-        else if (timeMode === 1) currTimeElem.textContent = "-" + formatHMS(dur - cur);
-        else currTimeElem.textContent = "[" + formatHMS(dur) + "]";
-        if (dur > 0 && !isSeeking) videoScrubber.value = (cur / dur) * 100;
+
+        const dur =
+          video.duration || 0;
+
+        const cur =
+          video.currentTime || 0;
+
+        if (timeMode === 0) {
+
+          currTimeElem.textContent =
+            formatHMS(cur);
+
+        } else if (timeMode === 1) {
+
+          currTimeElem.textContent =
+            "-" + formatHMS(dur - cur);
+
+        } else {
+
+          currTimeElem.textContent =
+            "[" + formatHMS(dur) + "]";
+
+        }
+
+        if (
+          dur > 0 &&
+          !isSeeking
+        ) {
+
+          videoScrubber.value =
+            (cur / dur) * 100;
+
+        }
 
         let bufferEnd = 0;
-        if (video.buffered && video.buffered.length > 0) {
-          for (let i = 0; i < video.buffered.length; i++) {
-            if (video.buffered.start(i) <= cur && cur <= video.buffered.end(i)) { bufferEnd = video.buffered.end(i); break; }
+
+        if (
+          video.buffered &&
+          video.buffered.length > 0
+        ) {
+
+          for (
+            let i = 0;
+            i < video.buffered.length;
+            i++
+          ) {
+
+            if (
+              video.buffered.start(i) <= cur &&
+              cur <= video.buffered.end(i)
+            ) {
+
+              bufferEnd =
+                video.buffered.end(i);
+
+              break;
+            }
+
           }
-          if (bufferEnd === 0) bufferEnd = video.buffered.end(video.buffered.length - 1);
+
+          if (bufferEnd === 0) {
+
+            bufferEnd =
+              video.buffered.end(
+                video.buffered.length - 1
+              );
+
+          }
+
         }
-        const bufPct = dur > 0 ? (bufferEnd / dur) * 100 : 0;
-        videoScrubber.style.background = `linear-gradient(to right, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) ${bufPct}%, rgba(255, 255, 255, 0.2) ${bufPct}%, rgba(255, 255, 255, 0.2) 100%)`;
+
+        const bufPct =
+          dur > 0
+            ? (bufferEnd / dur) * 100
+            : 0;
+
+        videoScrubber.style.background =
+          `linear-gradient(
+            to right,
+            rgba(255,255,255,0.4) 0%,
+            rgba(255,255,255,0.4) ${bufPct}%,
+            rgba(255,255,255,0.2) ${bufPct}%,
+            rgba(255,255,255,0.2) 100%
+          )`;
+
       }
 
       function handleScrubberHover(e) {
-        if (isEmbedMode || !video.duration) return;
-        
-        const rect = videoScrubber.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        let offsetX = clientX - rect.left;
-        offsetX = Math.max(0, Math.min(offsetX, rect.width));
-        
-        const pct = offsetX / rect.width;
-        const targetTime = pct * video.duration;
 
-        thumbPreview.style.left = `${offsetX}px`;
-        previewTime.textContent = formatHMS(targetTime);
+        if (
+          isEmbedMode ||
+          !video.duration
+        ) {
+          return;
+        }
+
+        const rect =
+          videoScrubber.getBoundingClientRect();
+
+        const clientX =
+          e.touches
+            ? e.touches[0].clientX
+            : e.clientX;
+
+        let offsetX =
+          clientX - rect.left;
+
+        offsetX =
+          Math.max(
+            0,
+            Math.min(
+              offsetX,
+              rect.width
+            )
+          );
+
+        const pct =
+          offsetX / rect.width;
+
+        const targetTime =
+          pct * video.duration;
+
+        thumbPreview.style.left =
+          `${offsetX}px`;
+
+        previewTime.textContent =
+          formatHMS(targetTime);
+
         thumbPreview.classList.add('active');
 
         if (previewVideo.src) {
-          previewVideo.currentTime = targetTime;
+          previewVideo.currentTime =
+            targetTime;
         }
+
       }
 
-      previewVideo.addEventListener('seeked', () => {
-        const ctx = previewCanvas.getContext('2d');
-        previewCanvas.width = previewVideo.videoWidth || 140;
-        previewCanvas.height = previewVideo.videoHeight || 78;
-        ctx.drawImage(previewVideo, 0, 0, previewCanvas.width, previewCanvas.height);
-      });
+      previewVideo.addEventListener(
+        'seeked',
+        () => {
+
+          const ctx =
+            previewCanvas.getContext('2d');
+
+          previewCanvas.width =
+            previewVideo.videoWidth || 140;
+
+          previewCanvas.height =
+            previewVideo.videoHeight || 78;
+
+          try {
+            ctx.drawImage(
+              previewVideo,
+              0,
+              0,
+              previewCanvas.width,
+              previewCanvas.height
+            );
+          } catch (error) {}
+
+        }
+      );
 
       function hideScrubberThumb() {
         thumbPreview.classList.remove('active');
       }
 
-      videoScrubber.addEventListener('pointerdown', (e) => { e.stopPropagation(); isSeeking = true; handleScrubberHover(e); });
-      videoScrubber.addEventListener('pointermove', (e) => { e.stopPropagation(); handleScrubberHover(e); });
-      videoScrubber.addEventListener('pointerup', hideScrubberThumb);
-      videoScrubber.addEventListener('pointerleave', hideScrubberThumb);
-      videoScrubber.addEventListener('touchmove', handleScrubberHover);
-      videoScrubber.addEventListener('touchend', hideScrubberThumb);
+      videoScrubber.addEventListener(
+        'pointerdown',
+        e => {
 
-      videoScrubber.addEventListener('input', (e) => { 
-        e.stopPropagation(); 
-        isSeeking = true; 
-        const targetTime = (parseFloat(videoScrubber.value) / 100) * (video.duration || 0); 
-        if (timeMode === 0) currTimeElem.textContent = formatHMS(targetTime); 
-        else if (timeMode === 1) currTimeElem.textContent = "-" + formatHMS((video.duration || 0) - targetTime); 
-      });
-      videoScrubber.addEventListener('change', (e) => { e.stopPropagation(); if (!isEmbedMode && video.duration) seekVideo((parseFloat(videoScrubber.value) / 100) * video.duration); isSeeking = false; resetAutoHide(); });
+          e.stopPropagation();
 
-      btnSettings.addEventListener('click', (e) => { e.stopPropagation(); settingsPanel.classList.toggle('active'); shortcutsPanel.classList.remove('active'); });
-      btnShortcuts.addEventListener('click', (e) => { e.stopPropagation(); shortcutsPanel.classList.toggle('active'); settingsPanel.classList.remove('active'); });
-      btnCloseShortcuts.addEventListener('click', (e) => { e.stopPropagation(); shortcutsPanel.classList.remove('active'); });
+          isSeeking = true;
 
-      selectSpeed.addEventListener('change', (e) => { if (!isEmbedMode) { video.playbackRate = parseFloat(e.target.value); } });
-      optLockScreen.addEventListener('click', () => { settingsPanel.classList.remove('active'); shortcutsPanel.classList.remove('active'); controlsOverlay.classList.remove('active'); lockOverlay.classList.add('active'); });
-      btnUnlock.addEventListener('click', () => { lockOverlay.classList.remove('active'); controlsOverlay.classList.add('active'); });
-      btnCopyLink.addEventListener('click', (e) => { e.stopPropagation(); if (currentUrl) { navigator.clipboard.writeText(currentUrl); } });
-      btnDownload.addEventListener('click', (e) => { e.stopPropagation(); if (currentUrl) { const a = document.createElement('a'); a.href = currentUrl; a.download = ''; a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a); } });
-      btnPip.addEventListener('click', async (e) => { e.stopPropagation(); if (!isEmbedMode) { if (document.pictureInPictureElement) await document.exitPictureInPicture(); else if (document.pictureInPictureEnabled) await video.requestPictureInPicture(); } });
-      btnFullscreen.addEventListener('click', (e) => { e.stopPropagation(); if (!document.fullscreenElement) { playerWrapper.requestFullscreen(); iconFS.style.display = 'none'; iconExitFS.style.display = 'block'; } else { document.exitFullscreen(); iconFS.style.display = 'block'; iconExitFS.style.display = 'none'; } });
+          handleScrubberHover(e);
 
-      document.addEventListener('keydown', (e) => {
-        if (document.activeElement === urlInput || lockOverlay.classList.contains('active') || isEmbedMode || !initialPlayOverlay.classList.contains('hidden')) return;
-        const key = e.key.toLowerCase();
-        switch (key) {
-          case ' ': case 'k': e.preventDefault(); togglePlay(); resetAutoHide(); break;
-          case 'arrowleft': case 'j': e.preventDefault(); seekVideo(Math.max(0, video.currentTime - 10)); resetAutoHide(); break;
-          case 'arrowright': case 'l': e.preventDefault(); seekVideo(Math.min(video.duration || 0, video.currentTime + 10)); resetAutoHide(); break;
-          case 'arrowup': e.preventDefault(); video.volume = Math.min(1, video.volume + 0.05); video.muted = (video.volume === 0); volumeSlider.value = video.volume; updateVolIcons(); resetAutoHide(); break;
-          case 'arrowdown': e.preventDefault(); video.volume = Math.max(0, video.volume - 0.05); video.muted = (video.volume === 0); volumeSlider.value = video.volume; updateVolIcons(); resetAutoHide(); break;
-          case 'm': e.preventDefault(); video.muted = !video.muted; volumeSlider.value = video.muted ? 0 : (video.volume || 1); updateVolIcons(); resetAutoHide(); break;
-          case 'f': e.preventDefault(); btnFullscreen.click(); break;
-          case 'p': e.preventDefault(); btnPip.click(); break;
         }
-      });
+      );
+
+      videoScrubber.addEventListener(
+        'pointermove',
+        e => {
+
+          e.stopPropagation();
+
+          handleScrubberHover(e);
+
+        }
+      );
+
+      videoScrubber.addEventListener(
+        'pointerup',
+        hideScrubberThumb
+      );
+
+      videoScrubber.addEventListener(
+        'pointerleave',
+        hideScrubberThumb
+      );
+
+      videoScrubber.addEventListener(
+        'touchmove',
+        handleScrubberHover
+      );
+
+      videoScrubber.addEventListener(
+        'touchend',
+        hideScrubberThumb
+      );
+
+      videoScrubber.addEventListener(
+        'input',
+        e => {
+
+          e.stopPropagation();
+
+          isSeeking = true;
+
+          const targetTime =
+            (parseFloat(videoScrubber.value) / 100) *
+            (video.duration || 0);
+
+          if (timeMode === 0) {
+
+            currTimeElem.textContent =
+              formatHMS(targetTime);
+
+          } else if (timeMode === 1) {
+
+            currTimeElem.textContent =
+              "-" +
+              formatHMS(
+                (video.duration || 0) -
+                targetTime
+              );
+
+          }
+
+        }
+      );
+
+      videoScrubber.addEventListener(
+        'change',
+        e => {
+
+          e.stopPropagation();
+
+          if (
+            !isEmbedMode &&
+            video.duration
+          ) {
+
+            seekVideo(
+              (parseFloat(videoScrubber.value) / 100) *
+              video.duration
+            );
+
+          }
+
+          isSeeking = false;
+
+          resetAutoHide();
+
+        }
+      );
+
+      /* AJUSTES */
+
+      btnSettings.addEventListener(
+        'click',
+        e => {
+
+          e.stopPropagation();
+
+          settingsPanel.classList.toggle('active');
+
+          shortcutsPanel.classList.remove('active');
+
+          resetAutoHide();
+
+        }
+      );
+
+      btnShortcuts.addEventListener(
+        'click',
+        e => {
+
+          e.stopPropagation();
+
+          shortcutsPanel.classList.toggle('active');
+
+          settingsPanel.classList.remove('active');
+
+        }
+      );
+
+      btnCloseShortcuts.addEventListener(
+        'click',
+        e => {
+
+          e.stopPropagation();
+
+          shortcutsPanel.classList.remove('active');
+
+        }
+      );
+
+      selectSpeed.addEventListener(
+        'change',
+        e => {
+
+          e.stopPropagation();
+
+          if (!isEmbedMode) {
+
+            video.playbackRate =
+              parseFloat(e.target.value);
+
+          }
+
+          resetAutoHide();
+
+        }
+      );
+
+      optLockScreen.addEventListener(
+        'click',
+        () => {
+
+          settingsPanel.classList.remove('active');
+          shortcutsPanel.classList.remove('active');
+          controlsOverlay.classList.remove('active');
+
+          lockOverlay.classList.add('active');
+
+        }
+      );
+
+      btnUnlock.addEventListener(
+        'click',
+        () => {
+
+          lockOverlay.classList.remove('active');
+
+          controlsOverlay.classList.add('active');
+
+          resetAutoHide();
+
+        }
+      );
+
+      btnCopyLink.addEventListener(
+        'click',
+        e => {
+
+          e.stopPropagation();
+
+          if (currentUrl) {
+
+            navigator.clipboard.writeText(
+              currentUrl
+            );
+
+          }
+
+        }
+      );
+
+      btnDownload.addEventListener(
+        'click',
+        e => {
+
+          e.stopPropagation();
+
+          if (currentUrl) {
+
+            const a =
+              document.createElement('a');
+
+            a.href = currentUrl;
+            a.download = '';
+            a.target = '_blank';
+
+            document.body.appendChild(a);
+
+            a.click();
+
+            document.body.removeChild(a);
+
+          }
+
+        }
+      );
+
+      btnPip.addEventListener(
+        'click',
+        async e => {
+
+          e.stopPropagation();
+
+          if (!isEmbedMode) {
+
+            if (document.pictureInPictureElement) {
+
+              await document.exitPictureInPicture();
+
+            } else if (
+              document.pictureInPictureEnabled
+            ) {
+
+              try {
+                await video.requestPictureInPicture();
+              } catch (error) {}
+
+            }
+
+          }
+
+        }
+      );
+
+      btnFullscreen.addEventListener(
+        'click',
+        e => {
+
+          e.stopPropagation();
+
+          if (!document.fullscreenElement) {
+
+            playerWrapper.requestFullscreen();
+
+            iconFS.style.display = 'none';
+            iconExitFS.style.display = 'block';
+
+          } else {
+
+            document.exitFullscreen();
+
+            iconFS.style.display = 'block';
+            iconExitFS.style.display = 'none';
+
+          }
+
+        }
+      );
+
+      /* TECLADO */
+
+      document.addEventListener(
+        'keydown',
+        e => {
+
+          if (
+            document.activeElement === urlInput ||
+            lockOverlay.classList.contains('active') ||
+            isEmbedMode ||
+            !initialPlayOverlay.classList.contains('hidden')
+          ) {
+            return;
+          }
+
+          const key =
+            e.key.toLowerCase();
+
+          switch (key) {
+
+            case ' ':
+            case 'k':
+
+              e.preventDefault();
+
+              togglePlay();
+
+              resetAutoHide();
+
+              break;
+
+            case 'arrowleft':
+            case 'j':
+
+              e.preventDefault();
+
+              seekVideo(
+                Math.max(
+                  0,
+                  video.currentTime - 10
+                )
+              );
+
+              resetAutoHide();
+
+              break;
+
+            case 'arrowright':
+            case 'l':
+
+              e.preventDefault();
+
+              seekVideo(
+                Math.min(
+                  video.duration || 0,
+                  video.currentTime + 10
+                )
+              );
+
+              resetAutoHide();
+
+              break;
+
+            case 'arrowup':
+
+              e.preventDefault();
+
+              video.volume =
+                Math.min(
+                  1,
+                  video.volume + 0.05
+                );
+
+              video.muted =
+                video.volume === 0;
+
+              volumeSlider.value =
+                video.volume;
+
+              updateVolIcons();
+
+              resetAutoHide();
+
+              break;
+
+            case 'arrowdown':
+
+              e.preventDefault();
+
+              video.volume =
+                Math.max(
+                  0,
+                  video.volume - 0.05
+                );
+
+              video.muted =
+                video.volume === 0;
+
+              volumeSlider.value =
+                video.volume;
+
+              updateVolIcons();
+
+              resetAutoHide();
+
+              break;
+
+            case 'm':
+
+              e.preventDefault();
+
+              video.muted =
+                !video.muted;
+
+              volumeSlider.value =
+                video.muted
+                  ? 0
+                  : (video.volume || 1);
+
+              updateVolIcons();
+
+              resetAutoHide();
+
+              break;
+
+            case 'f':
+
+              e.preventDefault();
+
+              btnFullscreen.click();
+
+              break;
+
+            case 'p':
+
+              e.preventDefault();
+
+              btnPip.click();
+
+              break;
+
+          }
+
+        }
+      );
+
+      /* =========================================================
+         CARGA DEL VIDEO
+         ========================================================= */
 
       function actualLoadAndPlay(rawUrl) {
-        const cleanUrl = rawUrl.toLowerCase();
-        const isDirect = cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.webm') || cleanUrl.endsWith('.ogg');
-        const isHls = cleanUrl.includes('.m3u8');
+
+        const cleanUrl =
+          rawUrl.toLowerCase();
+
+        const isDirect =
+          cleanUrl.endsWith('.mp4') ||
+          cleanUrl.endsWith('.webm') ||
+          cleanUrl.endsWith('.ogg');
+
+        const isHls =
+          cleanUrl.includes('.m3u8');
 
         video.muted = false;
         video.volume = 1;
 
+        volumeSlider.value = 1;
+
+        updateVolIcons();
+
+        resumeAudioContext();
+
         if (isDirect) {
+
           video.src = rawUrl;
+
           previewVideo.src = rawUrl;
+
           video.play().catch(() => {});
+
         } else if (isHls) {
-          if (video.canPlayType('application/vnd.apple.mpegurl')) {
+
+          if (
+            video.canPlayType(
+              'application/vnd.apple.mpegurl'
+            )
+          ) {
+
             video.src = rawUrl;
+
             previewVideo.src = rawUrl;
+
             video.play().catch(() => {});
+
           } else if (Hls.isSupported()) {
-            hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
+
+            hlsInstance =
+              new Hls({
+                enableWorker: true,
+                lowLatencyMode: true
+              });
+
             hlsInstance.loadSource(rawUrl);
+
             hlsInstance.attachMedia(video);
-            hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-              video.play().catch(() => {});
-            });
-            hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-              if (data.fatal) {
-                switch (data.type) {
-                  case Hls.ErrorTypes.NETWORK_ERROR: hlsInstance.startLoad(); break;
-                  case Hls.ErrorTypes.MEDIA_ERROR: hlsInstance.recoverMediaError(); break;
-                  default: hlsInstance.destroy(); break;
-                }
+
+            hlsInstance.on(
+              Hls.Events.MANIFEST_PARSED,
+              () => {
+
+                video.play().catch(() => {});
+
               }
-            });
+            );
+
+            hlsInstance.on(
+              Hls.Events.ERROR,
+              (event, data) => {
+
+                if (data.fatal) {
+
+                  switch (data.type) {
+
+                    case Hls.ErrorTypes.NETWORK_ERROR:
+
+                      hlsInstance.startLoad();
+
+                      break;
+
+                    case Hls.ErrorTypes.MEDIA_ERROR:
+
+                      hlsInstance.recoverMediaError();
+
+                      break;
+
+                    default:
+
+                      hlsInstance.destroy();
+
+                      break;
+
+                  }
+
+                }
+
+              }
+            );
+
           }
+
         } else {
+
           video.src = rawUrl;
+
           previewVideo.src = rawUrl;
+
           video.play().catch(() => {});
+
         }
+
         resetAutoHide();
+
       }
 
       function loadVideo(rawUrl) {
+
         if (!rawUrl) return;
+
         currentUrl = rawUrl;
         pendingUrl = rawUrl;
+
         urlInput.value = '';
 
-        videoTitleDisplay.textContent = getCleanTitle(rawUrl);
+        videoTitleDisplay.textContent =
+          getCleanTitle(rawUrl);
 
-        history.pushState({ videoLoaded: true }, '');
+        history.pushState(
+          { videoLoaded: true },
+          ''
+        );
 
-        if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+        if (hlsInstance) {
+
+          hlsInstance.destroy();
+          hlsInstance = null;
+
+        }
+
         video.pause();
+
         video.onerror = null;
+
         video.removeAttribute('src');
+
         video.load();
-        
+
         previewVideo.removeAttribute('src');
         previewVideo.load();
 
-        const cleanUrl = rawUrl.toLowerCase();
-        isEmbedMode = cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be') || cleanUrl.includes('embed') || cleanUrl.includes('drive.google.com');
+        const cleanUrl =
+          rawUrl.toLowerCase();
+
+        isEmbedMode =
+          cleanUrl.includes('youtube.com') ||
+          cleanUrl.includes('youtu.be') ||
+          cleanUrl.includes('embed') ||
+          cleanUrl.includes('drive.google.com');
+
+        /*
+         * Restablecer las nuevas opciones
+         * al cargar una nueva fuente.
+         */
+        resetMediaSettings();
 
         if (isEmbedMode) {
+
           let finalEmbedUrl = rawUrl;
-          if (rawUrl.includes('youtu.be/')) finalEmbedUrl = `https://www.youtube.com/embed/${rawUrl.split('youtu.be/')[1].split('?')[0]}?autoplay=1`;
-          else if (rawUrl.includes('youtube.com/watch?v=')) finalEmbedUrl = `https://www.youtube.com/embed/${rawUrl.split('v=')[1].split('&')[0]}?autoplay=1`;
-          
+
+          if (
+            rawUrl.includes('youtu.be/')
+          ) {
+
+            finalEmbedUrl =
+              `https://www.youtube.com/embed/${
+                rawUrl
+                  .split('youtu.be/')[1]
+                  .split('?')[0]
+              }?autoplay=1`;
+
+          } else if (
+            rawUrl.includes(
+              'youtube.com/watch?v='
+            )
+          ) {
+
+            finalEmbedUrl =
+              `https://www.youtube.com/embed/${
+                rawUrl
+                  .split('v=')[1]
+                  .split('&')[0]
+              }?autoplay=1`;
+
+          }
+
           video.style.display = 'none';
+
           mainIframe.style.display = 'block';
-          mainIframe.src = finalEmbedUrl;
-          controlsOverlay.style.display = 'none';
-          initialPlayOverlay.classList.add('hidden');
+
+          mainIframe.src =
+            finalEmbedUrl;
+
+          controlsOverlay.style.display =
+            'none';
+
+          initialPlayOverlay.classList.add(
+            'hidden'
+          );
+
         } else {
-          mainIframe.style.display = 'none';
-          mainIframe.src = 'about:blank';
-          video.style.display = 'block';
-          controlsOverlay.style.display = 'flex';
-          controlsOverlay.classList.remove('active');
-          
-          initialPlayOverlay.classList.remove('hidden');
+
+          mainIframe.style.display =
+            'none';
+
+          mainIframe.src =
+            'about:blank';
+
+          video.style.display =
+            'block';
+
+          controlsOverlay.style.display =
+            'flex';
+
+          controlsOverlay.classList.remove(
+            'active'
+          );
+
+          initialPlayOverlay.classList.remove(
+            'hidden'
+          );
+
         }
+
       }
 
-      btnLoad.addEventListener('click', () => loadVideo(urlInput.value.trim()));
-      urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadVideo(urlInput.value.trim()); });
-      
-      const urlParams = new URLSearchParams(window.location.search);
-      const videoParam = urlParams.get('url');
+      btnLoad.addEventListener(
+        'click',
+        () => {
+
+          loadVideo(
+            urlInput.value.trim()
+          );
+
+        }
+      );
+
+      urlInput.addEventListener(
+        'keypress',
+        e => {
+
+          if (e.key === 'Enter') {
+
+            loadVideo(
+              urlInput.value.trim()
+            );
+
+          }
+
+        }
+      );
+
+      const urlParams =
+        new URLSearchParams(
+          window.location.search
+        );
+
+      const videoParam =
+        urlParams.get('url');
+
       if (videoParam) {
         loadVideo(videoParam);
       }
+
     });
   </script>
+
 </body>
 </html>
