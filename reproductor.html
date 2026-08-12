@@ -80,6 +80,49 @@
       pointer-events: none;
     }
 
+    /* CAPA INICIAL EXCLUSIVA (SOLO PLAY GRANDE) */
+    .initial-play-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 2, 20, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+      transition: opacity 0.2s ease;
+    }
+
+    .initial-play-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .btn-initial-play {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple-main), var(--purple-dark));
+      border: 2px solid #cbd5e1;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(168, 85, 247, 0.6);
+      transition: transform 0.15s ease;
+    }
+
+    .btn-initial-play:active {
+      transform: scale(0.92);
+    }
+
+    .btn-initial-play svg {
+      width: 44px;
+      height: 44px;
+      fill: currentColor;
+      margin-left: 4px;
+    }
+
     /* CAPA DE CONTROLES OVERLAY */
     .controls-overlay {
       position: absolute;
@@ -465,9 +508,16 @@
 </head>
 <body>
 
-  <!-- MARCA DE AGUA -->
+  <!-- REPRODUCTOR -->
   <div class="player-wrapper" id="playerWrapper">
     <div class="brand-watermark">JeissoNxP182</div>
+
+    <!-- CAPA INICIAL EXCLUSIVA (SOLO PLAY GRANDE AL CARGAR) -->
+    <div class="initial-play-overlay" id="initialPlayOverlay">
+      <button class="btn-initial-play" id="btnInitialPlay" title="Reproducir">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+    </div>
 
     <!-- ELEMENTOS DE VIDEO E IFRAME PERSISTENTES -->
     <video id="mainVideo" preload="metadata" playsinline webkit-playsinline></video>
@@ -652,6 +702,9 @@
       const video = document.getElementById('mainVideo');
       const mainIframe = document.getElementById('mainIframe');
       const playerWrapper = document.getElementById('playerWrapper');
+      
+      const initialPlayOverlay = document.getElementById('initialPlayOverlay');
+      const btnInitialPlay = document.getElementById('btnInitialPlay');
       const controlsOverlay = document.getElementById('controlsOverlay');
       
       const btnCenterPlay = document.getElementById('btnCenterPlay');
@@ -700,7 +753,6 @@
       let hlsInstance = null;
       let currentUrl = '';
       let pendingUrl = '';
-      let isMediaLoaded = false;
       let controlsTimer = null;
       let isSeeking = false;
       let timeMode = 0;
@@ -724,16 +776,21 @@
 
       function togglePlay() {
         if (isEmbedMode) return;
-        if (!isMediaLoaded && pendingUrl) {
-          actualLoadAndPlay(pendingUrl);
-          return;
-        }
         if (video.paused) {
           video.play().catch(() => showToast('Toca Play'));
         } else {
           video.pause();
         }
       }
+
+      // Evento del botón de play inicial (solo aparece al cargar)
+      btnInitialPlay.addEventListener('click', (e) => {
+        e.stopPropagation();
+        initialPlayOverlay.classList.add('hidden');
+        if (pendingUrl) {
+          actualLoadAndPlay(pendingUrl);
+        }
+      });
 
       btnCenterPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); resetAutoHide(); });
       btnBottomPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); resetAutoHide(); });
@@ -768,7 +825,7 @@
       }
 
       playerWrapper.addEventListener('click', (e) => {
-        if (isEmbedMode) return;
+        if (isEmbedMode || !initialPlayOverlay.classList.contains('hidden')) return;
         if (e.target.closest('.controls-overlay') || e.target.closest('.settings-panel') || e.target.closest('.shortcuts-panel') || e.target.closest('.lock-overlay')) {
           if (e.target === controlsOverlay) {
             controlsOverlay.classList.remove('active');
@@ -848,7 +905,7 @@
       btnFullscreen.addEventListener('click', (e) => { e.stopPropagation(); if (!document.fullscreenElement) { playerWrapper.requestFullscreen(); iconFS.style.display = 'none'; iconExitFS.style.display = 'block'; } else { document.exitFullscreen(); iconFS.style.display = 'block'; iconExitFS.style.display = 'none'; } });
 
       document.addEventListener('keydown', (e) => {
-        if (document.activeElement === urlInput || lockOverlay.classList.contains('active') || isEmbedMode) return;
+        if (document.activeElement === urlInput || lockOverlay.classList.contains('active') || isEmbedMode || !initialPlayOverlay.classList.contains('hidden')) return;
         const key = e.key.toLowerCase();
         switch (key) {
           case ' ': case 'k': e.preventDefault(); togglePlay(); resetAutoHide(); break;
@@ -863,7 +920,6 @@
       });
 
       function actualLoadAndPlay(rawUrl) {
-        isMediaLoaded = true;
         const cleanUrl = rawUrl.toLowerCase();
         const isDirect = cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.webm') || cleanUrl.endsWith('.ogg');
         const isHls = cleanUrl.includes('.m3u8');
@@ -896,7 +952,7 @@
           }
         } else {
           video.src = rawUrl;
-          video.play().catch(() => showToast('Pulsa Play para iniciar'));
+          video.play().catch(() => showToast('Reproduciendo'));
           video.onerror = () => {
             showToast('Error al cargar el vídeo');
           };
@@ -908,7 +964,6 @@
         if (!rawUrl) return;
         currentUrl = rawUrl;
         pendingUrl = rawUrl;
-        isMediaLoaded = false;
         urlInput.value = '';
 
         if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
@@ -929,20 +984,18 @@
           mainIframe.style.display = 'block';
           mainIframe.src = finalEmbedUrl;
           controlsOverlay.style.display = 'none';
+          initialPlayOverlay.classList.add('hidden');
           showToast('Cargando...');
         } else {
           mainIframe.style.display = 'none';
           mainIframe.src = 'about:blank';
           video.style.display = 'block';
           controlsOverlay.style.display = 'flex';
-          controlsOverlay.classList.add('active');
-
-          centerIconPlay.style.display = 'block';
-          centerIconPause.style.display = 'none';
-          bottomIconPlay.style.display = 'block';
-          bottomIconPause.style.display = 'none';
-
-          showToast('Vídeo listo. Presiona Play');
+          controlsOverlay.classList.remove('active');
+          
+          // Mostrar solo el botón de play grande al cargar
+          initialPlayOverlay.classList.remove('hidden');
+          showToast('Vídeo listo');
         }
       }
 
