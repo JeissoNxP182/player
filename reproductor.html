@@ -44,7 +44,7 @@
       max-height: 70vh;
       position: relative;
       background: #000;
-      display: none;
+      display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
@@ -62,6 +62,38 @@
     iframe {
       display: none;
       z-index: 5;
+    }
+
+    /* MARCA PERSONAL Y TÍTULO LIMPIO DEL VÍDEO */
+    .brand-watermark {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: var(--silver-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 2px 8px rgba(168, 85, 247, 0.4);
+      z-index: 25;
+      pointer-events: none;
+    }
+
+    .video-title-display {
+      position: absolute;
+      top: 36px;
+      left: 14px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #cbd5e1;
+      max-width: 70%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 25;
+      pointer-events: none;
+      opacity: 0.85;
     }
 
     /* CAPA INICIAL EXCLUSIVA (SOLO PLAY GRANDE) */
@@ -128,6 +160,7 @@
       pointer-events: auto;
     }
 
+    /* FILA SUPERIOR CONTROLES (DERECHA) */
     .top-controls {
       display: flex;
       justify-content: flex-end;
@@ -136,6 +169,7 @@
       width: 100%;
     }
 
+    /* CONTROLES CENTRALES (ATRASAR - PLAY - ADELANTAR) */
     .center-controls {
       position: absolute;
       top: 50%;
@@ -174,6 +208,7 @@
       border-color: #cbd5e1;
     }
 
+    /* FILA INFERIOR CONTROLES */
     .bottom-controls-wrapper {
       display: flex;
       flex-direction: column;
@@ -181,6 +216,7 @@
       width: 100%;
     }
 
+    /* BARRA DESLIZANTE CON BUFFER REAL */
     .scrubber-container {
       width: 100%;
       display: flex;
@@ -198,6 +234,7 @@
       outline: none;
       cursor: pointer;
       z-index: 2;
+      will-change: background;
     }
 
     .video-scrubber::-webkit-slider-thumb {
@@ -209,6 +246,7 @@
       background: #f8fafc;
       border: 2px solid var(--purple-main);
       box-shadow: 0 0 8px var(--purple-main);
+      cursor: pointer;
     }
 
     .bottom-row {
@@ -223,6 +261,7 @@
       gap: 10px;
     }
 
+    /* CONTADOR UNIFICADO CONMUTABLE */
     .time-counter {
       font-size: 11px;
       font-weight: 700;
@@ -233,8 +272,14 @@
       padding: 4px 6px;
       border-radius: 4px;
       background: rgba(255, 255, 255, 0.08);
+      transition: background 0.15s ease;
     }
 
+    .time-counter:active {
+      background: rgba(168, 85, 247, 0.4);
+    }
+
+    /* ESTILO GENERAL DE BOTONES / ICONOS */
     .icon-btn {
       background: none;
       border: none;
@@ -246,6 +291,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      transition: background 0.15s;
     }
 
     .icon-btn:active {
@@ -258,6 +304,7 @@
       fill: currentColor;
     }
 
+    /* SLIDER DE VOLUMEN */
     .volume-group {
       display: flex;
       align-items: center;
@@ -282,8 +329,10 @@
       border-radius: 50%;
       background: #e2e8f0;
       box-shadow: 0 0 6px var(--purple-main);
+      cursor: pointer;
     }
 
+    /* MENU DESPLEGABLE DE OPCIONES (TUERCA) */
     .settings-panel {
       position: absolute;
       bottom: 0;
@@ -315,8 +364,11 @@
       border: 1px solid var(--purple-main);
       padding: 4px 8px;
       border-radius: 6px;
+      outline: none;
+      font-size: 12px;
     }
 
+    /* MODAL DE ATAJOS DE TECLADO */
     .shortcuts-panel {
       position: absolute;
       inset: 0;
@@ -345,6 +397,7 @@
       font-weight: 700;
       color: var(--purple-main);
       text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .shortcuts-grid {
@@ -373,8 +426,15 @@
       border-radius: 4px;
       font-family: monospace;
       font-size: 11px;
+      min-width: 28px;
+      text-align: center;
     }
 
+    .shortcut-desc {
+      color: #e2e8f0;
+    }
+
+    /* BLOQUEO DE PANTALLA */
     .lock-overlay {
       position: absolute;
       inset: 0;
@@ -388,6 +448,7 @@
 
     .lock-overlay.active { display: flex; }
 
+    /* CONTENEDOR DE ENLACE DEBAJO DEL REPRODUCTOR */
     .url-section {
       padding: 16px;
       display: flex;
@@ -395,7 +456,6 @@
       gap: 10px;
       background: var(--purple-deep);
       flex-grow: 1;
-      transition: opacity 0.3s ease;
     }
 
     .url-title {
@@ -421,6 +481,13 @@
       color: #fff;
       font-size: 13px;
       outline: none;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .url-input:focus {
+      border-color: var(--purple-main);
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
     }
 
     .btn-load {
@@ -434,105 +501,194 @@
       font-weight: 600;
       cursor: pointer;
     }
-
-    .toast-msg {
-      position: absolute;
-      top: 50px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(20, 3, 38, 0.9);
-      border: 1px solid #e2e8f0;
-      color: #fff;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 11px;
-      z-index: 60;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-    }
-
-    .toast-msg.show { opacity: 1; }
   </style>
 </head>
 <body>
 
   <!-- REPRODUCTOR -->
   <div class="player-wrapper" id="playerWrapper">
+    <div class="brand-watermark">JeissoNxP182</div>
+    <div class="video-title-display" id="videoTitleDisplay"></div>
+
+    <!-- CAPA INICIAL EXCLUSIVA (SOLO PLAY GRANDE AL CARGAR) -->
     <div class="initial-play-overlay" id="initialPlayOverlay">
       <button class="btn-initial-play" id="btnInitialPlay" title="Reproducir">
         <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       </button>
     </div>
 
-    <video id="mainVideo" preload="metadata" playsinline webkit-playsinline></video>
+    <!-- ELEMENTOS DE VIDEO E IFRAME PERSISTENTES -->
+    <video id="mainVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline></video>
     <iframe id="mainIframe" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
 
+    <!-- CAPA DE CONTROLES GENERALES -->
     <div class="controls-overlay" id="controlsOverlay">
+      
+      <!-- ARRIBA A LA DERECHA -->
       <div class="top-controls">
-        <button class="icon-btn" id="btnShortcuts" title="Atajos"><svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2H2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-3 0h2v2H5v-2zm0-3h2v2H5V8zm11 10H8v-2h8v2zm1-3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg></button>
-        <button class="icon-btn" id="btnCast" title="Transmitir"><svg viewBox="0 0 24 24"><path d="M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg></button>
-        <button class="icon-btn" id="btnPip" title="PiP"><svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V5c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 0H3V5h18v14z"/></svg></button>
-        <button class="icon-btn" id="btnSettings" title="Ajustes"><svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5-3.5z"/></svg></button>
+        <button class="icon-btn" id="btnShortcuts" title="Atajos de teclado">
+          <svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2H2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-3 0h2v2H5v-2zm0-3h2v2H5V8zm11 10H8v-2h8v2zm1-3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
+        </button>
+
+        <button class="icon-btn" id="btnCast" title="Transmitir">
+          <svg viewBox="0 0 24 24"><path d="M1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11zm20-7H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+        </button>
+
+        <button class="icon-btn" id="btnPip" title="PiP (Vídeo pequeño)">
+          <svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V5c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 0H3V5h18v14z"/></svg>
+        </button>
+
+        <button class="icon-btn" id="btnSettings" title="Ajustes">
+          <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5-3.5z"/></svg>
+        </button>
       </div>
 
+      <!-- TRES OPCIONES CENTRALES -->
       <div class="center-controls">
-        <button class="btn-center" id="btnRewind" title="-10s"><svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg></button>
-        <button class="btn-center play-main" id="btnCenterPlay" title="Play/Pause"><svg id="centerIconPlay" viewBox="0 0 24 24" style="width:34px;height:34px;fill:currentColor;"><path d="M8 5v14l11-7z"/></svg><svg id="centerIconPause" viewBox="0 0 24 24" style="width:34px;height:34px;fill:currentColor;display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
-        <button class="btn-center" id="btnForward" title="+10s"><svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;"><path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88 3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8z"/></svg></button>
+        <button class="btn-center" id="btnRewind" title="-10 Segundos">
+          <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+        </button>
+
+        <button class="btn-center play-main" id="btnCenterPlay" title="Pausar / Reproducir">
+          <svg id="centerIconPlay" viewBox="0 0 24 24" style="width:34px;height:34px;fill:currentColor;"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="centerIconPause" viewBox="0 0 24 24" style="width:34px;height:34px;fill:currentColor;display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+
+        <button class="btn-center" id="btnForward" title="+10 Segundos">
+          <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;"><path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88 3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8z"/></svg>
+        </button>
       </div>
 
+      <!-- ABAJO -->
       <div class="bottom-controls-wrapper">
+        <!-- BARRA DESLIZANTE CON BUFFER REAL -->
         <div class="scrubber-container">
           <input type="range" class="video-scrubber" id="videoScrubber" min="0" max="100" value="0" step="0.05">
         </div>
+
         <div class="bottom-row">
+          <!-- ABAJO A LA IZQUIERDA -->
           <div class="bottom-left">
-            <button class="icon-btn" id="btnBottomPlay"><svg id="bottomIconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg id="bottomIconPause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+            <button class="icon-btn" id="btnBottomPlay">
+              <svg id="bottomIconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <svg id="bottomIconPause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
+
             <div class="volume-group">
-              <button class="icon-btn" id="btnMute"><svg id="iconVolHigh" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg><svg id="iconVolMute" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg></svg></button>
+              <button class="icon-btn" id="btnMute">
+                <svg id="iconVolHigh" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                <svg id="iconVolMute" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+              </button>
               <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1">
             </div>
-            <div class="time-counter" id="currTime">0:00:00</div>
+
+            <!-- UNICO CONTADOR MODO CONMUTABLE -->
+            <div class="time-counter" id="currTime" title="Clic para cambiar modo de tiempo">0:00:00</div>
           </div>
+
+          <!-- ABAJO A LA DERECHA -->
           <div class="bottom-right">
-            <button class="icon-btn" id="btnCopyLink" title="Copiar enlace"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
-            <button class="icon-btn" id="btnDownload" title="Descargar"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg></button>
-            <button class="icon-btn" id="btnFullscreen" title="Pantalla completa"><svg id="iconFS" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg><svg id="iconExitFS" viewBox="0 0 24 24" style="display:none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg></button>
+            <button class="icon-btn" id="btnCopyLink" title="Copiar Enlace">
+              <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            </button>
+
+            <button class="icon-btn" id="btnDownload" title="Descargar Vídeo">
+              <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            </button>
+
+            <button class="icon-btn" id="btnFullscreen" title="Maximizar">
+              <svg id="iconFS" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+              <svg id="iconExitFS" viewBox="0 0 24 24" style="display:none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Ajustes Panel -->
+    <!-- PANELS / MODALES -->
     <div class="settings-panel" id="settingsPanel">
-      <div class="settings-item"><span>Calidad</span><select id="selectQuality"><option value="-1">Automática</option></select></div>
-      <div class="settings-item"><span>Velocidad</span><select id="selectSpeed"><option value="0.5">0.5x</option><option value="1" selected>1.0x</option><option value="1.5">1.5x</option><option value="2">2.0x</option></select></div>
-      <div class="settings-item" id="optLockScreen" style="cursor:pointer;"><span>Bloquear pantalla</span><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></div>
-    </div>
+      <div class="settings-item">
+        <span>Calidad</span>
+        <select id="selectQuality">
+          <option value="-1">Automática</option>
+        </select>
+      </div>
 
-    <!-- Atajos Panel -->
-    <div class="shortcuts-panel" id="shortcutsPanel">
-      <div class="shortcuts-header"><span class="shortcuts-title">⌨️ Atajos de Teclado</span><button class="icon-btn" id="btnCloseShortcuts" style="width:28px;height:28px;"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div>
-      <div class="shortcuts-grid">
-        <div class="shortcut-card"><span class="shortcut-key">Espacio</span><span class="shortcut-desc">Play / Pause</span></div>
-        <div class="shortcut-card"><span class="shortcut-key">⬅️ / ➡️</span><span class="shortcut-desc">Rebobinar / Avanzar 10s</span></div>
-        <div class="shortcut-card"><span class="shortcut-key">⬆️ / ⬇️</span><span class="shortcut-desc">Subir / Bajar volumen</span></div>
-        <div class="shortcut-card"><span class="shortcut-key">F</span><span class="shortcut-desc">Pantalla completa</span></div>
-        <div class="shortcut-card"><span class="shortcut-key">M</span><span class="shortcut-desc">Silenciar audio</span></div>
+      <div class="settings-item">
+        <span>Velocidad de reproducción</span>
+        <select id="selectSpeed">
+          <option value="0.5">0.5x</option>
+          <option value="0.75">0.75x</option>
+          <option value="1" selected>1.0x (Normal)</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2.0x</option>
+        </select>
+      </div>
+
+      <div class="settings-item" id="optLockScreen" style="cursor:pointer;">
+        <span>Bloquear pantalla</span>
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
       </div>
     </div>
 
-    <!-- Pantalla Bloqueada Overlay -->
-    <div class="lock-overlay" id="lockOverlay"><button class="icon-btn" id="btnUnlock" style="background:rgba(20,3,38,0.8); border:1px solid var(--purple-main);"><svg viewBox="0 0 24 24"><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/></svg></button></div>
-    <div class="toast-msg" id="toastMsg"></div>
+    <!-- PANEL MODAL DE ATAJOS DE TECLADO -->
+    <div class="shortcuts-panel" id="shortcutsPanel">
+      <div class="shortcuts-header">
+        <span class="shortcuts-title">⌨️ Atajos de Teclado</span>
+        <button class="icon-btn" id="btnCloseShortcuts" style="width:28px;height:28px;">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+      <div class="shortcuts-grid">
+        <div class="shortcut-card">
+          <span class="shortcut-key">Espacio / K</span>
+          <span class="shortcut-desc">Pausar / Reproducir</span>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-key">⬆️ Arriba</span>
+          <span class="shortcut-desc">Subir Volumen (+5%)</span>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-key">⬇️ Abajo</span>
+          <span class="shortcut-desc">Bajar Volumen (-5%)</span>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-key">⬅️ Izquierda / J</span>
+          <span class="shortcut-desc">Retroceder 10s</span>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-key">➡️ Derecha / L</span>
+          <span class="shortcut-desc">Adelantar 10s</span>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-key">M</span>
+          <span class="shortcut-desc">Silenciar / Activar sonido</span>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-key">F</span>
+          <span class="shortcut-desc">Pantalla Completa</span>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-key">P</span>
+          <span class="shortcut-desc">Modo PiP (Vídeo flotante)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAPA DE DESBLOQUEO -->
+    <div class="lock-overlay" id="lockOverlay">
+      <button class="icon-btn" id="btnUnlock" style="background:rgba(20,3,38,0.8); border:1px solid var(--purple-main);">
+        <svg viewBox="0 0 24 24"><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/></svg>
+      </button>
+    </div>
   </div>
 
-  <!-- Sección de URL inicial -->
-  <div class="url-section" id="urlSection">
-    <div class="url-title">Cargar Fuente de Vídeo</div>
+  <!-- SECCIÓN SUPERIOR DE CARGA (DEBAJO DEL REPRODUCTOR) -->
+  <div class="url-section">
+    <div class="url-title">Cargar Fuente de Vídeo (.mp4 / .m3u8 / Youtube / Embed)</div>
     <div class="input-wrapper">
-      <input type="text" id="urlInput" class="url-input" placeholder="Pega URL (mp4, m3u8, youtube)..." />
+      <input type="text" id="urlInput" class="url-input" placeholder="Pega tu URL de vídeo aquí..." />
       <button id="btnLoad" class="btn-load">Cargar</button>
     </div>
   </div>
@@ -542,94 +698,332 @@
       const video = document.getElementById('mainVideo');
       const mainIframe = document.getElementById('mainIframe');
       const playerWrapper = document.getElementById('playerWrapper');
-      const urlSection = document.getElementById('urlSection');
+      const videoTitleDisplay = document.getElementById('videoTitleDisplay');
+      
       const initialPlayOverlay = document.getElementById('initialPlayOverlay');
       const btnInitialPlay = document.getElementById('btnInitialPlay');
       const controlsOverlay = document.getElementById('controlsOverlay');
-      const urlInput = document.getElementById('urlInput');
-      const btnLoad = document.getElementById('btnLoad');
-      const toastMsg = document.getElementById('toastMsg');
       
       const btnCenterPlay = document.getElementById('btnCenterPlay');
-      const btnBottomPlay = document.getElementById('btnBottomPlay');
       const centerIconPlay = document.getElementById('centerIconPlay');
       const centerIconPause = document.getElementById('centerIconPause');
+      
+      const btnBottomPlay = document.getElementById('btnBottomPlay');
       const bottomIconPlay = document.getElementById('bottomIconPlay');
       const bottomIconPause = document.getElementById('bottomIconPause');
-      const videoScrubber = document.getElementById('videoScrubber');
-      const currTime = document.getElementById('currTime');
-      const volumeSlider = document.getElementById('volumeSlider');
+      
+      const btnRewind = document.getElementById('btnRewind');
+      const btnForward = document.getElementById('btnForward');
+
       const btnMute = document.getElementById('btnMute');
       const iconVolHigh = document.getElementById('iconVolHigh');
       const iconVolMute = document.getElementById('iconVolMute');
-      const btnFullscreen = document.getElementById('btnFullscreen');
-      const iconFS = document.getElementById('iconFS');
-      const iconExitFS = document.getElementById('iconExitFS');
+      const volumeSlider = document.getElementById('volumeSlider');
+
+      const videoScrubber = document.getElementById('videoScrubber');
+      const currTimeElem = document.getElementById('currTime');
+
       const btnSettings = document.getElementById('btnSettings');
       const settingsPanel = document.getElementById('settingsPanel');
       const selectSpeed = document.getElementById('selectSpeed');
       const selectQuality = document.getElementById('selectQuality');
-      const btnShortcuts = document.getElementById('btnShortcuts');
-      const shortcutsPanel = document.getElementById('shortcutsPanel');
-      const btnCloseShortcuts = document.getElementById('btnCloseShortcuts');
-      const btnPip = document.getElementById('btnPip');
-      const btnCast = document.getElementById('btnCast');
-      const btnRewind = document.getElementById('btnRewind');
-      const btnForward = document.getElementById('btnForward');
-      const btnCopyLink = document.getElementById('btnCopyLink');
-      const btnDownload = document.getElementById('btnDownload');
       const optLockScreen = document.getElementById('optLockScreen');
       const lockOverlay = document.getElementById('lockOverlay');
       const btnUnlock = document.getElementById('btnUnlock');
 
+      const btnShortcuts = document.getElementById('btnShortcuts');
+      const shortcutsPanel = document.getElementById('shortcutsPanel');
+      const btnCloseShortcuts = document.getElementById('btnCloseShortcuts');
+
+      const btnCopyLink = document.getElementById('btnCopyLink');
+      const btnDownload = document.getElementById('btnDownload');
+      const btnFullscreen = document.getElementById('btnFullscreen');
+      const iconFS = document.getElementById('iconFS');
+      const iconExitFS = document.getElementById('iconExitFS');
+      const btnPip = document.getElementById('btnPip');
+      const btnCast = document.getElementById('btnCast');
+
+      const urlInput = document.getElementById('urlInput');
+      const btnLoad = document.getElementById('btnLoad');
+
       let hlsInstance = null;
       let currentUrl = '';
+      let pendingUrl = '';
+      let controlsTimer = null;
+      let isSeeking = false;
+      let timeMode = 0;
       let isEmbedMode = false;
-      let hideControlsTimeout = null;
+      let audioCtx = null;
 
-      function showToast(txt) {
-        toastMsg.textContent = txt;
-        toastMsg.classList.add('show');
-        setTimeout(() => toastMsg.classList.remove('show'), 2000);
+      // Puente Web Audio API corregido para forzar altavoz principal
+      function initAudioRouting() {
+        if (!audioCtx) {
+          try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            // { latencyHint: 'playback' } fuerza el canal multimedia en móviles
+            audioCtx = new AudioContext({ latencyHint: 'playback' });
+            const source = audioCtx.createMediaElementSource(video);
+            source.connect(audioCtx.destination);
+          } catch (err) {}
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
       }
 
-      function formatTime(seconds) {
-        if (isNaN(seconds)) return "0:00:00";
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor((seconds % 3600) / 60);
-        const s = Math.floor(seconds % 60);
+      // Gestión de historia (Botón atrás para cerrar reproductor)
+      window.addEventListener('popstate', (e) => {
+        if (currentUrl) {
+          unloadVideoInternal();
+        }
+      });
+
+      function unloadVideoInternal() {
+        currentUrl = '';
+        pendingUrl = '';
+        if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+        video.style.display = 'block';
+        mainIframe.style.display = 'none';
+        mainIframe.src = 'about:blank';
+        controlsOverlay.classList.remove('active');
+        initialPlayOverlay.classList.remove('hidden');
+        videoTitleDisplay.textContent = '';
+      }
+
+      function getCleanTitle(url) {
+        try {
+          const parsed = new URL(url);
+          const segments = parsed.pathname.split('/').filter(Boolean);
+          if (segments.length > 0) {
+            let filename = decodeURIComponent(segments[segments.length - 1]);
+            filename = filename.replace(/[_]/g, ' ').replace(/\.[^/.]+$/, '');
+            return filename;
+          }
+          return parsed.hostname;
+        } catch {
+          return url;
+        }
+      }
+
+      function resetAutoHide() {
+        clearTimeout(controlsTimer);
+        if (!isEmbedMode && !video.paused) {
+          controlsTimer = setTimeout(() => {
+            controlsOverlay.classList.remove('active');
+            settingsPanel.classList.remove('active');
+          }, 4000);
+        }
+      }
+
+      function togglePlay() {
+        if (isEmbedMode) return;
+        initAudioRouting();
+        if (video.paused) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      }
+
+      btnInitialPlay.addEventListener('click', (e) => {
+        e.stopPropagation();
+        initAudioRouting();
+        initialPlayOverlay.classList.add('hidden');
+        if (pendingUrl) {
+          actualLoadAndPlay(pendingUrl);
+        }
+      });
+
+      btnCenterPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); resetAutoHide(); });
+      btnBottomPlay.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); resetAutoHide(); });
+
+      video.addEventListener('play', () => {
+        centerIconPlay.style.display = 'none';
+        centerIconPause.style.display = 'block';
+        bottomIconPlay.style.display = 'none';
+        bottomIconPause.style.display = 'block';
+        resetAutoHide();
+      });
+
+      video.addEventListener('pause', () => {
+        centerIconPlay.style.display = 'block';
+        centerIconPause.style.display = 'none';
+        bottomIconPlay.style.display = 'block';
+        bottomIconPause.style.display = 'none';
+        clearTimeout(controlsTimer);
+        controlsOverlay.classList.add('active');
+      });
+
+      video.addEventListener('timeupdate', () => { if (!isSeeking) updateUI(); });
+      video.addEventListener('progress', updateUI);
+
+      video.addEventListener('volumechange', () => {
+        volumeSlider.value = video.muted ? 0 : video.volume;
+        updateVolIcons();
+      });
+
+      btnRewind.addEventListener('click', (e) => { e.stopPropagation(); if (!isEmbedMode) seekVideo(Math.max(0, video.currentTime - 10)); resetAutoHide(); });
+      btnForward.addEventListener('click', (e) => { e.stopPropagation(); if (!isEmbedMode) seekVideo(Math.min(video.duration || 0, video.currentTime + 10)); resetAutoHide(); });
+
+      function seekVideo(timeSec) {
+        if (isEmbedMode) return;
+        if (video.fastSeek) video.fastSeek(timeSec);
+        else video.currentTime = timeSec;
+      }
+
+      playerWrapper.addEventListener('click', (e) => {
+        if (isEmbedMode || !initialPlayOverlay.classList.contains('hidden')) return;
+        if (e.target.closest('.controls-overlay') || e.target.closest('.settings-panel') || e.target.closest('.shortcuts-panel') || e.target.closest('.lock-overlay')) {
+          if (e.target === controlsOverlay) {
+            controlsOverlay.classList.remove('active');
+            settingsPanel.classList.remove('active');
+          }
+          return;
+        }
+        const isActive = controlsOverlay.classList.contains('active');
+        if (isActive) {
+          controlsOverlay.classList.remove('active');
+          settingsPanel.classList.remove('active');
+        } else {
+          controlsOverlay.classList.add('active');
+          resetAutoHide();
+        }
+      });
+
+      btnCast.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (!isEmbedMode && video.remote && typeof video.remote.prompt === 'function') {
+          try { await video.remote.prompt(); } catch(err) {}
+        }
+      });
+
+      volumeSlider.addEventListener('input', (e) => { e.stopPropagation(); if (!isEmbedMode) { video.volume = parseFloat(e.target.value); video.muted = (video.volume === 0); } updateVolIcons(); });
+      btnMute.addEventListener('click', (e) => { e.stopPropagation(); if (!isEmbedMode) { video.muted = !video.muted; volumeSlider.value = video.muted ? 0 : (video.volume || 1); } updateVolIcons(); });
+
+      function updateVolIcons() {
+        if (video.muted || video.volume === 0) { iconVolHigh.style.display = 'none'; iconVolMute.style.display = 'block'; } 
+        else { iconVolHigh.style.display = 'block'; iconVolMute.style.display = 'none'; }
+      }
+
+      function formatHMS(sec) {
+        if (isNaN(sec) || !isFinite(sec) || sec < 0) return "0:00:00";
+        const h = Math.floor(sec / 3600);
+        const m = Math.floor((sec % 3600) / 60);
+        const s = Math.floor(sec % 60);
         return `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
       }
 
-      // Volver al inicio limpio sin recargar la página (evita bucles en el historial)
-      function resetToHome() {
-        if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-        video.pause();
-        video.src = '';
-        mainIframe.src = 'about:blank';
-        mainIframe.style.display = 'none';
-        video.style.display = 'none';
-        playerWrapper.style.display = 'none';
-        urlSection.style.display = 'flex';
-        urlSection.style.opacity = '1';
-        history.replaceState(null, '', window.location.pathname);
+      currTimeElem.addEventListener('click', (e) => { e.stopPropagation(); timeMode = (timeMode + 1) % 3; updateUI(); resetAutoHide(); });
+
+      function updateUI() {
+        if (isEmbedMode) return;
+        const dur = video.duration || 0;
+        const cur = video.currentTime || 0;
+        if (timeMode === 0) currTimeElem.textContent = formatHMS(cur);
+        else if (timeMode === 1) currTimeElem.textContent = "-" + formatHMS(dur - cur);
+        else currTimeElem.textContent = "[" + formatHMS(dur) + "]";
+        if (dur > 0 && !isSeeking) videoScrubber.value = (cur / dur) * 100;
+
+        let bufferEnd = 0;
+        if (video.buffered && video.buffered.length > 0) {
+          for (let i = 0; i < video.buffered.length; i++) {
+            if (video.buffered.start(i) <= cur && cur <= video.buffered.end(i)) { bufferEnd = video.buffered.end(i); break; }
+          }
+          if (bufferEnd === 0) bufferEnd = video.buffered.end(video.buffered.length - 1);
+        }
+        const bufPct = dur > 0 ? (bufferEnd / dur) * 100 : 0;
+        videoScrubber.style.background = `linear-gradient(to right, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.4) ${bufPct}%, rgba(255, 255, 255, 0.2) ${bufPct}%, rgba(255, 255, 255, 0.2) 100%)`;
       }
 
-      window.addEventListener('popstate', () => {
-        resetToHome();
+      videoScrubber.addEventListener('pointerdown', (e) => { e.stopPropagation(); isSeeking = true; });
+      videoScrubber.addEventListener('input', (e) => { e.stopPropagation(); isSeeking = true; const targetTime = (parseFloat(videoScrubber.value) / 100) * (video.duration || 0); if (timeMode === 0) currTimeElem.textContent = formatHMS(targetTime); else if (timeMode === 1) currTimeElem.textContent = "-" + formatHMS((video.duration || 0) - targetTime); });
+      videoScrubber.addEventListener('change', (e) => { e.stopPropagation(); if (!isEmbedMode && video.duration) seekVideo((parseFloat(videoScrubber.value) / 100) * video.duration); isSeeking = false; resetAutoHide(); });
+
+      btnSettings.addEventListener('click', (e) => { e.stopPropagation(); settingsPanel.classList.toggle('active'); shortcutsPanel.classList.remove('active'); });
+      btnShortcuts.addEventListener('click', (e) => { e.stopPropagation(); shortcutsPanel.classList.toggle('active'); settingsPanel.classList.remove('active'); });
+      btnCloseShortcuts.addEventListener('click', (e) => { e.stopPropagation(); shortcutsPanel.classList.remove('active'); });
+
+      selectSpeed.addEventListener('change', (e) => { if (!isEmbedMode) { video.playbackRate = parseFloat(e.target.value); } });
+      optLockScreen.addEventListener('click', () => { settingsPanel.classList.remove('active'); shortcutsPanel.classList.remove('active'); controlsOverlay.classList.remove('active'); lockOverlay.classList.add('active'); });
+      btnUnlock.addEventListener('click', () => { lockOverlay.classList.remove('active'); controlsOverlay.classList.add('active'); });
+      btnCopyLink.addEventListener('click', (e) => { e.stopPropagation(); if (currentUrl) { navigator.clipboard.writeText(currentUrl); } });
+      btnDownload.addEventListener('click', (e) => { e.stopPropagation(); if (currentUrl) { const a = document.createElement('a'); a.href = currentUrl; a.download = ''; a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a); } });
+      btnPip.addEventListener('click', async (e) => { e.stopPropagation(); if (!isEmbedMode) { if (document.pictureInPictureElement) await document.exitPictureInPicture(); else if (document.pictureInPictureEnabled) await video.requestPictureInPicture(); } });
+      btnFullscreen.addEventListener('click', (e) => { e.stopPropagation(); if (!document.fullscreenElement) { playerWrapper.requestFullscreen(); iconFS.style.display = 'none'; iconExitFS.style.display = 'block'; } else { document.exitFullscreen(); iconFS.style.display = 'block'; iconExitFS.style.display = 'none'; } });
+
+      document.addEventListener('keydown', (e) => {
+        if (document.activeElement === urlInput || lockOverlay.classList.contains('active') || isEmbedMode || !initialPlayOverlay.classList.contains('hidden')) return;
+        const key = e.key.toLowerCase();
+        switch (key) {
+          case ' ': case 'k': e.preventDefault(); togglePlay(); resetAutoHide(); break;
+          case 'arrowleft': case 'j': e.preventDefault(); seekVideo(Math.max(0, video.currentTime - 10)); resetAutoHide(); break;
+          case 'arrowright': case 'l': e.preventDefault(); seekVideo(Math.min(video.duration || 0, video.currentTime + 10)); resetAutoHide(); break;
+          case 'arrowup': e.preventDefault(); video.volume = Math.min(1, video.volume + 0.05); video.muted = (video.volume === 0); volumeSlider.value = video.volume; updateVolIcons(); resetAutoHide(); break;
+          case 'arrowdown': e.preventDefault(); video.volume = Math.max(0, video.volume - 0.05); video.muted = (video.volume === 0); volumeSlider.value = video.volume; updateVolIcons(); resetAutoHide(); break;
+          case 'm': e.preventDefault(); video.muted = !video.muted; volumeSlider.value = video.muted ? 0 : (video.volume || 1); updateVolIcons(); resetAutoHide(); break;
+          case 'f': e.preventDefault(); btnFullscreen.click(); break;
+          case 'p': e.preventDefault(); btnPip.click(); break;
+        }
       });
+
+      function actualLoadAndPlay(rawUrl) {
+        const cleanUrl = rawUrl.toLowerCase();
+        const isDirect = cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.webm') || cleanUrl.endsWith('.ogg');
+        const isHls = cleanUrl.includes('.m3u8');
+
+        if (isDirect) {
+          video.src = rawUrl;
+          video.play().catch(() => {});
+        } else if (isHls) {
+          if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = rawUrl;
+            video.play().catch(() => {});
+          } else if (Hls.isSupported()) {
+            hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
+            hlsInstance.loadSource(rawUrl);
+            hlsInstance.attachMedia(video);
+            hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+              video.play().catch(() => {});
+            });
+            hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+              if (data.fatal) {
+                switch (data.type) {
+                  case Hls.ErrorTypes.NETWORK_ERROR: hlsInstance.startLoad(); break;
+                  case Hls.ErrorTypes.MEDIA_ERROR: hlsInstance.recoverMediaError(); break;
+                  default: hlsInstance.destroy(); break;
+                }
+              }
+            });
+          }
+        } else {
+          video.src = rawUrl;
+          video.play().catch(() => {});
+        }
+        resetAutoHide();
+      }
 
       function loadVideo(rawUrl) {
         if (!rawUrl) return;
         currentUrl = rawUrl;
-        
-        history.pushState({ player: true }, '', '?url=' + encodeURIComponent(rawUrl));
+        pendingUrl = rawUrl;
+        urlInput.value = '';
 
-        playerWrapper.style.display = 'flex';
-        urlSection.style.display = 'none';
+        videoTitleDisplay.textContent = getCleanTitle(rawUrl);
+
+        // Añadimos al historial para que el botón atrás funcione
+        history.pushState({ videoLoaded: true }, '');
+
+        if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+        video.pause();
+        video.onerror = null;
+        video.removeAttribute('src');
+        video.load();
 
         const cleanUrl = rawUrl.toLowerCase();
-        isEmbedMode = cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be') || cleanUrl.includes('embed');
+        isEmbedMode = cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be') || cleanUrl.includes('embed') || cleanUrl.includes('drive.google.com');
 
         if (isEmbedMode) {
           let finalEmbedUrl = rawUrl;
@@ -639,245 +1033,26 @@
           video.style.display = 'none';
           mainIframe.style.display = 'block';
           mainIframe.src = finalEmbedUrl;
-          initialPlayOverlay.classList.add('hidden');
           controlsOverlay.style.display = 'none';
+          initialPlayOverlay.classList.add('hidden');
         } else {
           mainIframe.style.display = 'none';
+          mainIframe.src = 'about:blank';
           video.style.display = 'block';
           controlsOverlay.style.display = 'flex';
-          initialPlayOverlay.classList.remove('hidden');
+          controlsOverlay.classList.remove('active');
           
-          if (cleanUrl.includes('.m3u8')) {
-            if (Hls.isSupported()) {
-              if (hlsInstance) hlsInstance.destroy();
-              hlsInstance = new Hls();
-              hlsInstance.loadSource(rawUrl);
-              hlsInstance.attachMedia(video);
-              hlsInstance.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-                selectQuality.innerHTML = '<option value="-1">Automática</option>';
-                data.levels.forEach((level, index) => {
-                  selectQuality.innerHTML += `<option value="${index}">${level.height}p</option>`;
-                });
-              });
-            } else {
-              video.src = rawUrl;
-            }
-          } else {
-            video.src = rawUrl;
-          }
+          initialPlayOverlay.classList.remove('hidden');
         }
       }
 
       btnLoad.addEventListener('click', () => loadVideo(urlInput.value.trim()));
-      urlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadVideo(urlInput.value.trim()); });
-
-      btnInitialPlay.addEventListener('click', () => {
-        initialPlayOverlay.classList.add('hidden');
-        video.play().catch(() => {});
-      });
-
-      // Play / Pause toggles
-      function togglePlay() {
-        if (isEmbedMode) return;
-        if (video.paused) video.play();
-        else video.pause();
-      }
-
-      btnCenterPlay.addEventListener('click', togglePlay);
-      btnBottomPlay.addEventListener('click', togglePlay);
-
-      video.addEventListener('play', () => {
-        centerIconPlay.style.display = 'none';
-        centerIconPause.style.display = 'block';
-        bottomIconPlay.style.display = 'none';
-        bottomIconPause.style.display = 'block';
-      });
-
-      video.addEventListener('pause', () => {
-        centerIconPlay.style.display = 'block';
-        centerIconPause.style.display = 'none';
-        bottomIconPlay.style.display = 'block';
-        bottomIconPause.style.display = 'none';
-      });
-
-      // Time update & Scrubber
-      video.addEventListener('timeupdate', () => {
-        if (!video.duration) return;
-        const progress = (video.currentTime / video.duration) * 100;
-        videoScrubber.value = progress;
-        currTime.textContent = formatTime(video.currentTime);
-      });
-
-      videoScrubber.addEventListener('input', () => {
-        if (!video.duration) return;
-        const time = (videoScrubber.value / 100) * video.duration;
-        video.currentTime = time;
-      });
-
-      // Volver/Avanzar 10s
-      btnRewind.addEventListener('click', () => { video.currentTime = Math.max(0, video.currentTime - 10); });
-      btnForward.addEventListener('click', () => { video.currentTime = Math.min(video.duration || 0, video.currentTime + 10); });
-
-      // Volumen y Mute
-      volumeSlider.addEventListener('input', () => {
-        video.volume = volumeSlider.value;
-        video.muted = (video.volume === 0);
-        updateVolumeIcons();
-      });
-
-      btnMute.addEventListener('click', () => {
-        video.muted = !video.muted;
-        if (video.muted) {
-          volumeSlider.value = 0;
-        } else {
-          volumeSlider.value = video.volume || 1;
-        }
-        updateVolumeIcons();
-      });
-
-      function updateVolumeIcons() {
-        if (video.muted || video.volume === 0) {
-          iconVolHigh.style.display = 'none';
-          iconVolMute.style.display = 'block';
-        } else {
-          iconVolHigh.style.display = 'block';
-          iconVolMute.style.display = 'none';
-        }
-      }
-
-      // Pantalla completa
-      btnFullscreen.addEventListener('click', () => {
-        if (!document.fullscreenElement) {
-          playerWrapper.requestFullscreen().catch(() => {});
-        } else {
-          document.exitFullscreen().catch(() => {});
-        }
-      });
-
-      document.addEventListener('fullscreenchange', () => {
-        if (document.fullscreenElement) {
-          iconFS.style.display = 'none';
-          iconExitFS.style.display = 'block';
-        } else {
-          iconFS.style.display = 'block';
-          iconExitFS.style.display = 'none';
-        }
-      });
-
-      // Picture in Picture
-      btnPip.addEventListener('click', async () => {
-        try {
-          if (document.pictureInPictureElement) {
-            await document.exitPictureInPicture();
-          } else if (document.pictureInPictureEnabled && !isEmbedMode) {
-            await video.requestPictureInPicture();
-          }
-        } catch (e) {
-          showToast('PiP no soportado');
-        }
-      });
-
-      // Ajustes / Paneles
-      btnSettings.addEventListener('click', () => {
-        settingsPanel.classList.toggle('active');
-        shortcutsPanel.classList.remove('active');
-      });
-
-      btnShortcuts.addEventListener('click', () => {
-        shortcutsPanel.classList.toggle('active');
-        settingsPanel.classList.remove('active');
-      });
-
-      btnCloseShortcuts.addEventListener('click', () => shortcutsPanel.classList.remove('active'));
-
-      selectSpeed.addEventListener('change', () => {
-        video.playbackRate = parseFloat(selectSpeed.value);
-        showToast(`Velocidad: ${selectSpeed.value}x`);
-      });
-
-      selectQuality.addEventListener('change', () => {
-        if (hlsInstance) {
-          hlsInstance.currentLevel = parseInt(selectQuality.value);
-          showToast(`Calidad cambiada`);
-        }
-      });
-
-      // Bloqueo de pantalla
-      optLockScreen.addEventListener('click', () => {
-        settingsPanel.classList.remove('active');
-        lockOverlay.classList.add('active');
-        controlsOverlay.classList.remove('active');
-      });
-
-      btnUnlock.addEventListener('click', () => {
-        lockOverlay.classList.remove('active');
-        showToast('Pantalla desbloqueada');
-      });
-
-      // Copiar enlace y descargar
-      btnCopyLink.addEventListener('click', () => {
-        navigator.clipboard.writeText(currentUrl).then(() => showToast('¡Enlace copiado!'));
-      });
-
-      btnDownload.addEventListener('click', () => {
-        if (isEmbedMode) { showToast('No se puede descargar de Iframe'); return; }
-        const a = document.createElement('a');
-        a.href = currentUrl;
-        a.download = '';
-        a.target = '_blank';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      });
-
-      btnCast.addEventListener('click', () => {
-        showToast('Buscando dispositivos...');
-      });
-
-      // Mostrar/Ocultar controles al toque
-      playerWrapper.addEventListener('click', (e) => {
-        if (lockOverlay.classList.contains('active')) return;
-        if (e.target.closest('.controls-overlay') || e.target.closest('.settings-panel') || e.target.closest('.shortcuts-panel')) return;
-        
-        controlsOverlay.classList.toggle('active');
-        settingsPanel.classList.remove('active');
-        shortcutsPanel.classList.remove('active');
-      });
-
-      // Atajos de teclado globales
-      document.addEventListener('keydown', (e) => {
-        if (playerWrapper.style.display === 'none') return;
-        if (lockOverlay.classList.contains('active')) return;
-
-        if (e.code === 'Space') {
-          e.preventDefault();
-          togglePlay();
-        } else if (e.code === 'ArrowRight') {
-          video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
-        } else if (e.code === 'ArrowLeft') {
-          video.currentTime = Math.max(0, video.currentTime - 10);
-        } else if (e.code === 'KeyM') {
-          btnMute.click();
-        } else if (e.code === 'KeyF') {
-          btnFullscreen.click();
-        } else if (e.code === 'ArrowUp') {
-          e.preventDefault();
-          video.volume = Math.min(1, video.volume + 0.1);
-          volumeSlider.value = video.volume;
-          updateVolumeIcons();
-        } else if (e.code === 'ArrowDown') {
-          e.preventDefault();
-          video.volume = Math.max(0, video.volume - 0.1);
-          volumeSlider.value = video.volume;
-          updateVolumeIcons();
-        }
-      });
-
-      // Cargar parámetro automático por URL si existe
+      urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadVideo(urlInput.value.trim()); });
+      
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('url')) {
-        urlInput.value = urlParams.get('url');
-        loadVideo(urlParams.get('url'));
+      const videoParam = urlParams.get('url');
+      if (videoParam) {
+        loadVideo(videoParam);
       }
     });
   </script>
