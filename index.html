@@ -464,48 +464,23 @@
 
   <script>
     // =========================================================================
-    // CATÁLOGO LOCAL: Agrega aquí tus archivos HTML individuales por cada película o saga
+    // CONFIGURACIÓN DE REPOSITORIOS EXTERNOS (GitHub Pages)
     // =========================================================================
-    const LOCAL_CATALOG = {
-      sagas: [
-        {
-          saga: "V/H/S (Saga)",
-          abierta: true,
-          peliculas: [
-            {
-              titulo: "V/H/S: Las crónicas del miedo",
-              ano: "2012",
-              duracion: "01h:56m",
-              portada: "https://m.media-amazon.com/images/S/pv-target-images/2b1354e4eb010e86e07d4536dfa06322d07dfe41e38e51427b16a0387732467f.png",
-              sinopsis: "Un grupo de delincuentes menores es contratado para recuperar un VHS en una casa desierta. Al llegar, descubren una serie espeluznante de cintas de vídeo con metraje encontrado.",
-              url_html: "sagas/vhs.html" // <- Enlace directo a tu archivo HTML con tu reproductor
-            }
-            // Puedes agregar más películas de esta saga aquí
-          ]
-        }
-        // Puedes agregar más sagas aquí
-      ],
-      peliculas: [
-        /*
-        {
-          titulo: "Nombre de la Película",
-          ano: "2024",
-          duracion: "01h:40m",
-          portada: "url_de_la_portada.jpg",
-          sinopsis: "Sinopsis de la película...",
-          url_html: "peliculas/nombre-pelicula.html"
-        }
-        */
-      ],
-      series: [
-        // Tus series aquí
-      ],
-      anime: [
-        // Tus animes aquí
-      ],
-      videos: [
-        // Tus videos aquí
-      ]
+    const REPOSITORIOS_URLS = {
+      sagas: "https://jeissonxp182.github.io/sagas/data.json",
+      peliculas: "https://jeissonxp182.github.io/peliculas/data.json",
+      series: "https://jeissonxp182.github.io/series/data.json",
+      anime: "https://jeissonxp182.github.io/anime/data.json",
+      videos: "https://jeissonxp182.github.io/videos/data.json"
+    };
+
+    // Objeto global donde se guardará la data descargada de cada repositorio
+    let LOCAL_CATALOG = {
+      sagas: [],
+      peliculas: [],
+      series: [],
+      anime: [],
+      videos: []
     };
 
     let currentSectionKey = 'sagas';
@@ -516,12 +491,34 @@
       return dur.replace(/(\d+h):?(\d+m)/, '$1:$2');
     }
 
+    // Función para descargar los datos de un repositorio específico si aún no se han cargado
+    async function cargarSeccionRemota(sectionKey) {
+      const container = document.getElementById('catalogContainer');
+      
+      // Si ya tenemos los datos en memoria, solo los renderizamos
+      if (LOCAL_CATALOG[sectionKey] && LOCAL_CATALOG[sectionKey].length > 0) {
+        renderCatalog(LOCAL_CATALOG[sectionKey]);
+        return;
+      }
+
+      container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Cargando contenido...</p>';
+
+      try {
+        const respuesta = await fetch(REPOSITORIOS_URLS[sectionKey]);
+        if (!respuesta.ok) throw new Error("No se pudo conectar con el repositorio");
+        
+        const data = await respuesta.json();
+        LOCAL_CATALOG[sectionKey] = data; // Guardamos en caché local
+        renderCatalog(data);
+      } catch (error) {
+        console.error("Error al cargar la sección:", error);
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Próximamente más contenido en esta sección 🚀 (O error de conexión con el repositorio)</p>';
+      }
+    }
+
     function loadSection(sectionKey) {
       currentSectionKey = sectionKey;
-      const container = document.getElementById('catalogContainer');
-      const items = LOCAL_CATALOG[sectionKey] || [];
-
-      renderCatalog(items);
+      cargarSeccionRemota(sectionKey);
     }
 
     function switchSection(sectionKey) {
@@ -663,7 +660,8 @@
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
       document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible.';
 
-      // Guardamos la ruta del archivo HTML individual
+      // Aquí definimos qué archivo abrir en tu reproductor (ej: reproductor.html con parámetros)
+      // O si mantienes tu lógica anterior de apuntar a un archivo específico:
       targetHtmlUrl = peli.url_html || '';
 
       document.getElementById('movieModal').style.display = 'flex';
@@ -671,7 +669,6 @@
 
     function launchPlayer() {
       if (!targetHtmlUrl) return;
-      // Redirige directamente al archivo HTML independiente con tu reproductor personalizado
       window.location.href = targetHtmlUrl;
     }
 
