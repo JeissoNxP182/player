@@ -474,7 +474,6 @@
       videos: "https://jeissonxp182.github.io/player/videos.json"
     };
 
-    // Objeto global donde se guardará la data descargada de cada repositorio
     let LOCAL_CATALOG = {
       sagas: [],
       peliculas: [],
@@ -491,11 +490,9 @@
       return dur.replace(/(\d+h):?(\d+m)/, '$1:$2');
     }
 
-    // Función para descargar los datos de un repositorio específico si aún no se han cargado
     async function cargarSeccionRemota(sectionKey) {
       const container = document.getElementById('catalogContainer');
       
-      // Si ya tenemos los datos en memoria, solo los renderizamos
       if (LOCAL_CATALOG[sectionKey] && LOCAL_CATALOG[sectionKey].length > 0) {
         renderCatalog(LOCAL_CATALOG[sectionKey]);
         return;
@@ -508,7 +505,7 @@
         if (!respuesta.ok) throw new Error("No se pudo conectar con el repositorio");
         
         const data = await respuesta.json();
-        LOCAL_CATALOG[sectionKey] = data; // Guardamos en caché local
+        LOCAL_CATALOG[sectionKey] = data;
         renderCatalog(data);
       } catch (error) {
         console.error("Error al cargar la sección:", error);
@@ -530,19 +527,24 @@
       loadSection('sagas');
     });
 
-    function createCardElement(peli) {
-      const formattedDur = formatDuration(peli.duracion);
+    function createCardElement(item) {
+      const formattedDur = formatDuration(item.duracion);
       const card = document.createElement('div');
       card.className = 'card';
-      card.onclick = () => openModal(peli);
+      
+      if (currentSectionKey === 'series' || currentSectionKey === 'anime') {
+        card.onclick = () => openSeriesModal(item);
+      } else {
+        card.onclick = () => openModal(item);
+      }
 
       card.innerHTML = `
         <div class="poster-wrapper">
-          <img src="${peli.portada}" alt="${peli.titulo}" loading="lazy">
+          <img src="${item.portada || item.poster}" alt="${item.titulo}" loading="lazy">
         </div>
         <div class="card-info">
-          <div class="card-title">${peli.titulo}</div>
-          <div class="card-meta">${peli.ano || ''} ${formattedDur ? '• ' + formattedDur : ''}</div>
+          <div class="card-title">${item.titulo}</div>
+          <div class="card-meta">${item.ano || ''} ${formattedDur ? '• ' + formattedDur : ''}</div>
         </div>
       `;
 
@@ -641,9 +643,9 @@
 
         renderCatalog(filtered);
       } else {
-        const filtered = items.filter(peli => {
-          const matchesTitle = peli.titulo ? peli.titulo.toLowerCase().includes(query) : false;
-          const matchesYear = peli.ano ? peli.ano.toString().includes(query) : false;
+        const filtered = items.filter(item => {
+          const matchesTitle = item.titulo ? item.titulo.toLowerCase().includes(query) : false;
+          const matchesYear = item.ano ? item.ano.toString().includes(query) : false;
           return matchesTitle || matchesYear;
         });
 
@@ -660,9 +662,97 @@
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
       document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible.';
 
-      // Aquí definimos qué archivo abrir en tu reproductor (ej: reproductor.html con parámetros)
-      // O si mantienes tu lógica anterior de apuntar a un archivo específico:
+      const tempContainer = document.getElementById('modalTemporadasContainer');
+      if (tempContainer) tempContainer.style.display = 'none';
+      document.getElementById('modalPlayBtn').style.display = 'block';
+
       targetHtmlUrl = peli.url_html || '';
+      document.getElementById('movieModal').style.display = 'flex';
+    }
+
+    // Modal específico para Series y Anime (Muestra T1, T2...)
+    function openSeriesModal(serie) {
+      document.getElementById('modalImg').src = serie.poster || serie.portada || '';
+      document.getElementById('modalTitle').innerText = serie.titulo || 'Sin título';
+      document.getElementById('modalYear').innerHTML = `📁 Temporadas`;
+      document.getElementById('modalDuration').innerHTML = `👀 Serie`;
+      document.getElementById('modalSinopsis').innerText = serie.sinopsis || 'Sin descripción disponible general.';
+
+      document.getElementById('modalPlayBtn').style.display = 'none';
+
+      let tempContainer = document.getElementById('modalTemporadasContainer');
+      if (!tempContainer) {
+        tempContainer = document.createElement('div');
+        tempContainer.id = 'modalTemporadasContainer';
+        tempContainer.style.marginTop = '20px';
+        document.querySelector('.modal-details').appendChild(tempContainer);
+      }
+
+      tempContainer.style.display = 'block';
+      tempContainer.innerHTML = ''; 
+
+      if (serie.temporadas && serie.temporadas.length > 0) {
+        serie.temporadas.forEach(temp => {
+          const folderDiv = document.createElement('div');
+          folderDiv.style.cssText = "margin-bottom: 12px; background: rgba(28, 22, 46, 0.6); border: 1px solid var(--border-purple); border-radius: 8px; overflow: hidden;";
+          
+          const folderHeader = document.createElement('div');
+          folderHeader.style.cssText = "padding: 12px 15px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #fff;";
+          
+          // AQUÍ SE FUERZA A QUE DIGA T1, T2, T3...
+          const nombreTemporadaT = `T${temp.numeroTemporada}`;
+          folderHeader.innerHTML = `<span>📁 ${nombreTemporadaT}</span> <span class="folder-arrow">▼</span>`;
+          
+          const episodesDiv = document.createElement('div');
+          episodesDiv.style.cssText = "padding: 10px 15px; display: none; background: rgba(13, 10, 20, 0.8); border-top: 1px solid var(--border-purple);";
+          
+          folderHeader.onclick = () => {
+            const isHidden = episodesDiv.style.display === 'none';
+            episodesDiv.style.display = isHidden ? 'block' : 'none';
+            folderHeader.querySelector('.folder-arrow').style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+          };
+
+          if (temp.episodios && temp.episodios.length > 0) {
+            temp.episodios.forEach(ep => {
+              const epBtn = document.createElement('button');
+              epBtn.style.cssText = "display: block; width: 100%; text-align: left; background: transparent; border: none; color: var(--text-main); padding: 8px 10px; margin-bottom: 4px; cursor: pointer; border-radius: 4px; font-size: 0.9rem; transition: background 0.2s;";
+              epBtn.onmouseover = () => epBtn.style.background = 'rgba(168, 85, 247, 0.2)';
+              epBtn.onmouseout = () => epBtn.style.background = 'transparent';
+              
+              epBtn.innerHTML = `▶ Cap. ${ep.numeroEpisodio}: ${ep.titulo}`;
+              
+              // Al dar clic al capítulo, actualiza el modal con la info propia de ese capítulo
+              epBtn.onclick = () => {
+                document.getElementById('modalTitle').innerText = `${serie.titulo} - T${temp.numeroTemporada} Ep. ${ep.numeroEpisodio}: ${ep.titulo}`;
+                document.getElementById('modalYear').innerHTML = `📅 T${temp.numeroTemporada}`;
+                document.getElementById('modalDuration').innerHTML = `🕕 ${ep.duracion || 'N/A'}`;
+                document.getElementById('modalSinopsis').innerText = ep.sinopsis || serie.sinopsis || 'Sin descripción disponible.';
+                
+                if (ep.miniatura) {
+                  document.getElementById('modalImg').src = ep.miniatura;
+                }
+
+                // Ocultar las carpetas para que se enfoque en el botón de reproducción de ese capítulo
+                tempContainer.style.display = 'none';
+                
+                const playBtn = document.getElementById('modalPlayBtn');
+                playBtn.style.display = 'block';
+                targetHtmlUrl = `reproductor.html?video=${encodeURIComponent(ep.urlVideo)}&titulo=${encodeURIComponent(serie.titulo + " - T" + temp.numeroTemporada + " Ep " + ep.numeroEpisodio)}`;
+              };
+
+              episodesDiv.appendChild(epBtn);
+            });
+          } else {
+            episodesDiv.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">Próximamente capítulos...</p>`;
+          }
+
+          folderDiv.appendChild(folderHeader);
+          folderDiv.appendChild(episodesDiv);
+          tempContainer.appendChild(folderDiv);
+        });
+      } else {
+        tempContainer.innerHTML = `<p style="color: var(--text-muted); text-align: center;">No hay temporadas registradas aún.</p>`;
+      }
 
       document.getElementById('movieModal').style.display = 'flex';
     }
@@ -674,6 +764,9 @@
 
     function closeModal(event) {
       document.getElementById('movieModal').style.display = 'none';
+      // Restaurar contenedor de temporadas al cerrar por si se abrió un capítulo
+      const tempContainer = document.getElementById('modalTemporadasContainer');
+      if (tempContainer) tempContainer.style.display = 'block';
     }
   </script>
 </body>
