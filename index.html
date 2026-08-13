@@ -361,6 +361,7 @@
 
     .modal-tags {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 18px;
       font-size: 0.85rem;
@@ -452,9 +453,11 @@
       </div>
       <div class="modal-details">
         <h2 id="modalTitle" class="modal-title"></h2>
-        <div class="modal-tags">
+        <div class="modal-tags" id="modalTagsContainer">
           <span id="modalYear" class="tag"></span>
           <span id="modalDuration" class="tag"></span>
+          <span id="modalDirector" class="tag" style="display:none;"></span>
+          <span id="modalTotalCap" class="tag" style="display:none;"></span>
         </div>
         <p id="modalSinopsis" class="modal-description"></p>
         <button id="modalPlayBtn" class="btn-play" onclick="launchPlayer()">▶ REPRODUCIR AHORA</button>
@@ -660,6 +663,16 @@
       document.getElementById('modalTitle').innerText = peli.titulo || 'Sin título';
       document.getElementById('modalYear').innerHTML = `📅 ${peli.ano || 'S/A'}`;
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
+      
+      const directorTag = document.getElementById('modalDirector');
+      if (peli.director) {
+        directorTag.innerHTML = `🎥 ${peli.director}`;
+        directorTag.style.display = 'flex';
+      } else {
+        directorTag.style.display = 'none';
+      }
+
+      document.getElementById('modalTotalCap').style.display = 'none';
       document.getElementById('modalSinopsis').innerText = peli.sinopsis || 'Sin descripción disponible.';
 
       const tempContainer = document.getElementById('modalTemporadasContainer');
@@ -674,10 +687,33 @@
     function openSeriesModal(serie) {
       document.getElementById('modalImg').src = serie.poster || serie.portada || '';
       document.getElementById('modalTitle').innerText = serie.titulo || 'Sin título';
-      document.getElementById('modalYear').innerHTML = `📁 Temporadas`;
-      document.getElementById('modalDuration').innerHTML = `👀 Serie`;
-      document.getElementById('modalSinopsis').innerText = serie.sinopsis || 'Sin descripción disponible general.';
+      document.getElementById('modalYear').innerHTML = `📅 ${serie.ano || 'S/A'}`;
+      document.getElementById('modalDuration').innerHTML = `📁 Temporadas`;
+      
+      const directorTag = document.getElementById('modalDirector');
+      if (serie.director) {
+        directorTag.innerHTML = `🎥 ${serie.director}`;
+        directorTag.style.display = 'flex';
+      } else {
+        directorTag.style.display = 'none';
+      }
 
+      // Calcular cantidad de capítulos totales de toda la serie si existe
+      let totalCapsCount = 0;
+      if (serie.temporadas) {
+        serie.temporadas.forEach(t => {
+          if (t.episodios) totalCapsCount += t.episodios.length;
+        });
+      }
+      const totalCapTag = document.getElementById('modalTotalCap');
+      if (totalCapsCount > 0) {
+        totalCapTag.innerHTML = `🎬 ${totalCapsCount} caps totales`;
+        totalCapTag.style.display = 'flex';
+      } else {
+        totalCapTag.style.display = 'none';
+      }
+
+      document.getElementById('modalSinopsis').innerText = serie.sinopsis || 'Sin descripción disponible general.';
       document.getElementById('modalPlayBtn').style.display = 'none';
 
       let tempContainer = document.getElementById('modalTemporadasContainer');
@@ -699,9 +735,10 @@
           const folderHeader = document.createElement('div');
           folderHeader.style.cssText = "padding: 12px 15px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #fff;";
           
-          // AQUÍ SE FUERZA A QUE DIGA T1, T2, T3...
           const nombreTemporadaT = `T${temp.numeroTemporada}`;
-          folderHeader.innerHTML = `<span>📁 ${nombreTemporadaT}</span> <span class="folder-arrow">▼</span>`;
+          const numCapsEnTemporada = temp.episodios ? temp.episodios.length : 0;
+          
+          folderHeader.innerHTML = `<span>📁 ${nombreTemporadaT} <span style="font-size:0.8rem; color:var(--text-muted); font-weight:normal; margin-left:8px;">(${numCapsEnTemporada} cap${numCapsEnTemporada === 1 ? '' : 's'})</span></span> <span class="folder-arrow">▼</span>`;
           
           const episodesDiv = document.createElement('div');
           episodesDiv.style.cssText = "padding: 10px 15px; display: none; background: rgba(13, 10, 20, 0.8); border-top: 1px solid var(--border-purple);";
@@ -719,20 +756,21 @@
               epBtn.onmouseover = () => epBtn.style.background = 'rgba(168, 85, 247, 0.2)';
               epBtn.onmouseout = () => epBtn.style.background = 'transparent';
               
-              epBtn.innerHTML = `▶ Cap. ${ep.numeroEpisodio}: ${ep.titulo}`;
+              const numEpFormatted = String(ep.numeroEpisodio).padStart(2, '0');
+              epBtn.innerHTML = `▶ CAP ${numEpFormatted} - ${ep.titulo}`;
               
-              // Al dar clic al capítulo, actualiza el modal con la info propia de ese capítulo
               epBtn.onclick = () => {
                 document.getElementById('modalTitle').innerText = `${serie.titulo} - T${temp.numeroTemporada} Ep. ${ep.numeroEpisodio}: ${ep.titulo}`;
-                document.getElementById('modalYear').innerHTML = `📅 T${temp.numeroTemporada}`;
+                document.getElementById('modalYear').innerHTML = `📅 T${temp.numeroTemporada} (${temp.ano || serie.ano || 'S/A'})`;
                 document.getElementById('modalDuration').innerHTML = `🕕 ${ep.duracion || 'N/A'}`;
+                document.getElementById('modalDirector').style.display = 'none';
+                document.getElementById('modalTotalCap').style.display = 'none';
                 document.getElementById('modalSinopsis').innerText = ep.sinopsis || serie.sinopsis || 'Sin descripción disponible.';
                 
                 if (ep.miniatura) {
                   document.getElementById('modalImg').src = ep.miniatura;
                 }
 
-                // Ocultar las carpetas para que se enfoque en el botón de reproducción de ese capítulo
                 tempContainer.style.display = 'none';
                 
                 const playBtn = document.getElementById('modalPlayBtn');
@@ -764,7 +802,6 @@
 
     function closeModal(event) {
       document.getElementById('movieModal').style.display = 'none';
-      // Restaurar contenedor de temporadas al cerrar por si se abrió un capítulo
       const tempContainer = document.getElementById('modalTemporadasContainer');
       if (tempContainer) tempContainer.style.display = 'block';
     }
