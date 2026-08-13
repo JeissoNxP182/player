@@ -1,346 +1,347 @@
 [
-{
-  "id": "vikingos",
-  "titulo": "Vikingos (Vikings)",
-  "tipo": "serie",
-  "poster": "https://m.media-amazon.com/images/M/MV5BODk4ZjU0NDUtYjdlOS00OTljLTgwZTUtYjkyZjk1NzExZGIzXkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_FMjpg_UX1000_.jpg",
-  "sinopsis": "Sigue las aventuras de Ragnar Lothbrok, el héroe más grande de su época, y su hermandad de vikingos mientras asciende hasta convertirse en rey de las tribus vikingas.",
-  "temporadas": [
-    {
-      "numeroTemporada": 1,
-      "nombre": "Temporada 1",
-      "episodios": [
-        {
-          "numeroEpisodio": 1,
-          "titulo": "Ritos de iniciación",
-          "duracion": "44 min",
-          "sinopsis": "Ragnar Lothbrok cuestiona la política de su líder de saquear las tierras del este. En secreto, construye un barco innovador para navegar hacia el oeste, hacia Inglaterra.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 2,
-          "titulo": "La ira de los hombres del norte",
-          "duracion": "44 min",
-          "sinopsis": "Ragnar y su tripulación llegan a Lindisfarne y atacan por sorpresa el monasterio, obteniendo un cuantioso botín y trayendo a un monje prisionero, Athelstan.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 3,
-          "titulo": "Desterrados",
-          "duracion": "44 min",
-          "sinopsis": "El conde Haraldson descubre el botín de Ragnar. Mientras tanto, Athelstan intenta comprender las costumbres paganas de los vikingos y Ragnar planea su segundo viaje.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 4,
-          "titulo": "Juicio",
-          "duracion": "44 min",
-          "sinopsis": "Ragnar es llevado ante la justicia del conde Haraldson. Su vida y la de su familia penden de un hilo tras ser acusado de traición y ocultar tesoros.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 5,
-          "titulo": "Un pacto divino",
-          "duracion": "44 min",
-          "sinopsis": "Los hombres de Ragnar atacan Inglaterra nuevamente, esta vez gobernando el reino de Northumbria con tácticas más despiadadas y exigiendo un gran rescate.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 6,
-          "titulo": "Los muertos",
-          "duracion": "44 min",
-          "sinopsis": "El conde Haraldson ataca la granja de Ragnar, obligando a su familia a huir y refugiarse en el bosque mientras traman su venganza definitiva.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 7,
-          "titulo": "Un rescate",
-          "duracion": "44 min",
-          "sinopsis": "Ragnar desafía al conde Haraldson a un combate a muerte individual para decidir quién gobernará Kattegat de una vez por todas.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 8,
-          "titulo": "Sacrificio",
-          "duracion": "44 min",
-          "sinopsis": "Se celebra el gran festival de sacrificio en Uppsala. Ragnar viaja allí con su familia y Athelstan, donde se debate entre su fe y la tradición de los dioses.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 9,
-          "titulo": "Cambio de lealtades",
-          "duracion": "44 min",
-          "sinopsis": "Ahora convertido en conde, Ragnar reúne una flota para viajar a Götaland y resolver una disputa territorial para el rey Horik, desatando nuevas tensiones.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        }
-      ]
-    },
-    {
-      "numeroTemporada": 2,
-      "nombre": "Temporada 2",
-      "episodios": [
-        {
-          "numeroEpisodio": 1,
-          "titulo": "Irmandur",
-          "duracion": "44 min",
-          "sinopsis": "Estalla la guerra entre el conde Ragnar y su hermano Rollo, quien se ha aliado con Jarl Borg en una brutal disputa por el poder.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 2,
-          "titulo": "Invasión",
-          "duracion": "44 min",
-          "sinopsis": "Ragnar y el rey Horik unen fuerzas para asaltar las costas de Wessex, gobernadas por el astuto rey Ecbert, dando inicio a un nuevo frente de conquista.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 3,
-          "titulo": "La traición",
-          "duracion": "44 min",
-          "sinopsis": "Jarl Borg toma represalias brutales atacando las tierras desprotegidas de Kattegat mientras Ragnar está lejos luchando en Inglaterra.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 4,
-          "titulo": "Ojo por ojo",
-          "duracion": "44 min",
-          "sinopsis": "Ragnar regresa de inmediato a Kattegat para recuperar su hogar y planear una venganza implacable contra Jarl Borg.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 5,
-          "titulo": "Respuestas en sangre",
-          "duracion": "44 min",
-          "sinopsis": "Jarl Borg se enfrenta a su destino final bajo el cruel y tradicional castigo del águila de sangre mientras Ragnar consolida su poder.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 6,
-          "titulo": "El estandarte del cuervo",
-          "duracion": "44 min",
-          "sinopsis": "Los vikingos regresan a Wessex con una fuerza mayor, pero el rey Ecbert ha preparado tácticas defensivas avanzadas que pondrán a prueba a Ragnar.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 7,
-          "titulo": "Las águilas voladoras",
-          "duracion": "44 min",
-          "sinopsis": "Se forjan frágiles alianzas matrimoniales y políticas entre los vikingos y los sajones, aunque la tensión y la desconfianza siguen latentes.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 8,
-          "titulo": "Invasores",
-          "duracion": "44 min",
-          "sinopsis": "Las fuerzas combinadas entran en una brutal batalla campal en los campos de Wessex con numerosas bajas en ambos bandos.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 9,
-          "titulo": "Elección",
-          "duracion": "44 min",
-          "sinopsis": "Surgen conspiraciones secretas dentro del campamento vikingo. El rey Horik conspira contra Ragnar intentando eliminarlo.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 10,
-          "titulo": "El Lord de la Derrota",
-          "duracion": "44 min",
-          "sinopsis": "Se libra el enfrentamiento definitivo por el trono de Kattegat, donde Ragnar y sus leales se juegan el todo por el todo.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        }
-      ]
-    },
-    {
-      "numeroTemporada": 3,
-      "nombre": "Temporada 3",
-      "episodios": [
-        {
-          "numeroEpisodio": 1,
-          "titulo": "Mercenarios",
-          "duracion": "44 min",
-          "sinopsis": "Ragnar y sus guerreros viajan a Mercia para ayudar a la princesa Kwenthrith en su guerra civil a cambio de tierras cultivables.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 2,
-          "titulo": "El caminante",
-          "duracion": "44 min",
-          "sinopsis": "Un misterioso viajero llamado Harbard llega a Kattegat y altera la vida de Aslaug y las mujeres del pueblo con visiones y profecías.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 3,
-          "titulo": "Los campos de la muerte",
-          "duracion": "44 min",
-          "sinopsis": "La brutal batalla en el río en Mercia pone a prueba la resistencia de los vikingos, que deben luchar contra un ejército superior.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 4,
-          "titulo": "Sin miego",
-          "duracion": "44 min",
-          "sinopsis": "Se traman planes para la gran e histórica invasión a París, la ciudad amurallada que los vikingos consideran inexpugnable.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 5,
-          "titulo": "El usurpador",
-          "duracion": "44 min",
-          "sinopsis": "Lagertha regresa a su condado para descubrir que ha sido traicionada por Kalf, quien se ha apropiado de sus tierras.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 6,
-          "titulo": "Nacidos en el fuego",
-          "duracion": "44 min",
-          "sinopsis": "La flota vikinga zarpa finalmente hacia Francia, reuniendo a todos los clanes bajo el liderazgo absoluto de Ragnar Lothbrok.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 7,
-          "titulo": "La expedición",
-          "duracion": "44 min",
-          "sinopsis": "Comienza el asedio inicial a las murallas de París con máquinas de guerra, catapultas y una feroz resistencia de los defensores franceses.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 8,
-          "titulo": "A través de las puertas",
-          "duracion": "44 min",
-          "sinopsis": "Los vikingos logran romper una de las puertas principales de París en una de las batallas más sangrientas y costosas de la serie.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 9,
-          "titulo": "Un ángel de color gris",
-          "duracion": "44 min",
-          "sinopsis": "Ragnar, gravemente enfermo tras las heridas del asedio, toma una decisión extrema que desconcierta a sus aliados y enemigos.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 10,
-          "titulo": "Los muertos",
-          "duracion": "44 min",
-          "sinopsis": "Se ejecuta una astuta y arriesgada estrategia final para infiltrarse y saquear París, cambiando el rumbo de la historia vikinga para siempre.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        }
-      ]
-    },
-    {
-      "numeroTemporada": 4,
-      "nombre": "Temporada 4",
-      "episodios": [
-        {
-          "numeroEpisodio": 1,
-          "titulo": "Un buen traidor",
-          "duracion": "44 min",
-          "sinopsis": "Ragnar regresa a Kattegat gravemente herido y al borde de la muerte. Mientras tanto, Rollo toma una decisión radical en París para asegurar su futuro.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 2,
-          "titulo": "Matar una reina",
-          "duracion": "44 min",
-          "sinopsis": "Kattegat se prepara para nuevas rutas comerciales y expediciones mientras crecen las tensiones políticas internas y las ambiciones de poder.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 3,
-          "titulo": "La misericordia",
-          "duracion": "44 min",
-          "sinopsis": "Floki es juzgado y castigado públicamente en Kattegat por el asesinato de Athelstan, desatando el dolor y la furia de Ragnar.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 4,
-          "titulo": "San Valentín / Sangre derramada",
-          "duracion": "44 min",
-          "sinopsis": "Las fuerzas vikingas regresan a París para un segundo y titánico asedio, encontrándose con las defensas reforzadas de Rollo.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 5,
-          "titulo": "Promesa",
-          "duracion": "44 min",
-          "sinopsis": "Las flotas de Ragnar y Rollo chocan en una batalla naval épica en el río Sena con resultados devastadores para los vikingos.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 6,
-          "titulo": "La cruz",
-          "duracion": "44 min",
-          "sinopsis": "Tras la amarga derrota en el Sena, Ragnar se retira lleno de culpa y aislamiento, desapareciendo de Kattegat durante varios años.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 7,
-          "titulo": "El viaje",
-          "duracion": "44 min",
-          "sinopsis": "Un envejecido Ragnar reaparece inesperadamente en Kattegat para desafiar a sus propios hijos adultos a que lo maten si quieren reclamar su trono.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 8,
-          "titulo": "El puerto de los hombres muertos",
-          "duracion": "44 min",
-          "sinopsis": "Ragnar y Ivar el Deshuesado zarpan en una flota pequeña hacia Inglaterra en un viaje solitario marcado por la tragedia y el destino.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 9,
-          "titulo": "Las reglas del combate",
-          "duracion": "44 min",
-          "sinopsis": "Ragnar se entrega al rey Ecbert de Wessex en busca de un cierre definitivo para sus días de gloria y conquista.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        },
-        {
-          "numeroEpisodio": 10,
-          "titulo": "La última vez",
-          "duracion": "44 min",
-          "sinopsis": "El legendario Ragnar Lothbrok se enfrenta a su ejecución en el foso de serpientes, dejando un legado imborrable que cambiará el mundo.",
-          "urlVideo": "ENLACE_VIDEO",
-          "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
-        }
-      ]
-    }
-  ]
-}
+  {
+    "id": "vikingos",
+    "titulo": "Vikingos (Vikings)",
+    "tipo": "serie",
+    "poster": "https://m.media-amazon.com/images/M/MV5BODk4ZjU0NDUtYjdlOS00OTljLTgwZTUtYjkyZjk1NzExZGIzXkEyXkFqcGdeQXVyMDM2NDM2MQ@@._V1_FMjpg_UX1000_.jpg",
+    "sinopsis": "Sigue las aventuras de Ragnar Lothbrok, el héroe más grande de su época, y su hermandad de vikingos mientras asciende hasta convertirse en rey de las tribus vikingas.",
+    "temporadas": [
+      {
+        "numeroTemporada": 1,
+        "nombre": "Temporada 1",
+        "episodios": [
+          {
+            "numeroEpisodio": 1,
+            "titulo": "Ritos de iniciación",
+            "duracion": "44 min",
+            "sinopsis": "Ragnar Lothbrok cuestiona la política de su líder de saquear las tierras del este. En secreto, construye un barco innovador para navegar hacia el oeste, hacia Inglaterra.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 2,
+            "titulo": "La ira de los hombres del norte",
+            "duracion": "44 min",
+            "sinopsis": "Ragnar y su tripulación llegan a Lindisfarne y atacan por sorpresa el monasterio, obteniendo un cuantioso botín y trayendo a un monje prisionero, Athelstan.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 3,
+            "titulo": "Desterrados",
+            "duracion": "44 min",
+            "sinopsis": "El conde Haraldson descubre el botín de Ragnar. Mientras tanto, Athelstan intenta comprender las costumbres paganas de los vikingos y Ragnar planea su segundo viaje.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 4,
+            "titulo": "Juicio",
+            "duracion": "44 min",
+            "sinopsis": "Ragnar es llevado ante la justicia del conde Haraldson. Su vida y la de su familia penden de un hilo tras ser acusado de traición y ocultar tesoros.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 5,
+            "titulo": "Un pacto divino",
+            "duracion": "44 min",
+            "sinopsis": "Los hombres de Ragnar atacan Inglaterra nuevamente, esta vez gobernando el reino de Northumbria con tácticas más despiadadas y exigiendo un gran rescate.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 6,
+            "titulo": "Los muertos",
+            "duracion": "44 min",
+            "sinopsis": "El conde Haraldson ataca la granja de Ragnar, obligando a su familia a huir y refugiarse en el bosque mientras traman su venganza definitiva.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 7,
+            "titulo": "Un rescate",
+            "duracion": "44 min",
+            "sinopsis": "Ragnar desafía al conde Haraldson a un combate a muerte individual para decidir quién gobernará Kattegat de una vez por todas.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 8,
+            "titulo": "Sacrificio",
+            "duracion": "44 min",
+            "sinopsis": "Se celebra el gran festival de sacrificio en Uppsala. Ragnar viaja allí con su familia y Athelstan, donde se debate entre su fe y la tradición de los dioses.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 9,
+            "titulo": "Cambio de lealtades",
+            "duracion": "44 min",
+            "sinopsis": "Ahora convertido en conde, Ragnar reúne una flota para viajar a Götaland y resolver una disputa territorial para el rey Horik, desatando nuevas tensiones.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          }
+        ]
+      },
+      {
+        "numeroTemporada": 2,
+        "nombre": "Temporada 2",
+        "episodios": [
+          {
+            "numeroEpisodio": 1,
+            "titulo": "Irmandur",
+            "duracion": "44 min",
+            "sinopsis": "Estalla la guerra entre el conde Ragnar y su hermano Rollo, quien se ha aliado con Jarl Borg en una brutal disputa por el poder.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 2,
+            "titulo": "Invasión",
+            "duracion": "44 min",
+            "sinopsis": "Ragnar y el rey Horik unen fuerzas para asaltar las costas de Wessex, gobernadas por el astuto rey Ecbert, dando inicio a un nuevo frente de conquista.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 3,
+            "titulo": "La traición",
+            "duracion": "44 min",
+            "sinopsis": "Jarl Borg toma represalias brutales atacando las tierras desprotegidas de Kattegat mientras Ragnar está lejos luchando en Inglaterra.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 4,
+            "titulo": "Ojo por ojo",
+            "duracion": "44 min",
+            "sinopsis": "Ragnar regresa de inmediato a Kattegat para recuperar su hogar y planear una venganza implacable contra Jarl Borg.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 5,
+            "titulo": "Respuestas en sangre",
+            "duracion": "44 min",
+            "sinopsis": "Jarl Borg se enfrenta a su destino final bajo el cruel y tradicional castigo del águila de sangre mientras Ragnar consolida su poder.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 6,
+            "titulo": "El estandarte del cuervo",
+            "duracion": "44 min",
+            "sinopsis": "Los vikingos regresan a Wessex con una fuerza mayor, pero el rey Ecbert ha preparado tácticas defensivas avanzadas que pondrán a prueba a Ragnar.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 7,
+            "titulo": "Las águilas voladoras",
+            "duracion": "44 min",
+            "sinopsis": "Se forjan frágiles alianzas matrimoniales y políticas entre los vikingos y los sajones, aunque la tensión y la desconfianza siguen latentes.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 8,
+            "titulo": "Invasores",
+            "duracion": "44 min",
+            "sinopsis": "Las fuerzas combinadas entran en una brutal batalla campal en los campos de Wessex con numerosas bajas en ambos bandos.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 9,
+            "titulo": "Elección",
+            "duracion": "44 min",
+            "sinopsis": "Surgen conspiraciones secretas dentro del campamento vikingo. El rey Horik conspira contra Ragnar intentando eliminarlo.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 10,
+            "titulo": "El Lord de la Derrota",
+            "duracion": "44 min",
+            "sinopsis": "Se libra el enfrentamiento definitivo por el trono de Kattegat, donde Ragnar y sus leales se juegan el todo por el todo.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          }
+        ]
+      },
+      {
+        "numeroTemporada": 3,
+        "nombre": "Temporada 3",
+        "episodios": [
+          {
+            "numeroEpisodio": 1,
+            "titulo": "Mercenarios",
+            "duracion": "44 min",
+            "sinopsis": "Ragnar y sus guerreros viajan a Mercia para ayudar a la princesa Kwenthrith en su guerra civil a cambio de tierras cultivables.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 2,
+            "titulo": "El caminante",
+            "duracion": "44 min",
+            "sinopsis": "Un misterioso viajero llamado Harbard llega a Kattegat y altera la vida de Aslaug y las mujeres del pueblo con visiones y profecías.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 3,
+            "titulo": "Los campos de la muerte",
+            "duracion": "44 min",
+            "sinopsis": "La brutal batalla en el río en Mercia pone a prueba la resistencia de los vikingos, que deben luchar contra un ejército superior.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 4,
+            "titulo": "Sin miedo",
+            "duracion": "44 min",
+            "sinopsis": "Se traman planes para la gran e histórica invasión a París, la ciudad amurallada que los vikingos consideran inexpugnable.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 5,
+            "titulo": "El usurpador",
+            "duracion": "44 min",
+            "sinopsis": "Lagertha regresa a su condado para descubrir que ha sido traicionada por Kalf, quien se ha apropiado de sus tierras.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 6,
+            "titulo": "Nacidos en el fuego",
+            "duracion": "44 min",
+            "sinopsis": "La flota vikinga zarpa finalmente hacia Francia, reuniendo a todos los clanes bajo el liderazgo absoluto de Ragnar Lothbrok.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 7,
+            "titulo": "La expedición",
+            "duracion": "44 min",
+            "sinopsis": "Comienza el asedio inicial a las murallas de París con máquinas de guerra, catapultas y una feroz resistencia de los defensores franceses.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 8,
+            "titulo": "A través de las puertas",
+            "duracion": "44 min",
+            "sinopsis": "Los vikingos logran romper una de las puertas principales de París en una de las batallas más sangrientas y costosas de la serie.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 9,
+            "titulo": "Un ángel de color gris",
+            "duracion": "44 min",
+            "sinopsis": "Ragnar, gravemente enfermo tras las heridas del asedio, toma una decisión extrema que desconcierta a sus aliados y enemigos.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 10,
+            "titulo": "Los muertos",
+            "duracion": "44 min",
+            "sinopsis": "Se ejecuta una astuta y arriesgada estrategia final para infiltrarse y saquear París, cambiando el rumbo de la historia vikinga para siempre.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          }
+        ]
+      },
+      {
+        "numeroTemporada": 4,
+        "nombre": "Temporada 4",
+        "episodios": [
+          {
+            "numeroEpisodio": 1,
+            "titulo": "Un buen traidor",
+            "duracion": "44 min",
+            "sinopsis": "Ragnar regresa a Kattegat gravemente herido y al borde de la muerte. Mientras tanto, Rollo toma una decisión radical en París para asegurar su futuro.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 2,
+            "titulo": "Matar una reina",
+            "duracion": "44 min",
+            "sinopsis": "Kattegat se prepara para nuevas rutas comerciales y expediciones mientras crecen las tensiones políticas internas y las ambiciones de poder.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 3,
+            "titulo": "La misericordia",
+            "duracion": "44 min",
+            "sinopsis": "Floki es juzgado y castigado públicamente en Kattegat por el asesinato de Athelstan, desatando el dolor y la furia de Ragnar.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 4,
+            "titulo": "San Valentín / Sangre derramada",
+            "duracion": "44 min",
+            "sinopsis": "Las fuerzas vikingas regresan a París para un segundo y titánico asedio, encontrándose con las defensas reforzadas de Rollo.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 5,
+            "titulo": "Promesa",
+            "duracion": "44 min",
+            "sinopsis": "Las flotas de Ragnar y Rollo chocan en una batalla naval épica en el río Sena con resultados devastadores para los vikingos.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 6,
+            "titulo": "La cruz",
+            "duracion": "44 min",
+            "sinopsis": "Tras la amarga derrota en el Sena, Ragnar se retira lleno de culpa y aislamiento, desapareciendo de Kattegat durante varios años.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 7,
+            "titulo": "El viaje",
+            "duracion": "44 min",
+            "sinopsis": "Un envejecido Ragnar reaparece inesperadamente en Kattegat para desafiar a sus propios hijos adultos a que lo maten si quieren reclamar su trono.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 8,
+            "titulo": "El puerto de los hombres muertos",
+            "duracion": "44 min",
+            "sinopsis": "Ragnar y Ivar el Deshuesado zarpan en una flota pequeña hacia Inglaterra en un viaje solitario marcado por la tragedia y el destino.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 9,
+            "titulo": "Las reglas del combate",
+            "duracion": "44 min",
+            "sinopsis": "Ragnar se entrega al rey Ecbert de Wessex en busca de un cierre definitivo para sus días de gloria y conquista.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          },
+          {
+            "numeroEpisodio": 10,
+            "titulo": "La última vez",
+            "duracion": "44 min",
+            "sinopsis": "El legendario Ragnar Lothbrok se enfrenta a su ejecución en el foso de serpientes, dejando un legado imborrable que cambiará el mundo.",
+            "urlVideo": "ENLACE_VIDEO",
+            "miniatura": "https://m.media-amazon.com/images/M/MV5BMjAzMjczMTg1MV5BMl5BanBnXkFtZTgwNTU5NTA3MDE@._V1_SX300.jpg"
+          }
+        ]
+      }
+    ]
+  }
+]
