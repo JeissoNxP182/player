@@ -1,0 +1,57 @@
+[
+  {
+    "id": "breaking-bad",
+    "titulo": "Breaking Bad",
+    "tipo": "serie",
+    "poster": "URL_DE_LA_IMAGEN_O_POSTER",
+    "sinopsis": "Un profesor de química de secundaria con cáncer terminal se asocia con un ex alumno para fabricar y vender metanfetamina.",
+    "temporadas": [
+      {
+        "numeroTemporada": 1,
+        "nombre": "Temporada 1",
+        "episodios": [
+          {
+            "numeroEpisodio": 1,
+            "titulo": "Capítulo 1: Pilot",
+            "duracion": "58 min",
+            "urlVideo": "ENLACE_HLS_O_STREAMING_EP_1",
+            "miniatura": "URL_MINIATURA_EP_1"
+          },
+          {
+            "numeroEpisodio": 2,
+            "titulo": "Capítulo 2: Cat's in the Bag...",
+            "duracion": "48 min",
+            "urlVideo": "ENLACE_HLS_O_STREAMING_EP_2",
+            "miniatura": "URL_MINIATURA_EP_2"
+          }
+        ]
+      },
+      {
+        "numeroTemporada": 2,
+        "nombre": "Temporada 2",
+        "episodios": [
+          {
+            "numeroEpisodio": 1,
+            "titulo": "Capítulo 1: Siete de bastos",
+            "duracion": "48 min",
+            "urlVideo": "ENLACE_HLS_O_STREAMING_T2_EP_1",
+            "miniatura": "URL_MINIATURA_T2_EP_1"
+          }
+        ]
+      },
+      {
+        "numeroTemporada": 3,
+        "nombre": "Temporada 3",
+        "episodios": [
+          {
+            "numeroEpisodio": 1,
+            "titulo": "Capítulo 1: No Más",
+            "duracion": "47 min",
+            "urlVideo": "ENLACE_HLS_O_STREAMING_T3_EP_1",
+            "miniatura": "URL_MINIATURA_T3_EP_1"
+          }
+        ]
+      }
+    ]
+  }
+]
