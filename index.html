@@ -466,9 +466,6 @@
   </div>
 
   <script>
-    // =========================================================================
-    // CONFIGURACIÓN DE REPOSITORIOS EXTERNOS (GitHub Pages)
-    // =========================================================================
     const REPOSITORIOS_URLS = {
       sagas: "https://jeissonxp182.github.io/player/sagas.json",
       peliculas: "https://jeissonxp182.github.io/player/peliculas.json",
@@ -685,7 +682,9 @@
 
     // Modal específico para Series y Anime (Muestra T1, T2...)
     function openSeriesModal(serie) {
-      document.getElementById('modalImg').src = serie.poster || serie.portada || '';
+      const mainPoster = serie.poster || serie.portada || '';
+      
+      document.getElementById('modalImg').src = mainPoster;
       document.getElementById('modalTitle').innerText = serie.titulo || 'Sin título';
       document.getElementById('modalYear').innerHTML = `📅 ${serie.ano || 'S/A'}`;
       document.getElementById('modalDuration').innerHTML = `📁 Temporadas`;
@@ -698,7 +697,6 @@
         directorTag.style.display = 'none';
       }
 
-      // Calcular cantidad de capítulos totales de toda la serie si existe
       let totalCapsCount = 0;
       if (serie.temporadas) {
         serie.temporadas.forEach(t => {
@@ -767,12 +765,9 @@
                 document.getElementById('modalTotalCap').style.display = 'none';
                 document.getElementById('modalSinopsis').innerText = ep.sinopsis || serie.sinopsis || 'Sin descripción disponible.';
                 
-                if (ep.miniatura) {
-                  document.getElementById('modalImg').src = ep.miniatura;
-                }
+                // Si el episodio tiene miniatura específica, la cambia, si no, mantiene el póster principal
+                document.getElementById('modalImg').src = ep.miniatura || mainPoster;
 
-                tempContainer.style.display = 'none';
-                
                 const playBtn = document.getElementById('modalPlayBtn');
                 playBtn.style.display = 'block';
                 targetHtmlUrl = `reproductor.html?video=${encodeURIComponent(ep.urlVideo)}&titulo=${encodeURIComponent(serie.titulo + " - T" + temp.numeroTemporada + " Ep " + ep.numeroEpisodio)}`;
