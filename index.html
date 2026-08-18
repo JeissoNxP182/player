@@ -8,14 +8,14 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="JeissoNxP | Películas, Series y Vídeos 👽">
   <meta property="og:description" content="Mi Librería Personal">
-  <meta property="og:image" content="https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80">
+  <meta id="ogImageMeta" property="og:image" content="">
   <meta property="og:url" content="https://jeissonxp182.github.io/player/">
 
   <!-- TARJETAS PARA X (TWITTER) Y DISCORD -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="JeissoNxP | Películas, Series y Vídeos 👽">
   <meta name="twitter:description" content="Mi Libreria Personal">
-  <meta name="twitter:image" content="https://img.magnific.com/fotos-premium/mujer-hombre-mascaras-monstruo-viendo-pelicula-palomitas-maiz-juntos_266732-44847.jpg?semt=ais_hybrid&w=740&q=80">
+  <meta id="twitterImageMeta" name="twitter:image" content="">
   
   <style>
     :root {
@@ -484,12 +484,30 @@
 
     let currentSectionKey = 'sagas';
     let targetHtmlUrl = '';
-    let currentSerieData = null; // Almacena la serie actual
-    let currentSeasonData = null; // Almacena la temporada actual
+    let currentSerieData = null;
+    let currentSeasonData = null;
 
     function formatDuration(dur) {
       if (!dur) return '';
       return dur.replace(/(\d+h):?(\d+m)/, '$1:$2');
+    }
+
+    function updateSocialMeta(items) {
+      let firstImage = '';
+      if (items && items.length > 0) {
+        const item = items[0];
+        if (item.portada) firstImage = item.portada;
+        else if (item.poster) firstImage = item.poster;
+        else if (item.miniatura) firstImage = item.miniatura;
+        else if (item.peliculas && item.peliculas.length > 0) {
+          firstImage = item.peliculas[0].portada || item.peliculas[0].poster || item.peliculas[0].miniatura || '';
+        }
+      }
+
+      if (firstImage) {
+        document.getElementById('ogImageMeta').setAttribute('content', firstImage);
+        document.getElementById('twitterImageMeta').setAttribute('content', firstImage);
+      }
     }
 
     async function cargarSeccionRemota(sectionKey) {
@@ -497,6 +515,7 @@
       
       if (LOCAL_CATALOG[sectionKey] && LOCAL_CATALOG[sectionKey].length > 0) {
         renderCatalog(LOCAL_CATALOG[sectionKey]);
+        updateSocialMeta(LOCAL_CATALOG[sectionKey]);
         return;
       }
 
@@ -509,6 +528,7 @@
         const data = await respuesta.json();
         LOCAL_CATALOG[sectionKey] = data;
         renderCatalog(data);
+        updateSocialMeta(data);
       } catch (error) {
         console.error("Error al cargar la sección:", error);
         container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Próximamente más contenido en esta sección 🚀 (O error de conexión con el repositorio)</p>';
@@ -542,7 +562,7 @@
 
       card.innerHTML = `
         <div class="poster-wrapper">
-          <img src="${item.portada || item.poster}" alt="${item.titulo}" loading="lazy">
+          <img src="${item.miniatura || item.portada || item.poster || item.imagen || ''}" alt="${item.titulo}" loading="lazy">
         </div>
         <div class="card-info">
           <div class="card-title">${item.titulo}</div>
@@ -658,7 +678,7 @@
     function openModal(peli) {
       const formattedDur = formatDuration(peli.duracion);
 
-      document.getElementById('modalImg').src = peli.portada || '';
+      document.getElementById('modalImg').src = peli.miniatura || peli.portada || peli.poster || peli.imagen || '';
       document.getElementById('modalTitle').innerText = peli.titulo || 'Sin título';
       document.getElementById('modalYear').innerHTML = `📅 ${peli.ano || 'S/A'}`;
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
@@ -682,11 +702,10 @@
       document.getElementById('movieModal').style.display = 'flex';
     }
 
-    // Modal específico para Series y Anime (Muestra T1, T2...)
     function openSeriesModal(serie) {
       currentSerieData = serie;
       currentSeasonData = null;
-      const mainPoster = serie.poster || serie.portada || '';
+      const mainPoster = serie.miniatura || serie.poster || serie.portada || serie.imagen || '';
       const totalTemporadasCount = serie.temporadas ? serie.temporadas.length : 0;
       
       document.getElementById('modalImg').src = mainPoster;
@@ -758,11 +777,9 @@
       document.getElementById('movieModal').style.display = 'flex';
     }
 
-    // Sub-ventana flotante para los episodios de una temporada específica
     function openSeasonEpisodesView(temp) {
       currentSeasonData = temp;
-      // CORRECCIÓN: Usa explícitamente temp.portada y si no existe busca en orden descendente
-      const seasonPoster = temp.portada || temp.poster || currentSerieData.portada || currentSerieData.poster || '';
+      const seasonPoster = temp.miniatura || temp.imagen || temp.portada || temp.poster || currentSerieData.miniatura || currentSerieData.portada || currentSerieData.poster || '';
 
       document.getElementById('modalImg').src = seasonPoster;
       document.getElementById('modalTitle').innerText = `${currentSerieData.titulo} - Temporada ${temp.numeroTemporada}`;
@@ -778,24 +795,20 @@
       let tempContainer = document.getElementById('modalTemporadasContainer');
       tempContainer.innerHTML = '';
 
-      // Botón "Volver" rediseñado, más llamativo con colores y emoji ⬅️
       const backBtn = document.createElement('button');
       backBtn.style.cssText = "display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 16px; margin-bottom: 18px; background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(126, 34, 206, 0.4)); border: 1px solid var(--accent-purple); border-radius: 10px; color: #fff; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(126, 34, 206, 0.3);";
       
       backBtn.onmouseover = () => {
         backBtn.style.background = 'linear-gradient(135deg, rgba(168, 85, 247, 0.5), rgba(126, 34, 206, 0.6))';
-        backBtn.style.boxShadow = '0 6px 16px rgba(168, 85, 247, 0.5)';
       };
       backBtn.onmouseout = () => {
         backBtn.style.background = 'linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(126, 34, 206, 0.4))';
-        backBtn.style.boxShadow = '0 4px 12px rgba(126, 34, 206, 0.3)';
       };
 
       backBtn.innerHTML = `⬅️ Volver a los detalles de la serie`;
       backBtn.onclick = () => openSeriesModal(currentSerieData);
       tempContainer.appendChild(backBtn);
 
-      // Contenedor de la lista de episodios
       const epsListDiv = document.createElement('div');
       epsListDiv.style.cssText = "display: flex; flex-direction: column; gap: 8px;";
 
@@ -827,10 +840,10 @@
       tempContainer.appendChild(epsListDiv);
     }
 
-    // Ventana flotante detallada para un capítulo individual
     function openEpisodeDetailsModal(ep, temp) {
-      // CORRECCIÓN: Usa explícitamente ep.portada primero, luego cae en temporada, y por último serie
-      const epPoster = ep.portada || ep.poster || temp.portada || temp.poster || currentSerieData.portada || currentSerieData.poster || '';
+      // AQUÍ: Lee "miniatura" primero que nada (además de otras opciones por compatibilidad)
+      const epPoster = ep.miniatura || ep.imagen || ep.img || ep.portada || ep.poster || temp.miniatura || temp.imagen || temp.portada || temp.poster || currentSerieData.miniatura || currentSerieData.portada || currentSerieData.poster || '';
+      
       const formattedDur = formatDuration(ep.duracion);
       const numEpFormatted = String(ep.numeroEpisodio).padStart(2, '0');
 
@@ -846,7 +859,6 @@
       let tempContainer = document.getElementById('modalTemporadasContainer');
       tempContainer.innerHTML = '';
 
-      // Botón para volver a la lista de la temporada
       const backToSeasonBtn = document.createElement('button');
       backToSeasonBtn.style.cssText = "display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 16px; margin-bottom: 18px; background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(126, 34, 206, 0.4)); border: 1px solid var(--accent-purple); border-radius: 10px; color: #fff; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(126, 34, 206, 0.3);";
       
@@ -861,7 +873,6 @@
       backToSeasonBtn.onclick = () => openSeasonEpisodesView(temp);
       tempContainer.appendChild(backToSeasonBtn);
 
-      // Botón de reproducción con estilo solicitado
       const playEpBtn = document.createElement('button');
       playEpBtn.className = 'btn-play';
       playEpBtn.innerHTML = `▶️ REPRODUCIR CAPÍTULO`;
