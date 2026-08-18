@@ -841,7 +841,6 @@
     }
 
     function openEpisodeDetailsModal(ep, temp) {
-      // AQUÍ: Lee "miniatura" primero que nada (además de otras opciones por compatibilidad)
       const epPoster = ep.miniatura || ep.imagen || ep.img || ep.portada || ep.poster || temp.miniatura || temp.imagen || temp.portada || temp.poster || currentSerieData.miniatura || currentSerieData.portada || currentSerieData.poster || '';
       
       const formattedDur = formatDuration(ep.duracion);
@@ -875,7 +874,7 @@
 
       const playEpBtn = document.createElement('button');
       playEpBtn.className = 'btn-play';
-      playEpBtn.innerHTML = `▶️ REPRODUCIR CAPÍTULO`;
+      playEpBtn.innerHTML = `▶ REPRODUCIR AHORA`;
       playEpBtn.onclick = () => {
         targetHtmlUrl = `reproductor.html?video=${encodeURIComponent(ep.urlVideo)}&titulo=${encodeURIComponent(currentSerieData.titulo + " - T" + temp.numeroTemporada + " Ep " + ep.numeroEpisodio)}`;
         launchPlayer();
