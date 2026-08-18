@@ -687,7 +687,7 @@
       document.getElementById('modalImg').src = mainPoster;
       document.getElementById('modalTitle').innerText = serie.titulo || 'Sin título';
       document.getElementById('modalYear').innerHTML = `📅 ${serie.ano || 'S/A'}`;
-      document.getElementById('modalDuration').innerHTML = `📁 Temporadas`;
+      document.getElementById('modalDuration').innerHTML = `📁 ${totalTemporadasCount} temporada${totalTemporadasCount === 1 ? '' : 's'}`;
       
       const directorTag = document.getElementById('modalDirector');
       if (serie.director) {
