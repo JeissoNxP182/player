@@ -761,8 +761,8 @@
     // Sub-ventana flotante para los episodios de una temporada específica
     function openSeasonEpisodesView(temp) {
       currentSeasonData = temp;
-      // Carga la portada propia de la temporada (si la tiene, de lo contrario recurre al póster general)
-      const seasonPoster = temp.portada || currentSerieData.poster || currentSerieData.portada || '';
+      // CORRECCIÓN: Usa explícitamente temp.portada y si no existe busca en orden descendente
+      const seasonPoster = temp.portada || temp.poster || currentSerieData.portada || currentSerieData.poster || '';
 
       document.getElementById('modalImg').src = seasonPoster;
       document.getElementById('modalTitle').innerText = `${currentSerieData.titulo} - Temporada ${temp.numeroTemporada}`;
@@ -829,8 +829,8 @@
 
     // Ventana flotante detallada para un capítulo individual
     function openEpisodeDetailsModal(ep, temp) {
-      // Prioriza la imagen individual del episodio, luego la de la temporada, y por último la de la serie general
-      const epPoster = ep.portada || temp.portada || currentSerieData.poster || currentSerieData.portada || '';
+      // CORRECCIÓN: Usa explícitamente ep.portada primero, luego cae en temporada, y por último serie
+      const epPoster = ep.portada || ep.poster || temp.portada || temp.poster || currentSerieData.portada || currentSerieData.poster || '';
       const formattedDur = formatDuration(ep.duracion);
       const numEpFormatted = String(ep.numeroEpisodio).padStart(2, '0');
 
