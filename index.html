@@ -681,8 +681,9 @@
     }
 
     // Modal específico para Series y Anime (Muestra T1, T2...)
-    function openSeriesModal(serie) {
+        function openSeriesModal(serie) {
       const mainPoster = serie.poster || serie.portada || '';
+      const totalTemporadasCount = serie.temporadas ? serie.temporadas.length : 0;
       
       document.getElementById('modalImg').src = mainPoster;
       document.getElementById('modalTitle').innerText = serie.titulo || 'Sin título';
