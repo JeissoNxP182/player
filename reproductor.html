@@ -35,7 +35,6 @@
       padding-bottom: 20px;
     }
 
-    /* Cabecera independiente fuera del reproductor */
     .header-info-container {
       width: 100%;
       padding: 14px 16px;
@@ -92,7 +91,7 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
       z-index: 100;
-      display: none; /* Oculto por defecto */
+      display: none;
     }
 
     @keyframes spin { 
@@ -100,7 +99,6 @@
       100% { transform: translate(-50%, -50%) rotate(360deg); } 
     }
     
-    /* CORRECCIÓN CSS: Permitir flexibilidad de tamaño para hacer efectivo el aspect-ratio */
     video, iframe {
       max-width: 100%;
       max-height: 100%;
@@ -382,7 +380,6 @@
       cursor: pointer;
     }
 
-    /* ===== PANEL DE AJUSTES ===== */
     .settings-panel {
       position: absolute;
       bottom: 0;
@@ -628,6 +625,24 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 10px;
+    }
+
+    /* ESTILO PARA EL BUSCADOR INTEGRADO */
+    .playlist-search-input {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      border-radius: 6px;
+      padding: 4px 8px;
+      color: #fff;
+      font-size: 11px;
+      outline: none;
+      width: 150px;
+      transition: all 0.2s;
+    }
+    .playlist-search-input:focus {
+      border-color: var(--purple-main);
+      width: 180px;
     }
 
     .playlist-items {
@@ -635,6 +650,8 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
+      max-height: 250px;
+      overflow-y: auto;
     }
 
     .playlist-item {
@@ -678,14 +695,12 @@
 </head>
 <body>
 
-  <!-- Cabecera independiente con el nombre y la marca fuera del reproductor -->
   <div class="header-info-container">
     <div class="brand-watermark">🎸 JeissoNxP182 🎸</div>
     <div class="video-title-display" id="videoTitleDisplay">Ningún vídeo cargado</div>
   </div>
 
   <div class="player-wrapper" id="playerWrapper">
-    <!-- Spinner de carga / Buffer -->
     <div class="buffering-spinner" id="bufferingSpinner"></div>
     <div class="initial-play-overlay" id="initialPlayOverlay">
       <button class="btn-initial-play" id="btnInitialPlay" title="Reproducir">
@@ -764,7 +779,6 @@
       </div>
     </div>
 
-    <!-- PANEL DE AJUSTES -->
     <div class="settings-panel" id="settingsPanel">
       <div class="settings-item">
         <span>Calidad</span>
@@ -851,7 +865,9 @@
 
     <div class="playlist-section">
       <div class="playlist-header">
-        <span>📜 Lista de Reproducción (Últimos 10 Vídeos)</span>
+        <span>📜 Historial / Lista</span>
+        <!-- BUSCADOR INTEGRADO EN EL ENCABEZADO DE LA LISTA -->
+        <input type="text" id="playlistSearchInput" class="playlist-search-input" placeholder="Buscar por título...">
       </div>
       <ul class="playlist-items" id="playlistContainer">
         <li class="playlist-empty">No hay vídeos en el historial reciente.</li>
@@ -870,17 +886,9 @@
       const controlsOverlay = document.getElementById('controlsOverlay');
       const spinner = document.getElementById('bufferingSpinner');
 
-      video.addEventListener('waiting', () => {
-        spinner.style.display = 'block';
-      });
-
-      video.addEventListener('playing', () => {
-        spinner.style.display = 'none';
-      });
-
-      video.addEventListener('canplay', () => {
-        spinner.style.display = 'none';
-      });
+      video.addEventListener('waiting', () => { spinner.style.display = 'block'; });
+      video.addEventListener('playing', () => { spinner.style.display = 'none'; });
+      video.addEventListener('canplay', () => { spinner.style.display = 'none'; });
 
       const btnCenterPlay = document.getElementById('btnCenterPlay');
       const centerIconPlay = document.getElementById('centerIconPlay');
@@ -919,6 +927,7 @@
       const urlInput = document.getElementById('urlInput');
       const btnLoad = document.getElementById('btnLoad');
       const playlistContainer = document.getElementById('playlistContainer');
+      const playlistSearchInput = document.getElementById('playlistSearchInput');
 
       let hlsInstance = null;
       let currentUrl = '';
@@ -999,17 +1008,24 @@
         playlist.unshift({ url, title });
         if (playlist.length > 10) playlist = playlist.slice(0, 10);
         localStorage.setItem('jn_playlist_history_full', JSON.stringify(playlist));
-        renderPlaylist();
+        renderPlaylist(playlistSearchInput.value);
       }
 
-      function renderPlaylist() {
+      // FUNCIÓN RENDERIZAR CON SOPORTE DE FILTRO DE BÚSQUEDA
+      function renderPlaylist(filter = '') {
         const playlist = JSON.parse(localStorage.getItem('jn_playlist_history_full') || '[]');
-        if (playlist.length === 0) {
-          playlistContainer.innerHTML = '<li class="playlist-empty">No hay vídeos en el historial reciente.</li>';
+        const query = filter.toLowerCase().trim();
+        
+        const filtered = playlist.filter(item => 
+          item.title.toLowerCase().includes(query)
+        );
+
+        if (filtered.length === 0) {
+          playlistContainer.innerHTML = '<li class="playlist-empty">No se encontraron resultados.</li>';
           return;
         }
         playlistContainer.innerHTML = '';
-        playlist.forEach(item => {
+        filtered.forEach(item => {
           const li = document.createElement('li');
           li.className = 'playlist-item';
           li.innerHTML = `
@@ -1021,9 +1037,13 @@
         });
       }
 
+      // EVENTO DEL BUSCADOR EN TIEMPO REAL
+      playlistSearchInput.addEventListener('input', (e) => {
+        renderPlaylist(e.target.value);
+      });
+
       let mirrorEnabled = false;
 
-      /* CORRECCIÓN JS: Función de relación de aspecto completamente optimizada */
       function applyAspectRatio(mode) {
         if (mode === 'auto' || mode === 'original') {
           video.style.objectFit = 'contain';
@@ -1038,17 +1058,16 @@
             '1:1': '1 / 1'
           };
           if (ratioMap[mode]) {
-            video.style.objectFit = 'fill'; // Forzamos deformación/encuadre dinámico según la opción deseada
+            video.style.objectFit = 'fill';
             video.style.aspectRatio = ratioMap[mode];
             video.style.width = 'auto';
             video.style.height = '100%';
           }
         }
         
-        // Forzado de reflow en el motor de render del navegador
         const currentDisplay = video.style.display;
         video.style.display = 'none';
-        video.offsetHeight; // Lee propiedad provocando repintado
+        video.offsetHeight;
         video.style.display = currentDisplay || 'block';
 
         resetAutoHide();
@@ -1444,6 +1463,7 @@
       document.addEventListener('keydown', e => {
         if (
           document.activeElement === urlInput ||
+          document.activeElement === playlistSearchInput ||
           lockOverlay.classList.contains('active') ||
           isEmbedMode ||
           !initialPlayOverlay.classList.contains('hidden')
