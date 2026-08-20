@@ -863,17 +863,20 @@
       <button id="btnLoad" class="btn-load">Cargar</button>
     </div>
 
-    <div class="playlist-section">
-      <div class="playlist-header">
+        <div class="playlist-section">
+      <div class="playlist-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
         <span>📜 Historial / Lista</span>
-        <!-- BUSCADOR INTEGRADO EN EL ENCABEZADO DE LA LISTA -->
-        <input type="text" id="playlistSearchInput" class="playlist-search-input" placeholder="Buscar por título...">
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <input type="text" id="playlistSearchInput" class="playlist-search-input" placeholder="Buscar por título...">
+          <button id="btnClearHistory" class="icon-btn" title="Borrar historial" style="width: 28px; height: 28px; background: rgba(255,255,255,0.05); border: 1px solid rgba(168,85,247,0.3);">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          </button>
+        </div>
       </div>
       <ul class="playlist-items" id="playlistContainer">
         <li class="playlist-empty">No hay vídeos en el historial reciente.</li>
       </ul>
     </div>
-  </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
