@@ -698,7 +698,7 @@
       if (tempContainer) tempContainer.style.display = 'none';
       document.getElementById('modalPlayBtn').style.display = 'block';
 
-      targetHtmlUrl = peli.url_html || '';
+      targetHtmlUrl = peli.url_html || peli.urlVideo || peli.url || '';
       document.getElementById('movieModal').style.display = 'flex';
     }
 
