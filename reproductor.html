@@ -884,6 +884,13 @@
       const mainIframe = document.getElementById('mainIframe');
       const playerWrapper = document.getElementById('playerWrapper');
       const videoTitleDisplay = document.getElementById('videoTitleDisplay');
+      const btnClearHistory = document.getElementById('btnClearHistory');
+
+btnClearHistory.addEventListener('click', (e) => {
+  e.stopPropagation();
+  localStorage.removeItem('jn_playlist_history_full');
+  renderPlaylist();
+});
       const initialPlayOverlay = document.getElementById('initialPlayOverlay');
       const btnInitialPlay = document.getElementById('btnInitialPlay');
       const controlsOverlay = document.getElementById('controlsOverlay');
