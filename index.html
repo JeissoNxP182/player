@@ -512,7 +512,7 @@
       }
     }
 
-    async function cargarSeccionRemota(sectionKey) {
+        async function cargarSeccionRemota(sectionKey) {
       const container = document.getElementById('catalogContainer');
       
       if (LOCAL_CATALOG[sectionKey] && LOCAL_CATALOG[sectionKey].length > 0) {
@@ -527,14 +527,59 @@
         const respuesta = await fetch(REPOSITORIOS_URLS[sectionKey]);
         if (!respuesta.ok) throw new Error("No se pudo conectar con el repositorio");
         
-        const data = await respuesta.json();
+        let data;
+        if (sectionKey === 'tv') {
+          // Si es TV, leemos el texto crudo del .m3u y lo parseamos
+          const textoM3U = await respuesta.text();
+          data = parsearM3U(textoM3U);
+        } else {
+          data = await respuesta.json();
+        }
+
         LOCAL_CATALOG[sectionKey] = data;
         renderCatalog(data);
         updateSocialMeta(data);
       } catch (error) {
         console.error("Error al cargar la sección:", error);
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Próximamente más contenido en esta sección 🚀 (O error de conexión con el repositorio)</p>';
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Próximamente más contenido en esta sección 🚀 (O error de conexión)</p>';
       }
+    }
+
+    // Función auxiliar para transformar el formato M3U en objetos compatibles con tu página
+    function parsearM3U(contenido) {
+      const lineas = contenido.split('\n');
+      const canales = [];
+      let currentChannel = {};
+
+      for (let i = 0; i < lineas.length; i++) {
+        let linea = lineas[i].trim();
+
+        if (linea.startsWith('#EXTINF:')) {
+          // Extraer nombre del canal (suele venir después de la última coma)
+          const parts = linea.split(',');
+          const titulo = parts[parts.length - 1] || "Canal sin nombre";
+          
+          // Extraer logo si existe (tvg-logo="...")
+          let logoMatch = linea.match(/tvg-logo="([^"]+)"/);
+          let portada = logoMatch ? logoMatch[1] : '';
+
+          currentChannel = {
+            titulo: titulo,
+            portada: portada,
+            ano: "En Directo",
+            duracion: "LIVE",
+            sinopsis: "Transmisión de televisión en vivo global (IPTV-ORG)."
+          };
+        } else if (linea && !linea.startsWith('#')) {
+          // Esta es la URL del stream
+          currentChannel.urlVideo = linea;
+          if (currentChannel.titulo) {
+            canales.push(currentChannel);
+            currentChannel = {};
+          }
+        }
+      }
+      return canales;
     }
 
     function loadSection(sectionKey) {
