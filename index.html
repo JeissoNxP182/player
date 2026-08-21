@@ -432,6 +432,7 @@
         <option value="series">👀 Series</option>
         <option value="anime">🇯🇵 Anime</option>
         <option value="videos">📽️ Videos</option>
+        <option value="tv">📺 TV</option>
       </select>
     </div>
   
@@ -466,12 +467,13 @@
   </div>
 
   <script>
-    const REPOSITORIOS_URLS = {
+        const REPOSITORIOS_URLS = {
       sagas: "https://jeissonxp182.github.io/player/sagas.json",
       peliculas: "https://jeissonxp182.github.io/player/peliculas.json",
       series: "https://jeissonxp182.github.io/player/series.json",
       anime: "https://jeissonxp182.github.io/player/anime.json",
-      videos: "https://jeissonxp182.github.io/player/videos.json"
+      videos: "https://jeissonxp182.github.io/player/videos.json",
+      tv: "https://iptv-org.github.io/iptv/index.m3u" // NUEVO LINK
     };
 
     let LOCAL_CATALOG = {
@@ -587,6 +589,7 @@
       if (currentSectionKey === 'videos') folderIcon = '📽️';
       if (currentSectionKey === 'series') folderIcon = '👀';
       if (currentSectionKey === 'anime') folderIcon = '🇯🇵';
+      if (currentSectionKey === 'tv') folderIcon = '📺';
 
       const esEstructuraSagas = items.some(item => item.peliculas && Array.isArray(item.peliculas));
 
