@@ -432,7 +432,7 @@
         <option value="series">👀 Series</option>
         <option value="anime">🇯🇵 Anime</option>
         <option value="videos">📽️ Videos</option>
-        <option value="tv">📺 TV</option>
+        <option value="tv">📺 TV Live</option>
       </select>
     </div>
   
@@ -467,13 +467,13 @@
   </div>
 
   <script>
-        const REPOSITORIOS_URLS = {
+    const REPOSITORIOS_URLS = {
       sagas: "https://jeissonxp182.github.io/player/sagas.json",
       peliculas: "https://jeissonxp182.github.io/player/peliculas.json",
       series: "https://jeissonxp182.github.io/player/series.json",
       anime: "https://jeissonxp182.github.io/player/anime.json",
       videos: "https://jeissonxp182.github.io/player/videos.json",
-      tv: "https://iptv-org.github.io/iptv/languages/spa.m3u" // NUEVO LINK
+      tv: "https://iptv-org.github.io/iptv/languages/spa.m3u"
     };
 
     let LOCAL_CATALOG = {
@@ -481,7 +481,8 @@
       peliculas: [],
       series: [],
       anime: [],
-      videos: []
+      videos: [],
+      tv: []
     };
 
     let currentSectionKey = 'sagas';
@@ -512,7 +513,7 @@
       }
     }
 
-        async function cargarSeccionRemota(sectionKey) {
+    async function cargarSeccionRemota(sectionKey) {
       const container = document.getElementById('catalogContainer');
       
       if (LOCAL_CATALOG[sectionKey] && LOCAL_CATALOG[sectionKey].length > 0) {
@@ -529,7 +530,6 @@
         
         let data;
         if (sectionKey === 'tv') {
-          // Si es TV, leemos el texto crudo del .m3u y lo parseamos
           const textoM3U = await respuesta.text();
           data = parsearM3U(textoM3U);
         } else {
@@ -545,7 +545,6 @@
       }
     }
 
-    // Función auxiliar para transformar el formato M3U en objetos compatibles con tu página
     function parsearM3U(contenido) {
       const lineas = contenido.split('\n');
       const canales = [];
@@ -555,11 +554,9 @@
         let linea = lineas[i].trim();
 
         if (linea.startsWith('#EXTINF:')) {
-          // Extraer nombre del canal (suele venir después de la última coma)
           const parts = linea.split(',');
           const titulo = parts[parts.length - 1] || "Canal sin nombre";
           
-          // Extraer logo si existe (tvg-logo="...")
           let logoMatch = linea.match(/tvg-logo="([^"]+)"/);
           let portada = logoMatch ? logoMatch[1] : '';
 
@@ -568,10 +565,9 @@
             portada: portada,
             ano: "En Directo",
             duracion: "LIVE",
-            sinopsis: "Transmisión de televisión en vivo global (IPTV-ORG)."
+            sinopsis: "Transmisión de televisión en vivo."
           };
         } else if (linea && !linea.startsWith('#')) {
-          // Esta es la URL del stream
           currentChannel.urlVideo = linea;
           if (currentChannel.titulo) {
             canales.push(currentChannel);
@@ -746,7 +742,15 @@
       if (tempContainer) tempContainer.style.display = 'none';
       document.getElementById('modalPlayBtn').style.display = 'block';
 
-      targetHtmlUrl = peli.url_html || peli.urlVideo || peli.url || '';
+      // Sincronización inteligente para películas y canales de TV
+      if (currentSectionKey === 'tv') {
+        const videoUrl = encodeURIComponent(peli.urlVideo || '');
+        const tituloVideo = encodeURIComponent(peli.titulo || 'Canal de TV');
+        targetHtmlUrl = `reproductor.html?video=${videoUrl}&titulo=${tituloVideo}`;
+      } else {
+        targetHtmlUrl = peli.url_html || peli.urlVideo || peli.url || '';
+      }
+
       document.getElementById('movieModal').style.display = 'flex';
     }
 
@@ -935,6 +939,20 @@
 
     function launchPlayer() {
       if (!targetHtmlUrl) return;
+
+      // Gestión de seguridad para enlaces HTTP inseguros bloqueados por navegadores modernos
+      if (currentSectionKey === 'tv' && targetHtmlUrl.includes('http://') && !targetHtmlUrl.includes('https://')) {
+        const abrirAfuera = confirm("Este canal utiliza un protocolo HTTP no cifrado. Los navegadores web suelen bloquearlo internamente por seguridad.\n\n¿Deseas abrirlo de todas formas en una pestaña independiente?");
+        if (abrirAfuera) {
+          // Extraer la url cruda del parámetro para abrirla directo
+          const urlMatch = targetHtmlUrl.match(/video=([^&]+)/);
+          if (urlMatch && urlMatch[1]) {
+            window.open(decodeURIComponent(urlMatch[1]), '_blank');
+          }
+        }
+        return;
+      }
+
       window.location.href = targetHtmlUrl;
     }
 
