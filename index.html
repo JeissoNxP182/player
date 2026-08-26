@@ -742,8 +742,9 @@
       if (tempContainer) tempContainer.style.display = 'none';
       document.getElementById('modalPlayBtn').style.display = 'block';
 
-      // Sincronización integrada con reproductor.html para películas, vídeos y TV
-      const videoSrc = peli.urlVideo || peli.url || '';
+      // Capturamos el enlace de vídeo probando todas las posibles claves del JSON
+      const videoSrc = peli.urlVideo || peli.url_video || peli.video || peli.url || '';
+      
       const videoUrlEnc = encodeURIComponent(videoSrc);
       const tituloEnc = encodeURIComponent(peli.titulo || 'Reproductor');
       targetHtmlUrl = `reproductor.html?video=${videoUrlEnc}&titulo=${tituloEnc}`;
@@ -925,7 +926,8 @@
       playEpBtn.className = 'btn-play';
       playEpBtn.innerHTML = `▶ REPRODUCIR AHORA`;
       playEpBtn.onclick = () => {
-        targetHtmlUrl = `reproductor.html?video=${encodeURIComponent(ep.urlVideo)}&titulo=${encodeURIComponent(currentSerieData.titulo + " - T" + temp.numeroTemporada + " Ep " + ep.numeroEpisodio)}`;
+        const epVideoSrc = ep.urlVideo || ep.url_video || ep.video || ep.url || '';
+        targetHtmlUrl = `reproductor.html?video=${encodeURIComponent(epVideoSrc)}&titulo=${encodeURIComponent(currentSerieData.titulo + " - T" + temp.numeroTemporada + " Ep " + ep.numeroEpisodio)}`;
         launchPlayer();
       };
       tempContainer.appendChild(playEpBtn);
@@ -937,7 +939,6 @@
     function launchPlayer() {
       if (!targetHtmlUrl) return;
 
-      // Gestión de seguridad para enlaces HTTP inseguros bloqueados por navegadores modernos
       if (currentSectionKey === 'tv' && targetHtmlUrl.includes('http://') && !targetHtmlUrl.includes('https://')) {
         const abrirAfuera = confirm("Este canal utiliza un protocolo HTTP no cifrado. Los navegadores web suelen bloquearlo internamente por seguridad.\n\n¿Deseas abrirlo de todas formas en una pestaña independiente?");
         if (abrirAfuera) {
