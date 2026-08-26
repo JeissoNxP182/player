@@ -747,7 +747,7 @@
       
       const videoUrlEnc = encodeURIComponent(videoSrc);
       const tituloEnc = encodeURIComponent(peli.titulo || 'Reproductor');
-      targetHtmlUrl = `reproductor.html?video=${videoUrlEnc}&titulo=${tituloEnc}`;
+      targetHtmlUrl = `reproductor.html?url=${videoUrlEnc}&titulo=${tituloEnc}`;
 
       document.getElementById('movieModal').style.display = 'flex';
     }
@@ -928,7 +928,7 @@
       playEpBtn.onclick = () => {
         // CORRECCIÓN: Buscamos únicamente la URL del archivo de vídeo del episodio
         const epVideoSrc = ep.urlVideo || ep.url_video || ep.video || ep.url || '';
-        targetHtmlUrl = `reproductor.html?video=${encodeURIComponent(epVideoSrc)}&titulo=${encodeURIComponent(currentSerieData.titulo + " - T" + temp.numeroTemporada + " Ep " + ep.numeroEpisodio)}`;
+        targetHtmlUrl = `reproductor.html?url=${encodeURIComponent(epVideoSrc)}&titulo=${encodeURIComponent(currentSerieData.titulo + " - T" + temp.numeroTemporada + " Ep " + ep.numeroEpisodio)}`;
         launchPlayer();
       };
       tempContainer.appendChild(playEpBtn);
