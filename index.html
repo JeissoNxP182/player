@@ -742,7 +742,7 @@
       if (tempContainer) tempContainer.style.display = 'none';
       document.getElementById('modalPlayBtn').style.display = 'block';
 
-      // Capturamos el enlace de vídeo probando todas las posibles claves del JSON
+      // Capturamos limpiamente la ruta del vídeo evitando claves mal formateadas
       const videoSrc = peli.urlVideo || peli.url_video || peli.video || peli.url || '';
       
       const videoUrlEnc = encodeURIComponent(videoSrc);
@@ -926,6 +926,7 @@
       playEpBtn.className = 'btn-play';
       playEpBtn.innerHTML = `▶ REPRODUCIR AHORA`;
       playEpBtn.onclick = () => {
+        // CORRECCIÓN: Buscamos únicamente la URL del archivo de vídeo del episodio
         const epVideoSrc = ep.urlVideo || ep.url_video || ep.video || ep.url || '';
         targetHtmlUrl = `reproductor.html?video=${encodeURIComponent(epVideoSrc)}&titulo=${encodeURIComponent(currentSerieData.titulo + " - T" + temp.numeroTemporada + " Ep " + ep.numeroEpisodio)}`;
         launchPlayer();
