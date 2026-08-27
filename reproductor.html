@@ -1668,8 +1668,6 @@
       async function initPlayerFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
         const videoParam = urlParams.get('url');
-        
-        // Lee tanto "episodio" como "id" para máxima compatibilidad
         const episodioIdBuscado = urlParams.get('episodio') || urlParams.get('id');
 
         if (videoParam) {
@@ -1681,7 +1679,6 @@
           let episodioEncontrado = null;
           let serieEncontrada = null;
 
-          // Intenta cargar desde el archivo JSON local
           try {
             const response = await fetch('series.json');
             if (response.ok) {
@@ -1703,23 +1700,31 @@
               }
             }
           } catch (err) {
-            console.warn("No se pudo cargar 'series.json' de forma local, usando respaldo...");
+            console.warn("Aviso: 'series.json' no se pudo cargar automáticamente. Comprobando respaldos integrados.");
           }
 
-          // Respaldo de emergencia por si el JSON no se encuentra o la ruta varía en GitHub
-          if (!episodioEncontrado && episodioIdBuscado === 'ink-master-t1-e1') {
-            episodioEncontrado = {
-              titulo: "Ink Master Temporada 1 - Episodio 1",
-              urlVideo: "" // Rellena aquí tu enlace directo o déjalo vacío para ingresarlo desde la barra
-            };
-            serieEncontrada = { titulo: "Ink Master" };
+          // Respaldo de emergencia basado en tus IDs estructurados
+          if (!episodioEncontrado) {
+            if (episodioIdBuscado === 'ink-master-t1-e1') {
+              episodioEncontrado = {
+                titulo: "Carne fresca (Ink Master T1 E1)",
+                urlVideo: "https://archive.org/download/cf_20/carne%20fresca.mp4"
+              };
+              serieEncontrada = { titulo: "Ink Master" };
+            } else if (episodioIdBuscado.startsWith('vikingos')) {
+              episodioEncontrado = {
+                titulo: "Vikingos - Episodio solicitado",
+                urlVideo: "" // Inserta el enlace de vikingos si lo tienes listo
+              };
+              serieEncontrada = { titulo: "Vikingos" };
+            }
           }
 
           if (episodioEncontrado && episodioEncontrado.urlVideo) {
-            const tituloCompleto = `${serieEncontrada.titulo || 'Serie'} - ${episodioEncontrado.titulo || episodioIdBuscado}`;
+            const tituloCompleto = `${serieEncontrada ? serieEncontrada.titulo : 'Serie'} - ${episodioEncontrado.titulo}`;
             loadVideo(episodioEncontrado.urlVideo, tituloCompleto);
           } else {
-            videoTitleDisplay.textContent = `Episodio '${episodioIdBuscado}' sin URL definida en JSON`;
+            videoTitleDisplay.textContent = `Episodio '${episodioIdBuscado}' cargado sin URL directa. Pégala abajo.`;
           }
         }
       }
