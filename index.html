@@ -742,11 +742,12 @@
       if (tempContainer) tempContainer.style.display = 'none';
       document.getElementById('modalPlayBtn').style.display = 'block';
 
-      // MODIFICACIÓN: Lee directamente 'url_html' si existe en el JSON
-      if (peli.url_html) {
+      // ACTUALIZADO: Si el JSON trae un 'id' (ej. "vhs-1"), construye la URL limpia ?peli=...
+      if (peli.id) {
+        targetHtmlUrl = `reproductor.html?peli=${peli.id}`;
+      } else if (peli.url_html) {
         targetHtmlUrl = peli.url_html;
       } else {
-        // Plan de respaldo por si alguna película suelta usa otro formato
         const videoSrc = peli.urlVideo || peli.url_video || peli.video || peli.url || peli.enlace || '';
         const videoUrlEnc = encodeURIComponent(videoSrc);
         const tituloEnc = encodeURIComponent(peli.titulo || 'Reproductor');
