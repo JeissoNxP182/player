@@ -628,7 +628,6 @@
       gap: 10px;
     }
 
-    /* ESTILO PARA EL BUSCADOR INTEGRADO */
     .playlist-search-input {
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(168, 85, 247, 0.4);
@@ -640,6 +639,7 @@
       width: 150px;
       transition: all 0.2s;
     }
+
     .playlist-search-input:focus {
       border-color: var(--purple-main);
       width: 180px;
@@ -736,7 +736,7 @@
           <svg id="centerIconPause" viewBox="0 0 24 24" style="width:34px;height:34px;fill:currentColor;display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
         </button>
         <button class="btn-center" id="btnForward" title="+10 Segundos">
-          <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;"><path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88-3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8 z"/></svg>
+          <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:currentColor;"><path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88-3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8z"/></svg>
         </button>
       </div>
 
@@ -863,8 +863,8 @@
       <button id="btnLoad" class="btn-load">Cargar</button>
     </div>
 
-        <div class="playlist-section">
-      <div class="playlist-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    <div class="playlist-section">
+      <div class="playlist-header">
         <span>📜 Historial / Lista</span>
         <div style="display: flex; gap: 6px; align-items: center;">
           <input type="text" id="playlistSearchInput" class="playlist-search-input" placeholder="Buscar por título...">
@@ -877,6 +877,7 @@
         <li class="playlist-empty">No hay vídeos en el historial reciente.</li>
       </ul>
     </div>
+  </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -885,16 +886,16 @@
       const playerWrapper = document.getElementById('playerWrapper');
       const videoTitleDisplay = document.getElementById('videoTitleDisplay');
       const btnClearHistory = document.getElementById('btnClearHistory');
-
-btnClearHistory.addEventListener('click', (e) => {
-  e.stopPropagation();
-  localStorage.removeItem('jn_playlist_history_full');
-  renderPlaylist();
-});
       const initialPlayOverlay = document.getElementById('initialPlayOverlay');
       const btnInitialPlay = document.getElementById('btnInitialPlay');
       const controlsOverlay = document.getElementById('controlsOverlay');
       const spinner = document.getElementById('bufferingSpinner');
+
+      btnClearHistory.addEventListener('click', (e) => {
+        e.stopPropagation();
+        localStorage.removeItem('jn_playlist_history_full');
+        renderPlaylist();
+      });
 
       video.addEventListener('waiting', () => { spinner.style.display = 'block'; });
       video.addEventListener('playing', () => { spinner.style.display = 'none'; });
@@ -1021,7 +1022,6 @@ btnClearHistory.addEventListener('click', (e) => {
         renderPlaylist(playlistSearchInput.value);
       }
 
-      // FUNCIÓN RENDERIZAR CON SOPORTE DE FILTRO DE BÚSQUEDA
       function renderPlaylist(filter = '') {
         const playlist = JSON.parse(localStorage.getItem('jn_playlist_history_full') || '[]');
         const query = filter.toLowerCase().trim();
@@ -1047,7 +1047,6 @@ btnClearHistory.addEventListener('click', (e) => {
         });
       }
 
-      // EVENTO DEL BUSCADOR EN TIEMPO REAL
       playlistSearchInput.addEventListener('input', (e) => {
         renderPlaylist(e.target.value);
       });
