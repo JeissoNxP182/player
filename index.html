@@ -742,7 +742,8 @@
       if (tempContainer) tempContainer.style.display = 'none';
       document.getElementById('modalPlayBtn').style.display = 'block';
 
-      const videoSrc = peli.urlVideo || peli.url_video || peli.video || peli.url || '';
+      // Captura robusta de cualquier variante del enlace del video
+      const videoSrc = peli.urlVideo || peli.url_video || peli.video || peli.url || peli.enlace || '';
       const videoUrlEnc = encodeURIComponent(videoSrc);
       const tituloEnc = encodeURIComponent(peli.titulo || 'Reproductor');
       targetHtmlUrl = `reproductor.html?url=${videoUrlEnc}&titulo=${tituloEnc}`;
@@ -928,7 +929,7 @@
         if (ep.idEpisodio) {
           targetHtmlUrl = `reproductor.html?episodio=${ep.idEpisodio}`;
         } else {
-          const epVideoSrc = ep.urlVideo || ep.url_video || ep.video || ep.url || '';
+          const epVideoSrc = ep.urlVideo || ep.url_video || ep.video || ep.url || ep.enlace || '';
           targetHtmlUrl = `reproductor.html?url=${encodeURIComponent(epVideoSrc)}&titulo=${encodeURIComponent(currentSerieData.titulo + " - T" + temp.numeroTemporada + " Ep " + ep.numeroEpisodio)}`;
         }
         launchPlayer();
@@ -936,7 +937,7 @@
       
       tempContainer.appendChild(playEpBtn);
       
-      document.getElementById('modalPlayBtn').style.display = 'none';
+      document.getElementById('movieModal').style.display = 'none';
       document.getElementById('movieModal').style.display = 'flex';
     }
 
