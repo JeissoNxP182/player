@@ -742,9 +742,7 @@
       if (tempContainer) tempContainer.style.display = 'none';
       document.getElementById('modalPlayBtn').style.display = 'block';
 
-      // Capturamos limpiamente la ruta del vídeo evitando claves mal formateadas
       const videoSrc = peli.urlVideo || peli.url_video || peli.video || peli.url || '';
-      
       const videoUrlEnc = encodeURIComponent(videoSrc);
       const tituloEnc = encodeURIComponent(peli.titulo || 'Reproductor');
       targetHtmlUrl = `reproductor.html?url=${videoUrlEnc}&titulo=${tituloEnc}`;
@@ -814,7 +812,7 @@
           };
 
           const numCapsEnTemporada = temp.episodios ? temp.episodios.length : 0;
-          seasonBtn.innerHTML = `<span>📁 Temporada ${temp.numeroTemporada} <span style="font-size:0.85rem; color:var(--text-muted); font-weight:normal; margin-left:8px;">(${numCapsEnTemporada} cap${numCapsEnTemporada === 1 ? '' : 's'})</span></span> <span style="color:var(--accent-purple); font-size:1.1rem;">➔</span>`;
+          seasonBtn.innerHTML = `📁 Temporada ${temp.numeroTemporada} <span style="font-size:0.85rem; color:var(--text-muted); font-weight:normal; margin-left:8px;">(${numCapsEnTemporada} cap${numCapsEnTemporada === 1 ? '' : 's'})</span> <span style="color:var(--accent-purple); font-size:1.1rem;">➔</span>`;
 
           seasonBtn.onclick = () => openSeasonEpisodesView(temp);
 
@@ -926,7 +924,6 @@
       playEpBtn.className = 'btn-play';
       playEpBtn.innerHTML = `▶ REPRODUCIR AHORA`;
       playEpBtn.onclick = () => {
-        // CORRECCIÓN: Buscamos únicamente la URL del archivo de vídeo del episodio
         const epVideoSrc = ep.urlVideo || ep.url_video || ep.video || ep.url || '';
         targetHtmlUrl = `reproductor.html?url=${encodeURIComponent(epVideoSrc)}&titulo=${encodeURIComponent(currentSerieData.titulo + " - T" + temp.numeroTemporada + " Ep " + ep.numeroEpisodio)}`;
         launchPlayer();
