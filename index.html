@@ -812,18 +812,15 @@
       if (tempContainer) tempContainer.style.display = 'none';
       document.getElementById('modalPlayBtn').style.display = 'block';
 
-      // Construye la URL hacia el reproductor
+      // Construye la URL hacia el reproductor (opción B: el player resuelve ?peli=id)
       if (peli.id) {
         targetHtmlUrl = `reproductor.html?peli=${peli.id}`;
-        // Actualizar la URL del navegador sin recargar para permitir compartir enlace directo
         history.replaceState(null, '', `?peli=${peli.id}`);
-      } else if (peli.url_html) {
+      } else if (peli.url_html && peli.url_html.includes('reproductor.html')) {
         targetHtmlUrl = peli.url_html;
       } else {
-        const videoSrc = peli.urlVideo || peli.url_video || peli.video || peli.url || peli.enlace || '';
-        const videoUrlEnc = encodeURIComponent(videoSrc);
-        const tituloEnc = encodeURIComponent(peli.titulo || 'Reproductor');
-        targetHtmlUrl = `reproductor.html?url=${videoUrlEnc}&titulo=${tituloEnc}`;
+        const videoSrc = peli.urlVideo || peli.url_video || peli.video || peli.url || peli.enlace || peli.url_html || '';
+        targetHtmlUrl = `reproductor.html?url=${encodeURIComponent(videoSrc)}&titulo=${encodeURIComponent(peli.titulo || 'Reproductor')}`;
       }
 
       document.getElementById('movieModal').style.display = 'flex';
