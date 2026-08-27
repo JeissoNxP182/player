@@ -519,7 +519,7 @@
       if (LOCAL_CATALOG[sectionKey] && LOCAL_CATALOG[sectionKey].length > 0) {
         renderCatalog(LOCAL_CATALOG[sectionKey]);
         updateSocialMeta(LOCAL_CATALOG[sectionKey]);
-        return;
+        return LOCAL_CATALOG[sectionKey];
       }
 
       container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Cargando contenido...</p>';
@@ -539,9 +539,11 @@
         LOCAL_CATALOG[sectionKey] = data;
         renderCatalog(data);
         updateSocialMeta(data);
+        return data;
       } catch (error) {
         console.error("Error al cargar la sección:", error);
         container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Próximamente más contenido en esta sección 🚀 (O error de conexión)</p>';
+        return null;
       }
     }
 
@@ -580,7 +582,8 @@
 
     function loadSection(sectionKey) {
       currentSectionKey = sectionKey;
-      cargarSeccionRemota(sectionKey);
+      document.getElementById('sectionSelect').value = sectionKey;
+      return cargarSeccionRemota(sectionKey);
     }
 
     function switchSection(sectionKey) {
@@ -588,8 +591,75 @@
       loadSection(sectionKey);
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      loadSection('sagas');
+    // --- NUEVO: GESTIÓN DE ENLACES DIRECTOS DESDE LA URL ---
+    window.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetId = urlParams.get('peli') || urlParams.get('episodio') || urlParams.get('id');
+
+      if (targetId) {
+        // Intentar buscar el contenido en las diferentes secciones
+        const secciones = ['sagas', 'peliculas', 'series', 'anime', 'videos'];
+        let encontrado = false;
+
+        for (const sec of secciones) {
+          const data = await loadSection(sec);
+          if (!data) continue;
+
+          // Si la sección es de Sagas
+          if (sec === 'sagas') {
+            for (const saga of data) {
+              if (saga.peliculas) {
+                const item = saga.peliculas.find(p => p.id === targetId);
+                if (item) {
+                  openModal(item);
+                  encontrado = true;
+                  break;
+                }
+              }
+            }
+          } else if (sec === 'series' || sec === 'anime') {
+            // Buscar en Series / Episodios
+            for (const serie of data) {
+              if (serie.id === targetId) {
+                openSeriesModal(serie);
+                encontrado = true;
+                break;
+              }
+              if (serie.temporadas) {
+                for (const temp of serie.temporadas) {
+                  if (temp.episodios) {
+                    const ep = temp.episodios.find(e => e.idEpisodio === targetId || e.id === targetId);
+                    if (ep) {
+                      currentSerieData = serie;
+                      openEpisodeDetailsModal(ep, temp);
+                      encontrado = true;
+                      break;
+                    }
+                  }
+                }
+              }
+              if (encontrado) break;
+            }
+          } else {
+            // Películas o Videos simples
+            const item = data.find(p => p.id === targetId);
+            if (item) {
+              openModal(item);
+              encontrado = true;
+              break;
+            }
+          }
+
+          if (encontrado) break;
+        }
+
+        if (!encontrado) {
+          console.warn("No se encontró ningún elemento con el ID especificado:", targetId);
+          loadSection('sagas');
+        }
+      } else {
+        loadSection('sagas');
+      }
     });
 
     function createCardElement(item) {
@@ -742,9 +812,11 @@
       if (tempContainer) tempContainer.style.display = 'none';
       document.getElementById('modalPlayBtn').style.display = 'block';
 
-      // ACTUALIZADO: Si el JSON trae un 'id' (ej. "vhs-1"), construye la URL limpia ?peli=...
+      // Construye la URL hacia el reproductor
       if (peli.id) {
         targetHtmlUrl = `reproductor.html?peli=${peli.id}`;
+        // Actualizar la URL del navegador sin recargar para permitir compartir enlace directo
+        history.replaceState(null, '', `?peli=${peli.id}`);
       } else if (peli.url_html) {
         targetHtmlUrl = peli.url_html;
       } else {
@@ -768,6 +840,10 @@
       document.getElementById('modalYear').innerHTML = `📅 ${serie.ano || 'S/A'}`;
       document.getElementById('modalDuration').innerHTML = `📁 ${totalTemporadasCount} temporada${totalTemporadasCount === 1 ? '' : 's'}`;
       
+      if (serie.id) {
+        history.replaceState(null, '', `?id=${serie.id}`);
+      }
+
       const directorTag = document.getElementById('modalDirector');
       if (serie.director) {
         directorTag.innerHTML = `🎥 ${serie.director}`;
@@ -896,14 +972,14 @@
     }
 
     function openEpisodeDetailsModal(ep, temp) {
-      const epPoster = ep.miniatura || ep.imagen || ep.img || ep.portada || ep.poster || temp.miniatura || temp.imagen || temp.portada || temp.poster || currentSerieData.miniatura || currentSerieData.portada || currentSerieData.poster || '';
+      const epPoster = ep.miniatura || ep.imagen || ep.img || ep.portada || ep.poster || temp.miniatura || temp.imagen || temp.portada || temp.poster || (currentSerieData && currentSerieData.miniatura) || '';
       
       const formattedDur = formatDuration(ep.duracion);
       const numEpFormatted = String(ep.numeroEpisodio).padStart(2, '0');
 
       document.getElementById('modalImg').src = epPoster;
-      document.getElementById('modalTitle').innerText = `${currentSerieData.titulo} - T${temp.numeroTemporada} EP ${numEpFormatted}: ${ep.titulo}`;
-      document.getElementById('modalYear').innerHTML = `📅 ${ep.ano || temp.ano || currentSerieData.ano || 'S/A'}`;
+      document.getElementById('modalTitle').innerText = `${currentSerieData ? currentSerieData.titulo : ''} - T${temp.numeroTemporada} EP ${numEpFormatted}: ${ep.titulo}`;
+      document.getElementById('modalYear').innerHTML = `📅 ${ep.ano || temp.ano || (currentSerieData ? currentSerieData.ano : 'S/A')}`;
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
       
       document.getElementById('modalDirector').style.display = 'none';
@@ -931,19 +1007,23 @@
       playEpBtn.className = 'btn-play';
       playEpBtn.innerHTML = `▶ REPRODUCIR AHORA`;
       
+      const epId = ep.idEpisodio || ep.id;
+      if (epId) {
+        history.replaceState(null, '', `?episodio=${epId}`);
+      }
+
       playEpBtn.onclick = () => {
-        if (ep.idEpisodio) {
-          targetHtmlUrl = `reproductor.html?episodio=${ep.idEpisodio}`;
+        if (epId) {
+          targetHtmlUrl = `reproductor.html?episodio=${epId}`;
         } else {
           const epVideoSrc = ep.urlVideo || ep.url_video || ep.video || ep.url || ep.enlace || '';
-          targetHtmlUrl = `reproductor.html?url=${encodeURIComponent(epVideoSrc)}&titulo=${encodeURIComponent(currentSerieData.titulo + " - T" + temp.numeroTemporada + " Ep " + ep.numeroEpisodio)}`;
+          targetHtmlUrl = `reproductor.html?url=${encodeURIComponent(epVideoSrc)}&titulo=${encodeURIComponent((currentSerieData ? currentSerieData.titulo : '') + " - T" + temp.numeroTemporada + " Ep " + ep.numeroEpisodio)}`;
         }
         launchPlayer();
       };
       
       tempContainer.appendChild(playEpBtn);
       
-      document.getElementById('movieModal').style.display = 'none';
       document.getElementById('movieModal').style.display = 'flex';
     }
 
@@ -970,6 +1050,8 @@
       if (tempContainer) tempContainer.style.display = 'block';
       currentSerieData = null;
       currentSeasonData = null;
+      // Limpia la querystring de la barra de direcciones al cerrar el modal
+      history.replaceState(null, '', window.location.pathname);
     }
   </script>
 </body>
