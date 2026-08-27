@@ -1668,8 +1668,8 @@
       async function initPlayerFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
         
-        // Prioridad a la etiqueta ?peli (también acepta ?url, ?episodio e ?id)
-        const videoParam = urlParams.get('peli') || urlParams.get('url');
+        // Soporte amplio para parámetros de URL (peli, url, v, src, episodio, id)
+        const videoParam = urlParams.get('peli') || urlParams.get('url') || urlParams.get('v') || urlParams.get('src');
         const episodioIdBuscado = urlParams.get('episodio') || urlParams.get('id');
 
         if (videoParam) {
@@ -1685,27 +1685,41 @@
             const response = await fetch('series.json');
             if (response.ok) {
               const seriesData = await response.json();
-              for (const serie of seriesData) {
-                if (serie.temporadas) {
-                  for (const temporada of serie.temporadas) {
-                    if (temporada.episodios) {
-                      const match = temporada.episodios.find(ep => ep.idEpisodio === episodioIdBuscado);
-                      if (match) {
-                        episodioEncontrado = match;
-                        serieEncontrada = serie;
-                        break;
-                      }
-                    }
+              
+              // Función auxiliar recursiva para buscar propiedades que coincidan con el ID
+              function searchInNode(node) {
+                if (!node || typeof node !== 'object') return null;
+                
+                // Si el nodo actual tiene un identificador coincidente
+                const idValue = node.idEpisodio || node.id || node.codigo || node.slug;
+                if (idValue && String(idValue) === String(episodioIdBuscado)) {
+                  return node;
+                }
+
+                // Buscar recursivamente en arrays u objetos anidados
+                for (const key of Object.keys(node)) {
+                  const result = searchInNode(node[key]);
+                  if (result) return result;
+                }
+                return null;
+              }
+
+              if (Array.isArray(seriesData)) {
+                for (const serie of seriesData) {
+                  const match = searchInNode(serie);
+                  if (match) {
+                    episodioEncontrado = match;
+                    serieEncontrada = serie;
+                    break;
                   }
                 }
-                if (episodioEncontrado) break;
               }
             }
           } catch (err) {
-            console.warn("Aviso: 'series.json' no se pudo cargar automáticamente. Comprobando respaldos integrados.");
+            console.warn("Aviso: 'series.json' no se pudo cargar o procesar correctamente.");
           }
 
-          // Respaldo de emergencia basado en IDs estructurados
+          // Respaldo de emergencia integrado
           if (!episodioEncontrado) {
             if (episodioIdBuscado === 'ink-master-t1-e1') {
               episodioEncontrado = {
@@ -1713,20 +1727,22 @@
                 urlVideo: "https://archive.org/download/cf_20/carne%20fresca.mp4"
               };
               serieEncontrada = { titulo: "Ink Master" };
-            } else if (episodioIdBuscado.startsWith('vikingos')) {
-              episodioEncontrado = {
-                titulo: "Vikingos - Episodio solicitado",
-                urlVideo: "" // Inserta la URL directa si se requiere
-              };
-              serieEncontrada = { titulo: "Vikingos" };
             }
           }
 
-          if (episodioEncontrado && episodioEncontrado.urlVideo) {
-            const tituloCompleto = `${serieEncontrada ? serieEncontrada.titulo : 'Serie'} - ${episodioEncontrado.titulo}`;
-            loadVideo(episodioEncontrado.urlVideo, tituloCompleto);
+          if (episodioEncontrado) {
+            // Extraer la URL de cualquier propiedad común de enlace/vídeo
+            const urlVideo = episodioEncontrado.urlVideo || episodioEncontrado.url || episodioEncontrado.video || episodioEncontrado.file || episodioEncontrado.src || episodioEncontrado.link;
+            const tituloEp = episodioEncontrado.titulo || episodioEncontrado.name || episodioEncontrado.title || episodioIdBuscado;
+            const tituloSerie = serieEncontrada && (serieEncontrada.titulo || serieEncontrada.name || serieEncontrada.title) ? (serieEncontrada.titulo || serieEncontrada.name || serieEncontrada.title) : 'Película / Serie';
+
+            if (urlVideo) {
+              loadVideo(urlVideo, `${tituloSerie} - ${tituloEp}`);
+            } else {
+              videoTitleDisplay.textContent = `Episodio '${episodioIdBuscado}' encontrado, pero sin URL de vídeo válida. Pégala abajo.`;
+            }
           } else {
-            videoTitleDisplay.textContent = `Episodio '${episodioIdBuscado}' cargado sin URL directa. Pégala abajo.`;
+            videoTitleDisplay.textContent = `No se encontró ningún elemento con ID '${episodioIdBuscado}' en 'series.json'.`;
           }
         }
       }
