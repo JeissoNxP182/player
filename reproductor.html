@@ -891,122 +891,6 @@
       const controlsOverlay = document.getElementById('controlsOverlay');
       const spinner = document.getElementById('bufferingSpinner');
 
-document.addEventListener("DOMContentLoaded", async () => {
-  // 1. Leer los parámetros enviados en la URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const peliId = urlParams.get('peli') || urlParams.get('id');
-  const serieId = urlParams.get('serie');
-  const temporada = urlParams.get('t') || urlParams.get('temporada');
-  const episodio = urlParams.get('e') || urlParams.get('episodio');
-
-  // 2. Definir los 5 archivos JSON de tu proyecto
-  const jsonFiles = [
-    'peliculas.json', 
-    'videos.json', 
-    'sagas.json', 
-    'series.json', 
-    'anime.json'
-  ];
-
-  let contenidoEncontrado = null;
-
-  try {
-    // 3. Buscar en paralelo en todos los archivos JSON
-    const respuestas = await Promise.all(
-      jsonFiles.map(archivo => fetch(archivo).then(res => res.json()).catch(() => []))
-    );
-
-    // 4. Recorrer los resultados de cada JSON para encontrar la concordancia
-    for (const datosJson of respuestas) {
-      // Normalizar por si el JSON es un array plano o un objeto contenedor
-      const elementos = Array.isArray(datosJson) 
-        ? datosJson 
-        : (datosJson.peliculas || datosJson.videos || datosJson.sagas || datosJson.series || datosJson.anime || []);
-
-      // CASO A: Búsqueda por ID directo (Películas, Videos y Sagas)
-      if (peliId && !temporada) {
-        const match = elementos.find(item => item.id === peliId || item.codigo === peliId);
-        if (match) {
-          contenidoEncontrado = match;
-          break;
-        }
-      }
-
-      // CASO B: Búsqueda por Serie / Anime (ID + Temporada + Episodio, ej: T1E1)
-      const targetId = serieId || peliId;
-      if (targetId && (temporada || episodio)) {
-        const serieMatch = elementos.find(item => item.id === targetId || item.codigo === targetId);
-        if (serieMatch) {
-          // Si la serie tiene estructura de temporadas anidadas
-          if (serieMatch.temporadas && temporada) {
-            const tempObj = serieMatch.temporadas.find(t => t.numero == temporada || t.temporada == temporada);
-            if (tempObj && tempObj.episodios) {
-              const epObj = tempObj.episodios.find(e => e.numero == episodio || e.episodio == episodio);
-              if (epObj) {
-                contenidoEncontrado = {
-                  titulo: `${serieMatch.titulo} - Temporada ${temporada} Episodio ${episodio}${epObj.titulo ? ': ' + epObj.titulo : ''}`,
-                  urlVideo: epObj.urlVideo || epObj.url_video || epObj.video || epObj.url,
-                  caratula: epObj.caratula || serieMatch.caratula
-                };
-                break;
-              }
-            }
-          } 
-          // Si los episodios están en un array plano dentro del objeto de la serie
-          else if (serieMatch.episodios) {
-            const epObj = serieMatch.episodios.find(e => 
-              (e.temporada == temporada && e.episodio == episodio) || 
-              (e.t == temporada && e.e == episodio)
-            );
-            if (epObj) {
-              contenidoEncontrado = {
-                titulo: `${serieMatch.titulo} - T${temporada}E${episodio}`,
-                urlVideo: epObj.urlVideo || epObj.url_video || epObj.video || epObj.url,
-                caratula: epObj.caratula || serieMatch.caratula
-              };
-              break;
-            }
-          }
-        }
-      }
-    }
-
-    // 5. Cargar el contenido en el reproductor si se encontró
-    if (contenidoEncontrado) {
-      inicializarReproductor(contenidoEncontrado);
-    } else {
-      mostrarMensajeError("No se encontró el contenido en los registros.");
-    }
-
-  } catch (error) {
-    console.error("Error al procesar los archivos JSON:", error);
-    mostrarMensajeError("Hubo un error al buscar la reproducción.");
-  }
-});
-
-// Función auxiliar para inyectar los datos en tu reproductor actual
-function inicializarReproductor(item) {
-  const videoPlayer = document.getElementById('mi-video') || document.querySelector('video');
-  const titleElement = document.getElementById('titulo-video') || document.querySelector('h1');
-
-  const videoUrl = item.urlVideo || item.url_video || item.video || item.url;
-  const titulo = item.titulo || item.nombre || 'Reproductor';
-
-  if (titleElement) titleElement.textContent = titulo;
-  if (videoPlayer) {
-    videoPlayer.src = videoUrl;
-    videoPlayer.play().catch(e => console.log("Autoplay bloqueado por el navegador:", e));
-  }
-}
-
-function mostrarMensajeError(mensaje) {
-  const container = document.body;
-  const alerta = document.createElement('div');
-  alerta.style.cssText = "position:fixed;top:20px;right:20px;background:#ff4444;color:white;padding:15px;border-radius:5px;z-index:9999;";
-  alerta.textContent = mensaje;
-  container.appendChild(alerta);
-}
-      
       btnClearHistory.addEventListener('click', (e) => {
         e.stopPropagation();
         localStorage.removeItem('jn_playlist_history_full');
@@ -1754,9 +1638,24 @@ function mostrarMensajeError(mensaje) {
         if (isEmbedMode) {
           let finalEmbedUrl = rawUrl;
           if (rawUrl.includes('youtu.be/')) {
-            finalEmbedUrl = `https://www.youtube.com/embed/${rawUrl.split('youtu.be/')[1].split('?')[0]}?autoplay=1`;
+            const videoId = rawUrl.split('youtu.be/')[1].split('?')[0].split('&')[0];
+            finalEmbedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
           } else if (rawUrl.includes('youtube.com/watch?v=')) {
-            finalEmbedUrl = `https://www.youtube.com/embed/${rawUrl.split('v=')[1].split('&')[0]}?autoplay=1`;
+            const videoId = rawUrl.split('v=')[1].split('&')[0];
+            finalEmbedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+          } else if (rawUrl.includes('youtube.com/shorts/')) {
+            const videoId = rawUrl.split('shorts/')[1].split('?')[0].split('&')[0];
+            finalEmbedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+          } else if (rawUrl.includes('drive.google.com')) {
+            let fileId = '';
+            if (rawUrl.includes('/file/d/')) {
+              fileId = rawUrl.split('/file/d/')[1].split('/')[0].split('?')[0];
+            } else if (rawUrl.includes('id=')) {
+              fileId = rawUrl.split('id=')[1].split('&')[0];
+            }
+            if (fileId) {
+              finalEmbedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+            }
           }
           video.style.display = 'none';
           mainIframe.style.display = 'block';
@@ -1784,7 +1683,6 @@ function mostrarMensajeError(mensaje) {
       async function initPlayerFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
         
-        // Soporte amplio para parámetros de URL (peli, url, v, src, episodio, id)
         const videoParam = urlParams.get('peli') || urlParams.get('url') || urlParams.get('v') || urlParams.get('src');
         const episodioIdBuscado = urlParams.get('episodio') || urlParams.get('id');
 
@@ -1802,17 +1700,14 @@ function mostrarMensajeError(mensaje) {
             if (response.ok) {
               const seriesData = await response.json();
               
-              // Función auxiliar recursiva para buscar propiedades que coincidan con el ID
               function searchInNode(node) {
                 if (!node || typeof node !== 'object') return null;
                 
-                // Si el nodo actual tiene un identificador coincidente
                 const idValue = node.idEpisodio || node.id || node.codigo || node.slug;
                 if (idValue && String(idValue) === String(episodioIdBuscado)) {
                   return node;
                 }
 
-                // Buscar recursivamente en arrays u objetos anidados
                 for (const key of Object.keys(node)) {
                   const result = searchInNode(node[key]);
                   if (result) return result;
@@ -1835,7 +1730,6 @@ function mostrarMensajeError(mensaje) {
             console.warn("Aviso: 'series.json' no se pudo cargar o procesar correctamente.");
           }
 
-          // Respaldo de emergencia integrado
           if (!episodioEncontrado) {
             if (episodioIdBuscado === 'ink-master-t1-e1') {
               episodioEncontrado = {
@@ -1847,7 +1741,6 @@ function mostrarMensajeError(mensaje) {
           }
 
           if (episodioEncontrado) {
-            // Extraer la URL de cualquier propiedad común de enlace/vídeo
             const urlVideo = episodioEncontrado.urlVideo || episodioEncontrado.url || episodioEncontrado.video || episodioEncontrado.file || episodioEncontrado.src || episodioEncontrado.link;
             const tituloEp = episodioEncontrado.titulo || episodioEncontrado.name || episodioEncontrado.title || episodioIdBuscado;
             const tituloSerie = serieEncontrada && (serieEncontrada.titulo || serieEncontrada.name || serieEncontrada.title) ? (serieEncontrada.titulo || serieEncontrada.name || serieEncontrada.title) : 'Película / Serie';
