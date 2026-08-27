@@ -1667,7 +1667,9 @@
       // ==========================================
       async function initPlayerFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
-        const videoParam = urlParams.get('url');
+        
+        // Prioridad a la nueva etiqueta ?peli (también acepta ?url, ?episodio e ?id)
+        const videoParam = urlParams.get('peli') || urlParams.get('url');
         const episodioIdBuscado = urlParams.get('episodio') || urlParams.get('id');
 
         if (videoParam) {
