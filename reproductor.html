@@ -1042,7 +1042,7 @@
             <span class="playlist-item-title" title="${item.url}">${item.title}</span>
             <span class="playlist-item-play">▶ Cargar</span>
           `;
-          li.addEventListener('click', () => loadVideo(item.url));
+          li.addEventListener('click', () => loadVideo(item.url, item.title));
           playlistContainer.appendChild(li);
         });
       }
@@ -1668,7 +1668,7 @@
       async function initPlayerFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
         
-        // Prioridad a la nueva etiqueta ?peli (también acepta ?url, ?episodio e ?id)
+        // Prioridad a la etiqueta ?peli (también acepta ?url, ?episodio e ?id)
         const videoParam = urlParams.get('peli') || urlParams.get('url');
         const episodioIdBuscado = urlParams.get('episodio') || urlParams.get('id');
 
@@ -1705,7 +1705,7 @@
             console.warn("Aviso: 'series.json' no se pudo cargar automáticamente. Comprobando respaldos integrados.");
           }
 
-          // Respaldo de emergencia basado en tus IDs estructurados
+          // Respaldo de emergencia basado en IDs estructurados
           if (!episodioEncontrado) {
             if (episodioIdBuscado === 'ink-master-t1-e1') {
               episodioEncontrado = {
@@ -1716,7 +1716,7 @@
             } else if (episodioIdBuscado.startsWith('vikingos')) {
               episodioEncontrado = {
                 titulo: "Vikingos - Episodio solicitado",
-                urlVideo: "" // Inserta el enlace de vikingos si lo tienes listo
+                urlVideo: "" // Inserta la URL directa si se requiere
               };
               serieEncontrada = { titulo: "Vikingos" };
             }
