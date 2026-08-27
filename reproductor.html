@@ -1668,7 +1668,7 @@
       async function initPlayerFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
         const videoParam = urlParams.get('url'); // Compatibilidad con enlaces directos por URL
-        const episodioIdBuscado = urlParams.get('id'); // Nuevo sistema por ID de episodio
+        const episodioIdBuscado = urlParams.get('id'); // ID del episodio (ej: ink-master-t1-e1)
 
         if (videoParam) {
           loadVideo(videoParam);
@@ -1677,7 +1677,7 @@
 
         if (episodioIdBuscado) {
           try {
-            // Asegúrate de que el nombre del archivo JSON coincida (ej: 'series.json')
+            // Cambia 'series.json' por el nombre real de tu archivo JSON si es diferente
             const response = await fetch('series.json');
             const seriesData = await response.json();
 
@@ -1702,7 +1702,7 @@
             }
 
             if (episodioEncontrado) {
-              const tituloCompleto = `${serieEncontrada.titulo} - ${episodioEncontrado.titulo}`;
+              const tituloCompleto = `${serieEncontrada.titulo || 'Serie'} - ${episodioEncontrado.titulo || episodioIdBuscado}`;
               loadVideo(episodioEncontrado.urlVideo, tituloCompleto);
             } else {
               videoTitleDisplay.textContent = "Episodio no encontrado en la base de datos";
