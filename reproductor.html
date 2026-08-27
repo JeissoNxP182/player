@@ -1011,9 +1011,9 @@
         }
       }
 
-      function saveToPlaylistHistory(url) {
+      function saveToPlaylistHistory(url, customTitle = null) {
         if (!url) return;
-        const title = getCleanTitle(url);
+        const title = customTitle || getCleanTitle(url);
         let playlist = JSON.parse(localStorage.getItem('jn_playlist_history_full') || '[]');
         playlist = playlist.filter(item => item.url !== url);
         playlist.unshift({ url, title });
@@ -1607,15 +1607,15 @@
         resetAutoHide();
       }
 
-      function loadVideo(rawUrl) {
+      function loadVideo(rawUrl, customDisplayTitle = null) {
         if (!rawUrl) return;
         currentUrl = rawUrl;
         pendingUrl = rawUrl;
         urlInput.value = '';
         
-        const cleanTitleText = getCleanTitle(rawUrl);
-        videoTitleDisplay.textContent = cleanTitleText;
-        saveToPlaylistHistory(rawUrl);
+        const displayTitle = customDisplayTitle || getCleanTitle(rawUrl);
+        videoTitleDisplay.textContent = displayTitle;
+        saveToPlaylistHistory(rawUrl, displayTitle);
         history.pushState({ videoLoaded: true }, '');
 
         if (hlsInstance) {
@@ -1662,10 +1662,60 @@
         if (e.key === 'Enter') loadVideo(urlInput.value.trim());
       });
 
-      const urlParams = new URLSearchParams(window.location.search);
-      const videoParam = urlParams.get('url');
-      if (videoParam) loadVideo(videoParam);
+      // ==========================================
+      // LÓGICA DE CARGA DESDE EL ARCHIVO JSON ANIDADO
+      // ==========================================
+      async function initPlayerFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoParam = urlParams.get('url'); // Compatibilidad con enlaces directos por URL
+        const episodioIdBuscado = urlParams.get('id'); // Nuevo sistema por ID de episodio
 
+        if (videoParam) {
+          loadVideo(videoParam);
+          return;
+        }
+
+        if (episodioIdBuscado) {
+          try {
+            // Asegúrate de que el nombre del archivo JSON coincida (ej: 'series.json')
+            const response = await fetch('series.json');
+            const seriesData = await response.json();
+
+            let episodioEncontrado = null;
+            let serieEncontrada = null;
+
+            // Recorremos la estructura: Series -> Temporadas -> Episodios
+            for (const serie of seriesData) {
+              if (serie.temporadas) {
+                for (const temporada of serie.temporadas) {
+                  if (temporada.episodios) {
+                    const match = temporada.episodios.find(ep => ep.idEpisodio === episodioIdBuscado);
+                    if (match) {
+                      episodioEncontrado = match;
+                      serieEncontrada = serie;
+                      break;
+                    }
+                  }
+                }
+              }
+              if (episodioEncontrado) break;
+            }
+
+            if (episodioEncontrado) {
+              const tituloCompleto = `${serieEncontrada.titulo} - ${episodioEncontrado.titulo}`;
+              loadVideo(episodioEncontrado.urlVideo, tituloCompleto);
+            } else {
+              videoTitleDisplay.textContent = "Episodio no encontrado en la base de datos";
+              console.error("No se encontró ningún episodio con el ID:", episodioIdBuscado);
+            }
+          } catch (error) {
+            console.error("Error al cargar el archivo JSON de series:", error);
+            videoTitleDisplay.textContent = "Error al cargar los datos de la serie";
+          }
+        }
+      }
+
+      initPlayerFromURL();
       renderPlaylist();
     });
   </script>
