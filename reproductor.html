@@ -891,6 +891,122 @@
       const controlsOverlay = document.getElementById('controlsOverlay');
       const spinner = document.getElementById('bufferingSpinner');
 
+document.addEventListener("DOMContentLoaded", async () => {
+  // 1. Leer los parámetros enviados en la URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const peliId = urlParams.get('peli') || urlParams.get('id');
+  const serieId = urlParams.get('serie');
+  const temporada = urlParams.get('t') || urlParams.get('temporada');
+  const episodio = urlParams.get('e') || urlParams.get('episodio');
+
+  // 2. Definir los 5 archivos JSON de tu proyecto
+  const jsonFiles = [
+    'peliculas.json', 
+    'videos.json', 
+    'sagas.json', 
+    'series.json', 
+    'anime.json'
+  ];
+
+  let contenidoEncontrado = null;
+
+  try {
+    // 3. Buscar en paralelo en todos los archivos JSON
+    const respuestas = await Promise.all(
+      jsonFiles.map(archivo => fetch(archivo).then(res => res.json()).catch(() => []))
+    );
+
+    // 4. Recorrer los resultados de cada JSON para encontrar la concordancia
+    for (const datosJson of respuestas) {
+      // Normalizar por si el JSON es un array plano o un objeto contenedor
+      const elementos = Array.isArray(datosJson) 
+        ? datosJson 
+        : (datosJson.peliculas || datosJson.videos || datosJson.sagas || datosJson.series || datosJson.anime || []);
+
+      // CASO A: Búsqueda por ID directo (Películas, Videos y Sagas)
+      if (peliId && !temporada) {
+        const match = elementos.find(item => item.id === peliId || item.codigo === peliId);
+        if (match) {
+          contenidoEncontrado = match;
+          break;
+        }
+      }
+
+      // CASO B: Búsqueda por Serie / Anime (ID + Temporada + Episodio, ej: T1E1)
+      const targetId = serieId || peliId;
+      if (targetId && (temporada || episodio)) {
+        const serieMatch = elementos.find(item => item.id === targetId || item.codigo === targetId);
+        if (serieMatch) {
+          // Si la serie tiene estructura de temporadas anidadas
+          if (serieMatch.temporadas && temporada) {
+            const tempObj = serieMatch.temporadas.find(t => t.numero == temporada || t.temporada == temporada);
+            if (tempObj && tempObj.episodios) {
+              const epObj = tempObj.episodios.find(e => e.numero == episodio || e.episodio == episodio);
+              if (epObj) {
+                contenidoEncontrado = {
+                  titulo: `${serieMatch.titulo} - Temporada ${temporada} Episodio ${episodio}${epObj.titulo ? ': ' + epObj.titulo : ''}`,
+                  urlVideo: epObj.urlVideo || epObj.url_video || epObj.video || epObj.url,
+                  caratula: epObj.caratula || serieMatch.caratula
+                };
+                break;
+              }
+            }
+          } 
+          // Si los episodios están en un array plano dentro del objeto de la serie
+          else if (serieMatch.episodios) {
+            const epObj = serieMatch.episodios.find(e => 
+              (e.temporada == temporada && e.episodio == episodio) || 
+              (e.t == temporada && e.e == episodio)
+            );
+            if (epObj) {
+              contenidoEncontrado = {
+                titulo: `${serieMatch.titulo} - T${temporada}E${episodio}`,
+                urlVideo: epObj.urlVideo || epObj.url_video || epObj.video || epObj.url,
+                caratula: epObj.caratula || serieMatch.caratula
+              };
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    // 5. Cargar el contenido en el reproductor si se encontró
+    if (contenidoEncontrado) {
+      inicializarReproductor(contenidoEncontrado);
+    } else {
+      mostrarMensajeError("No se encontró el contenido en los registros.");
+    }
+
+  } catch (error) {
+    console.error("Error al procesar los archivos JSON:", error);
+    mostrarMensajeError("Hubo un error al buscar la reproducción.");
+  }
+});
+
+// Función auxiliar para inyectar los datos en tu reproductor actual
+function inicializarReproductor(item) {
+  const videoPlayer = document.getElementById('mi-video') || document.querySelector('video');
+  const titleElement = document.getElementById('titulo-video') || document.querySelector('h1');
+
+  const videoUrl = item.urlVideo || item.url_video || item.video || item.url;
+  const titulo = item.titulo || item.nombre || 'Reproductor';
+
+  if (titleElement) titleElement.textContent = titulo;
+  if (videoPlayer) {
+    videoPlayer.src = videoUrl;
+    videoPlayer.play().catch(e => console.log("Autoplay bloqueado por el navegador:", e));
+  }
+}
+
+function mostrarMensajeError(mensaje) {
+  const container = document.body;
+  const alerta = document.createElement('div');
+  alerta.style.cssText = "position:fixed;top:20px;right:20px;background:#ff4444;color:white;padding:15px;border-radius:5px;z-index:9999;";
+  alerta.textContent = mensaje;
+  container.appendChild(alerta);
+}
+      
       btnClearHistory.addEventListener('click', (e) => {
         e.stopPropagation();
         localStorage.removeItem('jn_playlist_history_full');
