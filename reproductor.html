@@ -1671,14 +1671,73 @@
         if (e.key === 'Enter') loadVideo(urlInput.value.trim());
       });
 
+      function extractVideoUrl(item) {
+        if (!item) return null;
+        const direct = item.urlVideo || item.url_video || item.video || item.url || item.enlace || item.src || item.link;
+        if (direct) return direct;
+        if (item.url_html) {
+          if (item.url_html.includes('url=')) {
+            try {
+              const u = new URL(item.url_html, location.href);
+              const param = u.searchParams.get('url');
+              if (param) return param;
+            } catch (_) {
+              const m = item.url_html.match(/[?&]url=([^&]+)/);
+              if (m) return decodeURIComponent(m[1]);
+            }
+          }
+          if (/^https?:\/\//i.test(item.url_html)) return item.url_html;
+        }
+        return null;
+      }
+
+      function isDirectMediaUrl(val) {
+        if (!val) return false;
+        const v = val.toLowerCase();
+        return v.startsWith('http') || v.includes('.mp4') || v.includes('.m3u8') ||
+          v.includes('youtube') || v.includes('youtu.be') || v.includes('embed') || v.includes('drive.google');
+      }
+
+      async function resolveMediaById(id) {
+        for (const file of ['sagas.json', 'peliculas.json']) {
+          try {
+            const res = await fetch(file);
+            if (!res.ok) continue;
+            const data = await res.json();
+            if (!Array.isArray(data)) continue;
+            for (const entry of data) {
+              if (entry.peliculas && Array.isArray(entry.peliculas)) {
+                const found = entry.peliculas.find(p => String(p.id) === String(id));
+                if (found) {
+                  const url = extractVideoUrl(found);
+                  if (url) return { url, title: found.titulo || id };
+                }
+              } else if (String(entry.id) === String(id)) {
+                const url = extractVideoUrl(entry);
+                if (url) return { url, title: entry.titulo || id };
+              }
+            }
+          } catch (_) {}
+        }
+        return null;
+      }
+
       async function initPlayerFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
-        
         const videoParam = urlParams.get('peli') || urlParams.get('url') || urlParams.get('v') || urlParams.get('src');
         const episodioIdBuscado = urlParams.get('episodio') || urlParams.get('id');
 
         if (videoParam) {
-          loadVideo(videoParam);
+          if (isDirectMediaUrl(videoParam)) {
+            loadVideo(videoParam);
+            return;
+          }
+          const resolved = await resolveMediaById(videoParam);
+          if (resolved) {
+            loadVideo(resolved.url, resolved.title);
+          } else {
+            videoTitleDisplay.textContent = `No se encontró ningún elemento con ID '${videoParam}'.`;
+          }
           return;
         }
 
@@ -1690,15 +1749,11 @@
             const response = await fetch('series.json');
             if (response.ok) {
               const seriesData = await response.json();
-              
+
               function searchInNode(node) {
                 if (!node || typeof node !== 'object') return null;
-                
                 const idValue = node.idEpisodio || node.id || node.codigo || node.slug;
-                if (idValue && String(idValue) === String(episodioIdBuscado)) {
-                  return node;
-                }
-
+                if (idValue && String(idValue) === String(episodioIdBuscado)) return node;
                 for (const key of Object.keys(node)) {
                   const result = searchInNode(node[key]);
                   if (result) return result;
@@ -1721,21 +1776,18 @@
             console.warn("Aviso: 'series.json' no se pudo cargar o procesar correctamente.");
           }
 
-          if (!episodioEncontrado) {
-            if (episodioIdBuscado === 'ink-master-t1-e1') {
-              episodioEncontrado = {
-                titulo: "Carne fresca (Ink Master T1 E1)",
-                urlVideo: "https://archive.org/download/cf_20/carne%20fresca.mp4"
-              };
-              serieEncontrada = { titulo: "Ink Master" };
-            }
+          if (!episodioEncontrado && episodioIdBuscado === 'ink-master-t1-e1') {
+            episodioEncontrado = {
+              titulo: "Carne fresca (Ink Master T1 E1)",
+              urlVideo: "https://archive.org/download/cf_20/carne%20fresca.mp4"
+            };
+            serieEncontrada = { titulo: "Ink Master" };
           }
 
           if (episodioEncontrado) {
-            const urlVideo = episodioEncontrado.urlVideo || episodioEncontrado.url || episodioEncontrado.video || episodioEncontrado.file || episodioEncontrado.src || episodioEncontrado.link;
+            const urlVideo = extractVideoUrl(episodioEncontrado);
             const tituloEp = episodioEncontrado.titulo || episodioEncontrado.name || episodioEncontrado.title || episodioIdBuscado;
-            const tituloSerie = serieEncontrada && (serieEncontrada.titulo || serieEncontrada.name || serieEncontrada.title) ? (serieEncontrada.titulo || serieEncontrada.name || serieEncontrada.title) : 'Película / Serie';
-
+            const tituloSerie = (serieEncontrada && (serieEncontrada.titulo || serieEncontrada.name || serieEncontrada.title)) || 'Película / Serie';
             if (urlVideo) {
               loadVideo(urlVideo, `${tituloSerie} - ${tituloEp}`);
             } else {
