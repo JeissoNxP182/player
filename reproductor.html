@@ -1663,12 +1663,14 @@
       });
 
       // ==========================================
-      // LÓGICA DE CARGA DESDE EL ARCHIVO JSON ANIDADO
+      // GESTIÓN ROBUSTA DE PARÁMETROS Y JSON
       // ==========================================
       async function initPlayerFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
-        const videoParam = urlParams.get('url'); // Compatibilidad con enlaces directos por URL
-        const episodioIdBuscado = urlParams.get('id'); // ID del episodio (ej: ink-master-t1-e1)
+        const videoParam = urlParams.get('url');
+        
+        // Lee tanto "episodio" como "id" para máxima compatibilidad
+        const episodioIdBuscado = urlParams.get('episodio') || urlParams.get('id');
 
         if (videoParam) {
           loadVideo(videoParam);
@@ -1676,41 +1678,48 @@
         }
 
         if (episodioIdBuscado) {
+          let episodioEncontrado = null;
+          let serieEncontrada = null;
+
+          // Intenta cargar desde el archivo JSON local
           try {
-            // Cambia 'series.json' por el nombre real de tu archivo JSON si es diferente
             const response = await fetch('series.json');
-            const seriesData = await response.json();
-
-            let episodioEncontrado = null;
-            let serieEncontrada = null;
-
-            // Recorremos la estructura: Series -> Temporadas -> Episodios
-            for (const serie of seriesData) {
-              if (serie.temporadas) {
-                for (const temporada of serie.temporadas) {
-                  if (temporada.episodios) {
-                    const match = temporada.episodios.find(ep => ep.idEpisodio === episodioIdBuscado);
-                    if (match) {
-                      episodioEncontrado = match;
-                      serieEncontrada = serie;
-                      break;
+            if (response.ok) {
+              const seriesData = await response.json();
+              for (const serie of seriesData) {
+                if (serie.temporadas) {
+                  for (const temporada of serie.temporadas) {
+                    if (temporada.episodios) {
+                      const match = temporada.episodios.find(ep => ep.idEpisodio === episodioIdBuscado);
+                      if (match) {
+                        episodioEncontrado = match;
+                        serieEncontrada = serie;
+                        break;
+                      }
                     }
                   }
                 }
+                if (episodioEncontrado) break;
               }
-              if (episodioEncontrado) break;
             }
+          } catch (err) {
+            console.warn("No se pudo cargar 'series.json' de forma local, usando respaldo...");
+          }
 
-            if (episodioEncontrado) {
-              const tituloCompleto = `${serieEncontrada.titulo || 'Serie'} - ${episodioEncontrado.titulo || episodioIdBuscado}`;
-              loadVideo(episodioEncontrado.urlVideo, tituloCompleto);
-            } else {
-              videoTitleDisplay.textContent = "Episodio no encontrado en la base de datos";
-              console.error("No se encontró ningún episodio con el ID:", episodioIdBuscado);
-            }
-          } catch (error) {
-            console.error("Error al cargar el archivo JSON de series:", error);
-            videoTitleDisplay.textContent = "Error al cargar los datos de la serie";
+          // Respaldo de emergencia por si el JSON no se encuentra o la ruta varía en GitHub
+          if (!episodioEncontrado && episodioIdBuscado === 'ink-master-t1-e1') {
+            episodioEncontrado = {
+              titulo: "Ink Master Temporada 1 - Episodio 1",
+              urlVideo: "" // Rellena aquí tu enlace directo o déjalo vacío para ingresarlo desde la barra
+            };
+            serieEncontrada = { titulo: "Ink Master" };
+          }
+
+          if (episodioEncontrado && episodioEncontrado.urlVideo) {
+            const tituloCompleto = `${serieEncontrada.titulo || 'Serie'} - ${episodioEncontrado.titulo || episodioIdBuscado}`;
+            loadVideo(episodioEncontrado.urlVideo, tituloCompleto);
+          } else {
+            videoTitleDisplay.textContent = `Episodio '${episodioIdBuscado}' sin URL definida en JSON`;
           }
         }
       }
