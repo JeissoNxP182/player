@@ -14,7 +14,7 @@
   <!-- TARJETAS PARA X (TWITTER) Y DISCORD -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="JeissoNxP | Películas, Series y Vídeos 👽">
-  <meta name="twitter:description" content="Mi Libreria Personal">
+  <meta name="twitter:description" content="Mi Librería Personal">
   <meta id="twitterImageMeta" name="twitter:image" content="">
   
   <style>
@@ -924,12 +924,10 @@
       playEpBtn.className = 'btn-play';
       playEpBtn.innerHTML = `▶ REPRODUCIR AHORA`;
       
-      // Integración corregida con el idEpisodio
       playEpBtn.onclick = () => {
         if (ep.idEpisodio) {
           targetHtmlUrl = `reproductor.html?episodio=${ep.idEpisodio}`;
         } else {
-          // Fallback por seguridad si falta el ID en algún capítulo suelto
           const epVideoSrc = ep.urlVideo || ep.url_video || ep.video || ep.url || '';
           targetHtmlUrl = `reproductor.html?url=${encodeURIComponent(epVideoSrc)}&titulo=${encodeURIComponent(currentSerieData.titulo + " - T" + temp.numeroTemporada + " Ep " + ep.numeroEpisodio)}`;
         }
