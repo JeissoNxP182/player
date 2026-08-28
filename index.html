@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JeissoNxP | Películas, Series y Vídeos</title>
-  
   <!-- METADATOS PARA COMPARTIR EN REDES SOCIALES -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="JeissoNxP | Películas, Series y Vídeos 👽">
@@ -99,7 +98,7 @@
       font-weight: 600;
     }
 
-    /* DESPLEGABLE DE SECCIONES */
+    /* DESPLEGABLE */
     .nav-select {
       background: rgba(19, 15, 30, 0.9);
       color: var(--text-main);
@@ -145,48 +144,6 @@
     .search-input:focus {
       border-color: var(--accent-purple);
       box-shadow: 0 0 18px rgba(168, 85, 247, 0.35);
-    }
-
-    /* BARRA DE FILTROS TV LIVE */
-    .tv-filters-container {
-      display: none;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      width: 100%;
-      max-width: 750px;
-      margin-top: 5px;
-    }
-
-    .filter-group {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(19, 15, 30, 0.9);
-      border: 1px solid var(--border-purple);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-    }
-
-    .filter-group label {
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-
-    .filter-select {
-      background: transparent;
-      color: var(--text-main);
-      border: none;
-      outline: none;
-      font-weight: 700;
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-
-    .filter-select option {
-      background: #120d1f;
-      color: #ffffff;
     }
     
     /* CONTENEDOR PRINCIPAL */
@@ -253,7 +210,7 @@
     /* GRID HORIZONTAL (16:9) */
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 20px;
     }
 
@@ -279,24 +236,22 @@
     .poster-wrapper {
       width: 100%;
       aspect-ratio: 16 / 9;
-      background-color: #0d0a14;
+      background-color: #000000;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
     }
 
     .card img {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      padding: 6px;
       transition: transform 0.3s ease;
     }
 
     .card:hover img {
-      transform: scale(1.05);
+      transform: scale(1.04);
     }
 
     .card-info {
@@ -365,7 +320,6 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      padding: 10px;
     }
 
     .modal-details {
@@ -455,7 +409,7 @@
 
     @media (max-width: 600px) {
       .grid-container {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       }
     }
   </style>
@@ -481,33 +435,9 @@
         <option value="tv">📺 TV Live</option>
       </select>
     </div>
-
+  
     <div class="search-box">
-      <input type="text" id="searchInput" class="search-input" placeholder="Buscar título, año o canal..." oninput="filterCatalog()">
-    </div>
-
-    <!-- BARRA DE FILTROS TV LIVE -->
-    <div id="tvFiltersBar" class="tv-filters-container">
-      <div class="filter-group">
-        <label for="filterCountry">🌎 País:</label>
-        <select id="filterCountry" class="filter-select" onchange="filterCatalog()">
-          <option value="ALL">Todos los países</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="filterLanguage">🗣️ Idioma:</label>
-        <select id="filterLanguage" class="filter-select" onchange="filterCatalog()">
-          <option value="ALL">Todos los idiomas</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="filterCategory">🏷️ Categoría:</label>
-        <select id="filterCategory" class="filter-select" onchange="filterCatalog()">
-          <option value="ALL">Todas las categorías</option>
-        </select>
-      </div>
+      <input type="text" id="searchInput" class="search-input" placeholder="Buscar título, año o saga..." oninput="filterCatalog()">
     </div>
   </header>
 
@@ -520,7 +450,7 @@
     <div class="modal-content" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal()">&times;</button>
       <div class="modal-banner">
-        <img id="modalImg" src="" alt="Portada" referrerpolicy="no-referrer">
+        <img id="modalImg" src="" alt="Portada">
       </div>
       <div class="modal-details">
         <h2 id="modalTitle" class="modal-title"></h2>
@@ -543,15 +473,8 @@
       series: "https://jeissonxp182.github.io/player/series.json",
       anime: "https://jeissonxp182.github.io/player/anime.json",
       videos: "https://jeissonxp182.github.io/player/videos.json",
-      tv: "https://jeissonxp182.github.io/player/canales.json"
+      tv: "https://iptv-org.github.io/iptv/index.m3u"
     };
-
-    const PAISES_EXCLUIDOS = [
-      'irak', 'iraq', 'afganistán', 'afghanistan', 'suiza', 'switzerland', 'polonia', 'poland', 
-      'alemania', 'germany', 'irán', 'iran', 'turquía', 'turkey', 'rusia', 'russia', 'china', 
-      'india', 'arabia', 'pakistán', 'pakistan', 'egipto', 'egypt', 'francia', 'france', 
-      'italia', 'italy', 'grecia', 'greece', 'rumania', 'romania', 'ucrania', 'ukraine'
-    ];
 
     let LOCAL_CATALOG = {
       sagas: [],
@@ -567,28 +490,6 @@
     let currentSerieData = null;
     let currentSeasonData = null;
 
-    // Función auxiliar para extraer el primer atributo existente
-    function getAttr(obj, keys, defaultVal = '') {
-      if (!obj) return defaultVal;
-      for (let k of keys) {
-        if (obj[k] !== undefined && obj[k] !== null && String(obj[k]).trim() !== '') {
-          return String(obj[k]).trim();
-        }
-      }
-      return defaultVal;
-    }
-
-    // Genera una imagen SVG con las iniciales del canal cuando el logo no existe o falla al cargar
-    function generateFallbackLogo(title) {
-      const cleanText = (title || 'TV').substring(0, 10).toUpperCase();
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="169" viewBox="0 0 300 169">
-        <rect width="100%" height="100%" fill="#130f1e"/>
-        <circle cx="150" cy="85" r="45" fill="#7e22ce" opacity="0.25"/>
-        <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" fill="#a855f7" font-family="Segoe UI, sans-serif" font-size="20" font-weight="bold">${cleanText}</text>
-      </svg>`;
-      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-    }
-
     function formatDuration(dur) {
       if (!dur) return '';
       return dur.replace(/(\d+h):?(\d+m)/, '$1:$2');
@@ -598,8 +499,10 @@
       let firstImage = '';
       if (items && items.length > 0) {
         const item = items[0];
-        firstImage = item.portada || item.poster || item.miniatura || '';
-        if (!firstImage && item.peliculas && item.peliculas.length > 0) {
+        if (item.portada) firstImage = item.portada;
+        else if (item.poster) firstImage = item.poster;
+        else if (item.miniatura) firstImage = item.miniatura;
+        else if (item.peliculas && item.peliculas.length > 0) {
           firstImage = item.peliculas[0].portada || item.peliculas[0].poster || item.peliculas[0].miniatura || '';
         }
       }
@@ -610,58 +513,11 @@
       }
     }
 
-    function populateTvDropdowns(channels) {
-      const countrySelect = document.getElementById('filterCountry');
-      const languageSelect = document.getElementById('filterLanguage');
-      const categorySelect = document.getElementById('filterCategory');
-
-      if (!countrySelect || !languageSelect || !categorySelect) return;
-
-      const countries = new Set();
-      const languages = new Set();
-      const categories = new Set();
-
-      channels.forEach(ch => {
-        if (ch.pais) countries.add(ch.pais.trim());
-        if (ch.idioma) languages.add(ch.idioma.trim());
-        if (ch.categoria) categories.add(ch.categoria.trim());
-      });
-
-      const selCountry = countrySelect.value;
-      const selLang = languageSelect.value;
-      const selCat = categorySelect.value;
-
-      countrySelect.innerHTML = '<option value="ALL">Todos los países</option>';
-      Array.from(countries).sort().forEach(c => {
-        countrySelect.innerHTML += `<option value="${c}">${c}</option>`;
-      });
-
-      languageSelect.innerHTML = '<option value="ALL">Todos los idiomas</option>';
-      Array.from(languages).sort().forEach(l => {
-        languageSelect.innerHTML += `<option value="${l}">${l}</option>`;
-      });
-
-      categorySelect.innerHTML = '<option value="ALL">Todas las categorías</option>';
-      Array.from(categories).sort().forEach(cat => {
-        categorySelect.innerHTML += `<option value="${cat}">${cat}</option>`;
-      });
-
-      if (countries.has(selCountry)) countrySelect.value = selCountry;
-      if (languages.has(selLang)) languageSelect.value = selLang;
-      if (categories.has(selCat)) categorySelect.value = selCat;
-    }
-
     async function cargarSeccionRemota(sectionKey) {
       const container = document.getElementById('catalogContainer');
-      const tvFiltersBar = document.getElementById('tvFiltersBar');
-
-      if (tvFiltersBar) {
-        tvFiltersBar.style.display = (sectionKey === 'tv') ? 'flex' : 'none';
-      }
-
+      
       if (LOCAL_CATALOG[sectionKey] && LOCAL_CATALOG[sectionKey].length > 0) {
-        if (sectionKey === 'tv') populateTvDropdowns(LOCAL_CATALOG.tv);
-        filterCatalog();
+        renderCatalog(LOCAL_CATALOG[sectionKey]);
         updateSocialMeta(LOCAL_CATALOG[sectionKey]);
         return LOCAL_CATALOG[sectionKey];
       }
@@ -672,70 +528,56 @@
         const respuesta = await fetch(REPOSITORIOS_URLS[sectionKey]);
         if (!respuesta.ok) throw new Error("No se pudo conectar con el repositorio");
         
-        let data = await respuesta.json();
-
+        let data;
         if (sectionKey === 'tv') {
-          let canalesProcesados = data.map((ch, idx) => {
-            const nombre = getAttr(ch, ['nombre', 'titulo', 'title', 'name', 'tvg-name', 'tvg_name', 'label'], `Canal ${idx + 1}`);
-            const logo = getAttr(ch, ['logo', 'tvg-logo', 'tvg_logo', 'logo_url', 'stream_icon', 'icon', 'image', 'portada', 'poster', 'miniatura', 'img']);
-            const url = getAttr(ch, ['urlVideo', 'url_video', 'url', 'link', 'stream', 'enlace', 'src', 'manifest_url', 'file']);
-            let pais = getAttr(ch, ['pais', 'country', 'tvg-country', 'tvg_country', 'pais_origen', 'region']);
-            let idioma = getAttr(ch, ['idioma', 'language', 'lang', 'tvg-language']);
-            let categoria = getAttr(ch, ['categoria', 'category', 'group', 'group-title', 'group_title', 'grupo', 'genre'], 'General');
-
-            if (!pais) {
-              const lowerText = `${nombre} ${categoria}`.toLowerCase();
-              if (lowerText.includes('colombia')) pais = 'Colombia';
-              else if (lowerText.includes('mexico') || lowerText.includes('méxico')) pais = 'México';
-              else if (lowerText.includes('argentina')) pais = 'Argentina';
-              else if (lowerText.includes('chile')) pais = 'Chile';
-              else if (lowerText.includes('peru') || lowerText.includes('perú')) pais = 'Perú';
-              else if (lowerText.includes('españa') || lowerText.includes('spain')) pais = 'España';
-              else if (lowerText.includes('usa') || lowerText.includes('eeuu') || lowerText.includes('states')) pais = 'EE. UU.';
-              else pais = 'Internacional';
-            }
-
-            if (!idioma) {
-              const lowerText = `${nombre} ${categoria} ${pais}`.toLowerCase();
-              if (lowerText.includes('english') || lowerText.includes('inglés') || pais === 'EE. UU.') {
-                idioma = 'Inglés';
-              } else {
-                idioma = 'Español';
-              }
-            }
-
-            return {
-              id: ch.id || `tv-${idx}`,
-              titulo: nombre,
-              portada: logo,
-              pais: pais.trim(),
-              idioma: idioma.trim(),
-              categoria: categoria.trim(),
-              ano: `${pais} • ${categoria}`,
-              duracion: 'EN VIVO',
-              sinopsis: `Transmisión en vivo de ${nombre}. Categoría: ${categoria} | Idioma: ${idioma} | País: ${pais}`,
-              urlVideo: url
-            };
-          });
-
-          // Filtrar canales no deseados de la lista
-          data = canalesProcesados.filter(ch => {
-            const todoTexto = `${ch.titulo} ${ch.pais} ${ch.categoria}`.toLowerCase();
-            return !PAISES_EXCLUIDOS.some(p => todoTexto.includes(p));
-          });
-
-          populateTvDropdowns(data);
+          const textoM3U = await respuesta.text();
+          data = parsearM3U(textoM3U);
+        } else {
+          data = await respuesta.json();
         }
 
         LOCAL_CATALOG[sectionKey] = data;
-        filterCatalog();
+        renderCatalog(data);
         updateSocialMeta(data);
         return data;
       } catch (error) {
         console.error("Error al cargar la sección:", error);
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Error de conexión o archivo no disponible 🚀</p>';
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Próximamente más contenido en esta sección 🚀 (O error de conexión)</p>';
         return null;
       }
+    }
+
+    function parsearM3U(contenido) {
+      const lineas = contenido.split('\n');
+      const canales = [];
+      let currentChannel = {};
+
+      for (let i = 0; i < lineas.length; i++) {
+        let linea = lineas[i].trim();
+
+        if (linea.startsWith('#EXTINF:')) {
+          const parts = linea.split(',');
+          const titulo = parts[parts.length - 1] || "Canal sin nombre";
+          
+          let logoMatch = linea.match(/tvg-logo="([^"]+)"/);
+          let portada = logoMatch ? logoMatch[1] : '';
+
+          currentChannel = {
+            titulo: titulo,
+            portada: portada,
+            ano: "En Directo",
+            duracion: "LIVE",
+            sinopsis: "Transmisión de televisión en vivo."
+          };
+        } else if (linea && !linea.startsWith('#')) {
+          currentChannel.urlVideo = linea;
+          if (currentChannel.titulo) {
+            canales.push(currentChannel);
+            currentChannel = {};
+          }
+        }
+      }
+      return canales;
     }
 
     function loadSection(sectionKey) {
@@ -749,18 +591,21 @@
       loadSection(sectionKey);
     }
 
+    // --- NUEVO: GESTIÓN DE ENLACES DIRECTOS DESDE LA URL ---
     window.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const targetId = urlParams.get('peli') || urlParams.get('episodio') || urlParams.get('id');
 
       if (targetId) {
-        const secciones = ['sagas', 'peliculas', 'series', 'anime', 'videos', 'tv'];
+        // Intentar buscar el contenido en las diferentes secciones
+        const secciones = ['sagas', 'peliculas', 'series', 'anime', 'videos'];
         let encontrado = false;
 
         for (const sec of secciones) {
           const data = await loadSection(sec);
           if (!data) continue;
 
+          // Si la sección es de Sagas
           if (sec === 'sagas') {
             for (const saga of data) {
               if (saga.peliculas) {
@@ -773,6 +618,7 @@
               }
             }
           } else if (sec === 'series' || sec === 'anime') {
+            // Buscar en Series / Episodios
             for (const serie of data) {
               if (serie.id === targetId) {
                 openSeriesModal(serie);
@@ -795,6 +641,7 @@
               if (encontrado) break;
             }
           } else {
+            // Películas o Videos simples
             const item = data.find(p => p.id === targetId);
             if (item) {
               openModal(item);
@@ -806,7 +653,10 @@
           if (encontrado) break;
         }
 
-        if (!encontrado) loadSection('sagas');
+        if (!encontrado) {
+          console.warn("No se encontró ningún elemento con el ID especificado:", targetId);
+          loadSection('sagas');
+        }
       } else {
         loadSection('sagas');
       }
@@ -823,16 +673,9 @@
         card.onclick = () => openModal(item);
       }
 
-      const imgSrc = item.portada || item.miniatura || item.poster || item.imagen || '';
-      const fallbackImg = generateFallbackLogo(item.titulo);
-
       card.innerHTML = `
         <div class="poster-wrapper">
-          <img src="${imgSrc || fallbackImg}" 
-               alt="${item.titulo}" 
-               loading="lazy" 
-               referrerpolicy="no-referrer"
-               onerror="this.onerror=null; this.src='${fallbackImg}';">
+          <img src="${item.miniatura || item.portada || item.poster || item.imagen || ''}" alt="${item.titulo}" loading="lazy">
         </div>
         <div class="card-info">
           <div class="card-title">${item.titulo}</div>
@@ -848,7 +691,7 @@
       container.innerHTML = '';
 
       if (!items || items.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">No se encontraron contenidos en esta sección o filtro 🚀</p>';
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Próximamente más contenido en esta sección 🚀</p>';
         return;
       }
 
@@ -915,27 +758,6 @@
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
       const items = LOCAL_CATALOG[currentSectionKey] || [];
 
-      if (currentSectionKey === 'tv') {
-        const countryVal = document.getElementById('filterCountry').value;
-        const langVal = document.getElementById('filterLanguage').value;
-        const catVal = document.getElementById('filterCategory').value;
-
-        const filtered = items.filter(ch => {
-          const matchCountry = (countryVal === 'ALL' || (ch.pais && ch.pais.trim() === countryVal));
-          const matchLang = (langVal === 'ALL' || (ch.idioma && ch.idioma.trim() === langVal));
-          const matchCat = (catVal === 'ALL' || (ch.categoria && ch.categoria.trim() === catVal));
-          const matchQuery = !query || 
-                             (ch.titulo && ch.titulo.toLowerCase().includes(query)) || 
-                             (ch.pais && ch.pais.toLowerCase().includes(query)) ||
-                             (ch.categoria && ch.categoria.toLowerCase().includes(query));
-
-          return matchCountry && matchLang && matchCat && matchQuery;
-        });
-
-        renderCatalog(filtered);
-        return;
-      }
-
       if (!query) {
         renderCatalog(items);
         return;
@@ -969,12 +791,8 @@
 
     function openModal(peli) {
       const formattedDur = formatDuration(peli.duracion);
-      const fallbackImg = generateFallbackLogo(peli.titulo);
 
-      const modalImg = document.getElementById('modalImg');
-      modalImg.onerror = () => { modalImg.src = fallbackImg; };
-      modalImg.src = peli.portada || peli.miniatura || peli.poster || peli.imagen || fallbackImg;
-
+      document.getElementById('modalImg').src = peli.miniatura || peli.portada || peli.poster || peli.imagen || '';
       document.getElementById('modalTitle').innerText = peli.titulo || 'Sin título';
       document.getElementById('modalYear').innerHTML = `📅 ${peli.ano || 'S/A'}`;
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
@@ -994,12 +812,12 @@
       if (tempContainer) tempContainer.style.display = 'none';
       document.getElementById('modalPlayBtn').style.display = 'block';
 
-      if (currentSectionKey === 'tv') {
-        const rawUrl = peli.urlVideo || peli.url_video || peli.video || peli.url || peli.enlace || '';
-        targetHtmlUrl = `reproductor.html?url=${encodeURIComponent(rawUrl)}&titulo=${encodeURIComponent(peli.titulo || 'Canal TV')}`;
-      } else if (peli.id) {
+      // Construye la URL hacia el reproductor (opción B: el player resuelve ?peli=id)
+      if (peli.id) {
         targetHtmlUrl = `reproductor.html?peli=${peli.id}`;
         history.replaceState(null, '', `?peli=${peli.id}`);
+      } else if (peli.url_html && peli.url_html.includes('reproductor.html')) {
+        targetHtmlUrl = peli.url_html;
       } else {
         const videoSrc = peli.urlVideo || peli.url_video || peli.video || peli.url || peli.enlace || peli.url_html || '';
         targetHtmlUrl = `reproductor.html?url=${encodeURIComponent(videoSrc)}&titulo=${encodeURIComponent(peli.titulo || 'Reproductor')}`;
@@ -1011,7 +829,7 @@
     function openSeriesModal(serie) {
       currentSerieData = serie;
       currentSeasonData = null;
-      const mainPoster = serie.miniatura || serie.poster || serie.portada || serie.imagen || generateFallbackLogo(serie.titulo);
+      const mainPoster = serie.miniatura || serie.poster || serie.portada || serie.imagen || '';
       const totalTemporadasCount = serie.temporadas ? serie.temporadas.length : 0;
       
       document.getElementById('modalImg').src = mainPoster;
@@ -1091,7 +909,7 @@
       currentSeasonData = temp;
       const seasonPoster = temp.miniatura || temp.imagen || temp.portada || temp.poster || currentSerieData.miniatura || currentSerieData.portada || currentSerieData.poster || '';
 
-      document.getElementById('modalImg').src = seasonPoster || generateFallbackLogo(currentSerieData.titulo);
+      document.getElementById('modalImg').src = seasonPoster;
       document.getElementById('modalTitle').innerText = `${currentSerieData.titulo} - Temporada ${temp.numeroTemporada}`;
       document.getElementById('modalYear').innerHTML = `📅 T${temp.numeroTemporada} (${temp.ano || currentSerieData.ano || 'S/A'})`;
       
@@ -1156,7 +974,7 @@
       const formattedDur = formatDuration(ep.duracion);
       const numEpFormatted = String(ep.numeroEpisodio).padStart(2, '0');
 
-      document.getElementById('modalImg').src = epPoster || generateFallbackLogo(ep.titulo);
+      document.getElementById('modalImg').src = epPoster;
       document.getElementById('modalTitle').innerText = `${currentSerieData ? currentSerieData.titulo : ''} - T${temp.numeroTemporada} EP ${numEpFormatted}: ${ep.titulo}`;
       document.getElementById('modalYear').innerHTML = `📅 ${ep.ano || temp.ano || (currentSerieData ? currentSerieData.ano : 'S/A')}`;
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
@@ -1208,6 +1026,18 @@
 
     function launchPlayer() {
       if (!targetHtmlUrl) return;
+
+      if (currentSectionKey === 'tv' && targetHtmlUrl.includes('http://') && !targetHtmlUrl.includes('https://')) {
+        const abrirAfuera = confirm("Este canal utiliza un protocolo HTTP no cifrado. Los navegadores web suelen bloquearlo internamente por seguridad.\n\n¿Deseas abrirlo de todas formas en una pestaña independiente?");
+        if (abrirAfuera) {
+          const urlMatch = targetHtmlUrl.match(/video=([^&]+)/);
+          if (urlMatch && urlMatch[1]) {
+            window.open(decodeURIComponent(urlMatch[1]), '_blank');
+          }
+        }
+        return;
+      }
+
       window.location.href = targetHtmlUrl;
     }
 
@@ -1217,6 +1047,7 @@
       if (tempContainer) tempContainer.style.display = 'block';
       currentSerieData = null;
       currentSeasonData = null;
+      // Limpia la querystring de la barra de direcciones al cerrar el modal
       history.replaceState(null, '', window.location.pathname);
     }
   </script>
