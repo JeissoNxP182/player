@@ -98,7 +98,7 @@
       font-weight: 600;
     }
 
-    /* DESPLEGABLE */
+    /* DESPLEGABLE DE SECCIONES */
     .nav-select {
       background: rgba(19, 15, 30, 0.9);
       color: var(--text-main);
@@ -144,6 +144,48 @@
     .search-input:focus {
       border-color: var(--accent-purple);
       box-shadow: 0 0 18px rgba(168, 85, 247, 0.35);
+    }
+
+    /* BARRA DE FILTROS TV LIVE */
+    .tv-filters-container {
+      display: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      max-width: 650px;
+      margin-top: 5px;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(19, 15, 30, 0.9);
+      border: 1px solid var(--border-purple);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+    }
+
+    .filter-group label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .filter-select {
+      background: transparent;
+      color: var(--text-main);
+      border: none;
+      outline: none;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .filter-select option {
+      background: #120d1f;
+      color: #ffffff;
     }
     
     /* CONTENEDOR PRINCIPAL */
@@ -435,9 +477,33 @@
         <option value="tv">📺 TV Live</option>
       </select>
     </div>
-  
+
     <div class="search-box">
-      <input type="text" id="searchInput" class="search-input" placeholder="Buscar título, año o saga..." oninput="filterCatalog()">
+      <input type="text" id="searchInput" class="search-input" placeholder="Buscar título, año o canal..." oninput="filterCatalog()">
+    </div>
+
+    <!-- BARRA DE FILTROS TV LIVE -->
+    <div id="tvFiltersBar" class="tv-filters-container">
+      <div class="filter-group">
+        <label for="filterCountry">🌎 País:</label>
+        <select id="filterCountry" class="filter-select" onchange="filterCatalog()">
+          <option value="ALL">Todos</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filterLanguage">🗣️ Idioma:</label>
+        <select id="filterLanguage" class="filter-select" onchange="filterCatalog()">
+          <option value="ALL">Todos</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filterCategory">🏷️ Categoría:</label>
+        <select id="filterCategory" class="filter-select" onchange="filterCatalog()">
+          <option value="ALL">Todas</option>
+        </select>
+      </div>
     </div>
   </header>
 
@@ -467,13 +533,15 @@
   </div>
 
   <script>
+    const CORS_PROXY = "https://corsproxy.io/?";
+
     const REPOSITORIOS_URLS = {
       sagas: "https://jeissonxp182.github.io/player/sagas.json",
       peliculas: "https://jeissonxp182.github.io/player/peliculas.json",
       series: "https://jeissonxp182.github.io/player/series.json",
       anime: "https://jeissonxp182.github.io/player/anime.json",
       videos: "https://jeissonxp182.github.io/player/videos.json",
-      tv: "https://iptv-org.github.io/iptv/index.m3u"
+      tv: "https://jeissonxp182.github.io/player/canales.json"
     };
 
     let LOCAL_CATALOG = {
@@ -513,11 +581,51 @@
       }
     }
 
+    // Llenar selectores de filtro de TV dinámicamente
+    function populateTvDropdowns(channels) {
+      const countrySelect = document.getElementById('filterCountry');
+      const languageSelect = document.getElementById('filterLanguage');
+      const categorySelect = document.getElementById('filterCategory');
+
+      if (!countrySelect || !languageSelect || !categorySelect) return;
+
+      const countries = new Set();
+      const languages = new Set();
+      const categories = new Set();
+
+      channels.forEach(ch => {
+        if (ch.pais) countries.add(ch.pais);
+        if (ch.idioma) languages.add(ch.idioma);
+        if (ch.categoria) categories.add(ch.categoria);
+      });
+
+      countrySelect.innerHTML = '<option value="ALL">Todos</option>';
+      Array.from(countries).sort().forEach(c => {
+        countrySelect.innerHTML += `<option value="${c}">${c}</option>`;
+      });
+
+      languageSelect.innerHTML = '<option value="ALL">Todos</option>';
+      Array.from(languages).sort().forEach(l => {
+        languageSelect.innerHTML += `<option value="${l}">${l}</option>`;
+      });
+
+      categorySelect.innerHTML = '<option value="ALL">Todas</option>';
+      Array.from(categories).sort().forEach(cat => {
+        categorySelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+      });
+    }
+
     async function cargarSeccionRemota(sectionKey) {
       const container = document.getElementById('catalogContainer');
-      
+      const tvFiltersBar = document.getElementById('tvFiltersBar');
+
+      if (tvFiltersBar) {
+        tvFiltersBar.style.display = (sectionKey === 'tv') ? 'flex' : 'none';
+      }
+
       if (LOCAL_CATALOG[sectionKey] && LOCAL_CATALOG[sectionKey].length > 0) {
-        renderCatalog(LOCAL_CATALOG[sectionKey]);
+        if (sectionKey === 'tv') populateTvDropdowns(LOCAL_CATALOG.tv);
+        filterCatalog();
         updateSocialMeta(LOCAL_CATALOG[sectionKey]);
         return LOCAL_CATALOG[sectionKey];
       }
@@ -528,16 +636,26 @@
         const respuesta = await fetch(REPOSITORIOS_URLS[sectionKey]);
         if (!respuesta.ok) throw new Error("No se pudo conectar con el repositorio");
         
-        let data;
+        let data = await respuesta.json();
+
         if (sectionKey === 'tv') {
-          const textoM3U = await respuesta.text();
-          data = parsearM3U(textoM3U);
-        } else {
-          data = await respuesta.json();
+          data = data.map(ch => ({
+            id: ch.id || ch.nombre,
+            titulo: ch.nombre || ch.titulo || 'Canal TV',
+            portada: ch.logo || ch.portada || ch.miniatura || '',
+            pais: ch.pais || 'Varios',
+            idioma: ch.idioma || 'Español',
+            categoria: ch.categoria || 'General',
+            ano: ch.pais ? `${ch.pais} • ${ch.categoria || ''}` : 'TV Live',
+            duracion: 'EN VIVO',
+            sinopsis: `Transmisión en directo de ${ch.nombre || 'Canal'}. Categoría: ${ch.categoria || 'General'} | Idioma: ${ch.idioma || 'Español'} | País: ${ch.pais || 'Varios'}`,
+            urlVideo: ch.url || ch.urlVideo || ''
+          }));
+          populateTvDropdowns(data);
         }
 
         LOCAL_CATALOG[sectionKey] = data;
-        renderCatalog(data);
+        filterCatalog();
         updateSocialMeta(data);
         return data;
       } catch (error) {
@@ -545,39 +663,6 @@
         container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Próximamente más contenido en esta sección 🚀 (O error de conexión)</p>';
         return null;
       }
-    }
-
-    function parsearM3U(contenido) {
-      const lineas = contenido.split('\n');
-      const canales = [];
-      let currentChannel = {};
-
-      for (let i = 0; i < lineas.length; i++) {
-        let linea = lineas[i].trim();
-
-        if (linea.startsWith('#EXTINF:')) {
-          const parts = linea.split(',');
-          const titulo = parts[parts.length - 1] || "Canal sin nombre";
-          
-          let logoMatch = linea.match(/tvg-logo="([^"]+)"/);
-          let portada = logoMatch ? logoMatch[1] : '';
-
-          currentChannel = {
-            titulo: titulo,
-            portada: portada,
-            ano: "En Directo",
-            duracion: "LIVE",
-            sinopsis: "Transmisión de televisión en vivo."
-          };
-        } else if (linea && !linea.startsWith('#')) {
-          currentChannel.urlVideo = linea;
-          if (currentChannel.titulo) {
-            canales.push(currentChannel);
-            currentChannel = {};
-          }
-        }
-      }
-      return canales;
     }
 
     function loadSection(sectionKey) {
@@ -591,21 +676,19 @@
       loadSection(sectionKey);
     }
 
-    // --- NUEVO: GESTIÓN DE ENLACES DIRECTOS DESDE LA URL ---
+    // --- GESTIÓN DE ENLACES DIRECTOS DESDE LA URL ---
     window.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const targetId = urlParams.get('peli') || urlParams.get('episodio') || urlParams.get('id');
 
       if (targetId) {
-        // Intentar buscar el contenido en las diferentes secciones
-        const secciones = ['sagas', 'peliculas', 'series', 'anime', 'videos'];
+        const secciones = ['sagas', 'peliculas', 'series', 'anime', 'videos', 'tv'];
         let encontrado = false;
 
         for (const sec of secciones) {
           const data = await loadSection(sec);
           if (!data) continue;
 
-          // Si la sección es de Sagas
           if (sec === 'sagas') {
             for (const saga of data) {
               if (saga.peliculas) {
@@ -618,7 +701,6 @@
               }
             }
           } else if (sec === 'series' || sec === 'anime') {
-            // Buscar en Series / Episodios
             for (const serie of data) {
               if (serie.id === targetId) {
                 openSeriesModal(serie);
@@ -641,7 +723,6 @@
               if (encontrado) break;
             }
           } else {
-            // Películas o Videos simples
             const item = data.find(p => p.id === targetId);
             if (item) {
               openModal(item);
@@ -691,7 +772,7 @@
       container.innerHTML = '';
 
       if (!items || items.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Próximamente más contenido en esta sección 🚀</p>';
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">No se encontraron resultados en esta categoría 🚀</p>';
         return;
       }
 
@@ -758,6 +839,24 @@
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
       const items = LOCAL_CATALOG[currentSectionKey] || [];
 
+      if (currentSectionKey === 'tv') {
+        const countryVal = document.getElementById('filterCountry').value;
+        const langVal = document.getElementById('filterLanguage').value;
+        const catVal = document.getElementById('filterCategory').value;
+
+        const filtered = items.filter(ch => {
+          const matchCountry = (countryVal === 'ALL' || ch.pais === countryVal);
+          const matchLang = (langVal === 'ALL' || ch.idioma === langVal);
+          const matchCat = (catVal === 'ALL' || ch.categoria === catVal);
+          const matchQuery = !query || ch.titulo.toLowerCase().includes(query) || (ch.pais && ch.pais.toLowerCase().includes(query));
+
+          return matchCountry && matchLang && matchCat && matchQuery;
+        });
+
+        renderCatalog(filtered);
+        return;
+      }
+
       if (!query) {
         renderCatalog(items);
         return;
@@ -812,8 +911,11 @@
       if (tempContainer) tempContainer.style.display = 'none';
       document.getElementById('modalPlayBtn').style.display = 'block';
 
-      // Construye la URL hacia el reproductor (opción B: el player resuelve ?peli=id)
-      if (peli.id) {
+      if (currentSectionKey === 'tv') {
+        const rawUrl = peli.urlVideo || peli.url_video || peli.video || peli.url || peli.enlace || '';
+        const proxiedUrl = rawUrl.includes('corsproxy.io') ? rawUrl : CORS_PROXY + encodeURIComponent(rawUrl);
+        targetHtmlUrl = `reproductor.html?url=${encodeURIComponent(proxiedUrl)}&titulo=${encodeURIComponent(peli.titulo || 'Canal TV')}`;
+      } else if (peli.id) {
         targetHtmlUrl = `reproductor.html?peli=${peli.id}`;
         history.replaceState(null, '', `?peli=${peli.id}`);
       } else if (peli.url_html && peli.url_html.includes('reproductor.html')) {
@@ -1030,7 +1132,7 @@
       if (currentSectionKey === 'tv' && targetHtmlUrl.includes('http://') && !targetHtmlUrl.includes('https://')) {
         const abrirAfuera = confirm("Este canal utiliza un protocolo HTTP no cifrado. Los navegadores web suelen bloquearlo internamente por seguridad.\n\n¿Deseas abrirlo de todas formas en una pestaña independiente?");
         if (abrirAfuera) {
-          const urlMatch = targetHtmlUrl.match(/video=([^&]+)/);
+          const urlMatch = targetHtmlUrl.match(/url=([^&]+)/);
           if (urlMatch && urlMatch[1]) {
             window.open(decodeURIComponent(urlMatch[1]), '_blank');
           }
@@ -1047,7 +1149,6 @@
       if (tempContainer) tempContainer.style.display = 'block';
       currentSerieData = null;
       currentSeasonData = null;
-      // Limpia la querystring de la barra de direcciones al cerrar el modal
       history.replaceState(null, '', window.location.pathname);
     }
   </script>
