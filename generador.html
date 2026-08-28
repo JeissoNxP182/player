@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de canales.json</title>
+  <style>
+    body { font-family: sans-serif; background: #0f0c1b; color: #fff; text-align: center; padding: 30px 15px; }
+    button { background: #8a2be2; color: #fff; border: none; padding: 16px 28px; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4); }
+    #status { margin-top: 25px; color: #b3a0e6; font-size: 15px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <h2>Generador de Canales JSON</h2>
+  <p>Presiona el botón para procesar las listas IPTV y generar el archivo directamente en tu teléfono.</p>
+  <button id="btnStart">Generar y Descargar JSON</button>
+  <div id="status"></div>
+
+  <script>
+    document.getElementById('btnStart').addEventListener('click', async () => {
+      const status = document.getElementById('status');
+      status.innerText = "Obteniendo listas IPTV de GitHub...";
+      
+      const fuentes = [
+        { url: 'https://iptv-org.github.io/iptv/index.m3u', esAdulto: false },
+        { url: 'https://iptv-org.github.io/iptv/index.nsfw.m3u', esAdulto: true }
+      ];
+
+      let resultado = [];
+
+      try {
+        for (const fuente of fuentes) {
+          status.innerText = `Procesando canales ${fuente.esAdulto ? 'para adultos (+18)' : 'públicos'}...`;
+          const res = await fetch(fuente.url);
+          const texto = await res.text();
+          const lineas = texto.split('\n');
+
+          for (let i = 0; i < lineas.length; i++) {
+            if (lineas[i].startsWith('#EXTINF:')) {
+              const info = lineas[i];
+              const streamUrl = lineas[i + 1]?.trim();
+
+              if (!streamUrl || !streamUrl.startsWith('http')) continue;
+
+              const nombre = info.split(',')[1]?.trim() || "Canal Sin Nombre";
+              const paisMatch = info.match(/tvg-country="([^"]+)"/);
+              const langMatch = info.match(/tvg-language="([^"]+)"/);
+              const groupMatch = info.match(/group-title="([^"]+)"/);
+
+              resultado.push({
+                nombre: nombre,
+                url: streamUrl,
+                pais: paisMatch ? paisMatch[1] : "OTROS",
+                idioma: langMatch ? langMatch[1] : "desconocido",
+                categoria: fuente.esAdulto ? "Adultos" : (groupMatch ? groupMatch[1] : "General"),
+                esAdulto: fuente.esAdulto
+              });
+            }
+          }
+        }
+
+        status.innerText = "Creando archivo canales.json...";
+        const blob = new Blob([JSON.stringify(resultado, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'canales.json';
+        a.click();
+        status.innerText = "¡Listo! El archivo canales.json se ha descargado a la carpeta de Descargas de tu teléfono.";
+      } catch (e) {
+        status.innerText = "Error: " + e.message;
+      }
+    });
+  </script>
+</body>
+</html>
