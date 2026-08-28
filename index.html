@@ -252,7 +252,7 @@
     /* GRID HORIZONTAL (16:9) */
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
       gap: 20px;
     }
 
@@ -283,6 +283,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
 
     .card img {
@@ -451,7 +452,7 @@
 
     @media (max-width: 600px) {
       .grid-container {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       }
     }
   </style>
@@ -544,14 +545,12 @@
       tv: "https://jeissonxp182.github.io/player/canales.json"
     };
 
-    // Filtro geográfico exclusivo: Toda América + España + Inglaterra/Reino Unido
-    const PAISES_PERMITIDOS = [
-      'colombia', 'méxico', 'mexico', 'argentina', 'chile', 'perú', 'peru', 'ecuador', 
-      'venezuela', 'guatemala', 'cuba', 'bolivia', 'república dominicana', 'republica dominicana', 
-      'honduras', 'paraguay', 'el salvador', 'nicaragua', 'costa rica', 'panamá', 'panama', 
-      'uruguay', 'puerto rico', 'estados unidos', 'ee.uu.', 'usa', 'united states', 
-      'canadá', 'canada', 'españa', 'spain', 'inglaterra', 'reino unido', 'united kingdom', 
-      'uk', 'brasil', 'brazil'
+    // Países/Regiones a EXCLUIR explícitamente para limpiar la lista
+    const PAISES_EXCLUIDOS = [
+      'irak', 'iraq', 'afganistán', 'afghanistan', 'suiza', 'switzerland', 'polonia', 'poland', 
+      'alemania', 'germany', 'irán', 'iran', 'turquía', 'turkey', 'rusia', 'russia', 'china', 
+      'india', 'arabia', 'pakistán', 'pakistan', 'egipto', 'egypt', 'francia', 'france', 
+      'italia', 'italy', 'grecia', 'greece', 'rumania', 'romania', 'ucrania', 'ukraine'
     ];
 
     let LOCAL_CATALOG = {
@@ -568,6 +567,16 @@
     let currentSerieData = null;
     let currentSeasonData = null;
 
+    // Función auxiliar para obtener el primer valor válido entre varios posibles nombres de llaves
+    function extraerValor(obj, llaves, defecto = '') {
+      for (let k of llaves) {
+        if (obj[k] !== undefined && obj[k] !== null && String(obj[k]).trim() !== '') {
+          return String(obj[k]).trim();
+        }
+      }
+      return defecto;
+    }
+
     function formatDuration(dur) {
       if (!dur) return '';
       return dur.replace(/(\d+h):?(\d+m)/, '$1:$2');
@@ -577,10 +586,8 @@
       let firstImage = '';
       if (items && items.length > 0) {
         const item = items[0];
-        if (item.portada) firstImage = item.portada;
-        else if (item.poster) firstImage = item.poster;
-        else if (item.miniatura) firstImage = item.miniatura;
-        else if (item.peliculas && item.peliculas.length > 0) {
+        firstImage = item.portada || item.poster || item.miniatura || '';
+        if (!firstImage && item.peliculas && item.peliculas.length > 0) {
           firstImage = item.peliculas[0].portada || item.peliculas[0].poster || item.peliculas[0].miniatura || '';
         }
       }
@@ -603,22 +610,22 @@
       const categories = new Set();
 
       channels.forEach(ch => {
-        if (ch.pais && ch.pais !== 'Otros') countries.add(ch.pais);
-        if (ch.idioma && ch.idioma !== 'Otros') languages.add(ch.idioma);
-        if (ch.categoria && ch.categoria !== 'Otros') categories.add(ch.categoria);
+        if (ch.pais && ch.pais !== 'Varios') countries.add(ch.pais);
+        if (ch.idioma) languages.add(ch.idioma);
+        if (ch.categoria && ch.categoria !== 'General') categories.add(ch.categoria);
       });
 
-      countrySelect.innerHTML = '<option value="ALL">Todos</option>';
+      countrySelect.innerHTML = '<option value="ALL">Todos los países</option>';
       Array.from(countries).sort().forEach(c => {
         countrySelect.innerHTML += `<option value="${c}">${c}</option>`;
       });
 
-      languageSelect.innerHTML = '<option value="ALL">Todos</option>';
+      languageSelect.innerHTML = '<option value="ALL">Todos los idiomas</option>';
       Array.from(languages).sort().forEach(l => {
         languageSelect.innerHTML += `<option value="${l}">${l}</option>`;
       });
 
-      categorySelect.innerHTML = '<option value="ALL">Todas</option>';
+      categorySelect.innerHTML = '<option value="ALL">Todas las categorías</option>';
       Array.from(categories).sort().forEach(cat => {
         categorySelect.innerHTML += `<option value="${cat}">${cat}</option>`;
       });
@@ -648,38 +655,55 @@
         let data = await respuesta.json();
 
         if (sectionKey === 'tv') {
-          // 1. Filtrar únicamente países de interés
-          data = data.filter(ch => {
-            const paisLower = (ch.pais || ch.country || '').toLowerCase();
-            const idiomaLower = (ch.idioma || ch.language || '').toLowerCase();
-            
-            const esPaisInteres = PAISES_PERMITIDOS.some(p => paisLower.includes(p));
-            const esIdiomaInteres = idiomaLower.includes('español') || idiomaLower.includes('spanish') || 
-                                     idiomaLower.includes('inglés') || idiomaLower.includes('english') || 
-                                     idiomaLower.includes('portugués') || idiomaLower.includes('portuguese');
+          // 1. Convertir y normalizar cualquier formato JSON de canal
+          let canalesProcesados = data.map((ch, idx) => {
+            const nombre = extraerValor(ch, ['nombre', 'titulo', 'title', 'name', 'tvg-name'], `Canal ${idx + 1}`);
+            const logo = extraerValor(ch, ['logo', 'portada', 'miniatura', 'poster', 'tvgLogo', 'tvg-logo', 'image', 'icon']);
+            const url = extraerValor(ch, ['url', 'urlVideo', 'url_video', 'link', 'stream', 'enlace']);
+            let pais = extraerValor(ch, ['pais', 'country', 'tvg-country', 'pais_origen']);
+            let idioma = extraerValor(ch, ['idioma', 'language', 'lang']);
+            let categoria = extraerValor(ch, ['categoria', 'category', 'group', 'group-title', 'grupo'], 'General');
 
-            return esPaisInteres || esIdiomaInteres;
-          });
+            // Autodetectar o asignar valores amigables
+            if (!pais) {
+              const lowerText = `${nombre} ${categoria}`.toLowerCase();
+              if (lowerText.includes('colombia')) pais = 'Colombia';
+              else if (lowerText.includes('mexico') || lowerText.includes('méxico')) pais = 'México';
+              else if (lowerText.includes('argentina')) pais = 'Argentina';
+              else if (lowerText.includes('chile')) pais = 'Chile';
+              else if (lowerText.includes('españa') || lowerText.includes('spain')) pais = 'España';
+              else if (lowerText.includes('usa') || lowerText.includes('eeuu') || lowerText.includes('states')) pais = 'EE. UU.';
+              else pais = 'América / Varios';
+            }
 
-          // 2. Normalizar campos e imágenes
-          data = data.map(ch => {
-            const nombreCanal = ch.nombre || ch.titulo || 'Canal TV';
-            const paisValido = ch.pais || ch.country || 'Varios';
-            const idiomaValido = ch.idioma || ch.language || 'Español';
-            const logoUrl = ch.logo || ch.portada || ch.miniatura || ch.poster || ch.tvgLogo || '';
+            if (!idioma) {
+              const lowerText = `${nombre} ${categoria} ${pais}`.toLowerCase();
+              if (lowerText.includes('english') || lowerText.includes('inglés') || pais === 'EE. UU.' || pais === 'Inglaterra') {
+                idioma = 'Inglés';
+              } else {
+                idioma = 'Español';
+              }
+            }
 
             return {
-              id: ch.id || nombreCanal,
-              titulo: nombreCanal,
-              portada: logoUrl,
-              pais: paisValido,
-              idioma: idiomaValido,
-              categoria: ch.categoria || 'General',
-              ano: `${paisValido} • ${ch.categoria || 'TV'}`,
+              id: ch.id || `tv-${idx}`,
+              titulo: nombre,
+              portada: logo,
+              pais: pais,
+              idioma: idioma,
+              categoria: categoria,
+              ano: `${pais} • ${categoria}`,
               duracion: 'EN VIVO',
-              sinopsis: `Transmisión en vivo de ${nombreCanal}. Categoría: ${ch.categoria || 'General'} | Idioma: ${idiomaValido} | País: ${paisValido}`,
-              urlVideo: ch.url || ch.urlVideo || ''
+              sinopsis: `Transmisión en vivo de ${nombre}. Categoría: ${categoria} | Idioma: ${idioma} | País: ${pais}`,
+              urlVideo: url
             };
+          });
+
+          // 2. Filtrar descartando los países no deseados
+          data = canalesProcesados.filter(ch => {
+            const todoTexto = `${ch.titulo} ${ch.pais} ${ch.categoria}`.toLowerCase();
+            const esExcluido = PAISES_EXCLUIDOS.some(p => todoTexto.includes(p));
+            return !esExcluido;
           });
 
           populateTvDropdowns(data);
@@ -691,7 +715,7 @@
         return data;
       } catch (error) {
         console.error("Error al cargar la sección:", error);
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Error de conexión o archivo en proceso 🚀</p>';
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Error de conexión o archivo no disponible 🚀</p>';
         return null;
       }
     }
@@ -784,7 +808,6 @@
       }
 
       const imgSrc = item.portada || item.miniatura || item.poster || item.imagen || '';
-      // Si la URL de la imagen falla o está rota, se coloca un logo/placeholder automático
       const fallbackImg = `https://via.placeholder.com/300x169/130f1e/a855f7?text=${encodeURIComponent(item.titulo || 'TV Live')}`;
 
       card.innerHTML = `
@@ -805,7 +828,7 @@
       container.innerHTML = '';
 
       if (!items || items.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">No se encontraron canales en esta categoría 🚀</p>';
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">No se encontraron contenidos en esta sección o filtro 🚀</p>';
         return;
       }
 
@@ -860,8 +883,8 @@
         const grid = document.createElement('div');
         grid.className = 'grid-container';
 
-        // OPTIMIZACIÓN DE RENDIMIENTO: Renderiza únicamente los primeros 100 resultados para mantener fluido el celular
-        const maxItems = currentSectionKey === 'tv' ? items.slice(0, 100) : items;
+        // Límite de seguridad de 120 canales para fluidez en celulares
+        const maxItems = currentSectionKey === 'tv' ? items.slice(0, 120) : items;
 
         maxItems.forEach(item => {
           grid.appendChild(createCardElement(item));
@@ -958,8 +981,6 @@
       } else if (peli.id) {
         targetHtmlUrl = `reproductor.html?peli=${peli.id}`;
         history.replaceState(null, '', `?peli=${peli.id}`);
-      } else if (peli.url_html && peli.url_html.includes('reproductor.html')) {
-        targetHtmlUrl = peli.url_html;
       } else {
         const videoSrc = peli.urlVideo || peli.url_video || peli.video || peli.url || peli.enlace || peli.url_html || '';
         targetHtmlUrl = `reproductor.html?url=${encodeURIComponent(videoSrc)}&titulo=${encodeURIComponent(peli.titulo || 'Reproductor')}`;
@@ -1170,7 +1191,7 @@
       if (!targetHtmlUrl) return;
 
       if (currentSectionKey === 'tv' && targetHtmlUrl.includes('http://') && !targetHtmlUrl.includes('https://')) {
-        const abrirAfuera = confirm("Este canal utiliza un protocolo HTTP no cifrado. Los navegadores web suelen bloquearlo internamente por seguridad.\n\n¿Deseas abrirlo de todas formas en una pestaña independiente?");
+        const abrirAfuera = confirm("Este canal utiliza un protocolo HTTP no cifrado. Los navegadores web suelen bloquearlo por seguridad.\n\n¿Deseas abrirlo en una pestaña nueva?");
         if (abrirAfuera) {
           const urlMatch = targetHtmlUrl.match(/url=([^&]+)/);
           if (urlMatch && urlMatch[1]) {
