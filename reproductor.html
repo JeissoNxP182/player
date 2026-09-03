@@ -108,10 +108,12 @@
     }
 
     iframe {
-      display: none;
-      z-index: 5;
-      width: 100%;
-      height: 100%;
+  display: none;
+  z-index: 5;
+  width: 100%;
+  height: calc(100% + 56px); /* Aumenta la altura para compensar el menú */
+  margin-top: -56px; /* Desplaza el menú de Google Drive hacia arriba fuera del margen visible */
+  border: none;
     }
 
     .initial-play-overlay {
