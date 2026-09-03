@@ -710,7 +710,7 @@
     </div>
 
     <video id="mainVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline></video>
-    <iframe id="mainIframe" allow="encrypted-media; picture-in-picture; autoplay" allowfullscreen></iframe>
+    <iframe id="mainIframe" referrerpolicy="no-referrer" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
     <div class="controls-overlay" id="controlsOverlay">
       <div class="top-controls">
@@ -809,11 +809,11 @@
       <div class="settings-item">
         <span>Relación de aspecto</span>
         <div class="custom-select" id="aspectSelect">
-          <button class="custom-select-btn" data-value="16:9">16:9</button>
+          <button class="custom-select-btn" data-value="auto">Automática</button>
           <div class="custom-select-options">
-            <div class="custom-option" data-value="auto">Automática</div>
+            <div class="custom-option selected" data-value="auto">Automática</div>
             <div class="custom-option" data-value="original">Original</div>
-            <div class="custom-option selected" data-value="16:9">16:9</div>
+            <div class="custom-option" data-value="16:9">16:9</div>
             <div class="custom-option" data-value="4:3">4:3</div>
             <div class="custom-option" data-value="21:9">21:9</div>
             <div class="custom-option" data-value="1:1">1:1</div>
@@ -966,6 +966,18 @@
           }
         } catch (_) {}
         return null;
+      }
+
+      function extractIframeSrc(input) {
+        if (!input) return '';
+        let trimmed = input.trim();
+        if (trimmed.startsWith('<iframe') && trimmed.includes('src=')) {
+          const match = trimmed.match(/src=["']([^"']+)["']/i);
+          if (match && match[1]) {
+            return match[1];
+          }
+        }
+        return trimmed;
       }
 
       function initCustomSelects() {
@@ -1154,18 +1166,18 @@
       });
 
       function resetMediaSettings() {
-        applyAspectRatio('16:9');
+        applyAspectRatio('auto');
         mirrorEnabled = false;
         video.style.transform = 'scaleX(1)';
         mirrorText.textContent = 'Modo espejo: Desactivado';
 
         const aspectBtn = document.querySelector('#aspectSelect .custom-select-btn');
         if (aspectBtn) {
-          aspectBtn.textContent = '16:9';
-          aspectBtn.dataset.value = '16:9';
+          aspectBtn.textContent = 'Automática';
+          aspectBtn.dataset.value = 'auto';
         }
         document.querySelectorAll('#aspectSelect .custom-option').forEach(o => o.classList.remove('selected'));
-        const defaultOpt = document.querySelector('#aspectSelect .custom-option[data-value="16:9"]');
+        const defaultOpt = document.querySelector('#aspectSelect .custom-option[data-value="auto"]');
         if (defaultOpt) defaultOpt.classList.add('selected');
 
         const qualityBtn = document.querySelector('#qualitySelect .custom-select-btn');
@@ -1656,6 +1668,7 @@
 
       function loadVideo(rawUrl, customDisplayTitle = null) {
         if (!rawUrl) return;
+        rawUrl = extractIframeSrc(rawUrl);
         currentUrl = rawUrl;
         pendingUrl = rawUrl;
         urlInput.value = '';
@@ -1677,7 +1690,7 @@
         previewVideo.load();
 
         const cleanUrl = rawUrl.toLowerCase();
-        isEmbedMode = cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be') || cleanUrl.includes('embed') || cleanUrl.includes('drive.google.com');
+        isEmbedMode = cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be') || cleanUrl.includes('embed') || cleanUrl.includes('drive.google.com') || cleanUrl.includes('streamwish') || cleanUrl.includes('filemoon') || cleanUrl.includes('doodstream') || cleanUrl.includes('voe') || cleanUrl.includes('lulustream') || cleanUrl.includes('mixdrop') || cleanUrl.includes('uqload');
 
         resetMediaSettings();
 
