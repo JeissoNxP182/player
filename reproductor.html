@@ -128,6 +128,7 @@
     .initial-play-overlay.hidden {
       opacity: 0;
       pointer-events: none;
+      display: none !important;
     }
 
     .btn-initial-play {
@@ -395,7 +396,7 @@
       z-index: 40;
       backdrop-filter: blur(10px);
       max-height: 82%;
-      overflow-y: auto;
+      overflow-y: visible;
     }
 
     .settings-panel.active {
@@ -443,16 +444,16 @@
     .custom-select-options {
       display: none;
       position: absolute;
-      top: calc(100% + 4px);
+      bottom: calc(100% + 4px);
       right: 0;
       left: 0;
       background: #1a0533;
       border: 1px solid var(--purple-main);
       border-radius: 8px;
-      max-height: 180px;
+      max-height: 160px;
       overflow-y: auto;
-      z-index: 50;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      z-index: 60;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.8);
     }
 
     .custom-select-options.open {
@@ -709,7 +710,7 @@
     </div>
 
     <video id="mainVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline></video>
-    <iframe id="mainIframe" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>
+    <iframe id="mainIframe" allow="encrypted-media; picture-in-picture; autoplay" allowfullscreen></iframe>
 
     <div class="controls-overlay" id="controlsOverlay">
       <div class="top-controls">
@@ -1017,7 +1018,6 @@
       function updateHlsQualities() {
         if (!hlsInstance || !hlsInstance.levels || hlsInstance.levels.length === 0) return;
         const qualityOptions = document.querySelector('#qualitySelect .custom-select-options');
-        const qualityBtn = document.querySelector('#qualitySelect .custom-select-btn');
         
         let html = '<div class="custom-option' + (hlsInstance.currentLevel === -1 ? ' selected' : '') + '" data-value="-1">Automática</div>';
 
@@ -1194,6 +1194,7 @@
         mainIframe.src = 'about:blank';
         controlsOverlay.classList.remove('active');
         initialPlayOverlay.classList.remove('hidden');
+        initialPlayOverlay.style.display = 'flex';
         videoTitleDisplay.textContent = 'Ningún vídeo cargado';
         resetMediaSettings();
       }
@@ -1428,12 +1429,10 @@
       });
       videoScrubber.addEventListener('pointermove', e => {
         e.stopPropagation();
-        handleScrubberHover(e);
+        if (isSeeking) handleScrubberHover(e);
       });
       videoScrubber.addEventListener('pointerup', hideScrubberThumb);
       videoScrubber.addEventListener('pointerleave', hideScrubberThumb);
-      videoScrubber.addEventListener('touchmove', handleScrubberHover);
-      videoScrubber.addEventListener('touchend', hideScrubberThumb);
 
       videoScrubber.addEventListener('input', e => {
         e.stopPropagation();
@@ -1485,7 +1484,11 @@
 
       btnCopyLink.addEventListener('click', e => {
         e.stopPropagation();
-        if (currentUrl) navigator.clipboard.writeText(currentUrl);
+        if (currentUrl) {
+          navigator.clipboard.writeText(currentUrl).then(() => {
+            alert('¡Enlace copiado al portapapeles!');
+          }).catch(() => {});
+        }
       });
 
       btnDownload.addEventListener('click', e => {
@@ -1536,6 +1539,8 @@
             playerWrapper.requestFullscreen();
           } else if (playerWrapper.webkitRequestFullscreen) {
             playerWrapper.webkitRequestFullscreen();
+          } else if (video.webkitEnterFullscreen) {
+            video.webkitEnterFullscreen();
           }
         } else {
           if (document.exitFullscreen) {
@@ -1577,7 +1582,7 @@
             break;
           case 'arrowup':
             e.preventDefault();
-            video.volume = Math.min(1, video.volume + 0.05);
+            video.volume = Math.min(1, Math.round((video.volume + 0.05) * 100) / 100);
             video.muted = video.volume === 0;
             volumeSlider.value = video.volume;
             updateVolIcons();
@@ -1585,7 +1590,7 @@
             break;
           case 'arrowdown':
             e.preventDefault();
-            video.volume = Math.max(0, video.volume - 0.05);
+            video.volume = Math.max(0, Math.round((video.volume - 0.05) * 100) / 100);
             video.muted = video.volume === 0;
             volumeSlider.value = video.volume;
             updateVolIcons();
@@ -1675,7 +1680,6 @@
         isEmbedMode = cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be') || cleanUrl.includes('embed') || cleanUrl.includes('drive.google.com');
 
         resetMediaSettings();
-        initialPlayOverlay.classList.remove('hidden');
 
         if (isEmbedMode) {
           let finalEmbedUrl = rawUrl;
@@ -1698,12 +1702,15 @@
           mainIframe.style.display = 'block';
           mainIframe.src = finalEmbedUrl;
           controlsOverlay.style.display = 'none';
+          initialPlayOverlay.classList.add('hidden');
         } else {
           mainIframe.style.display = 'none';
           mainIframe.src = 'about:blank';
           video.style.display = 'block';
           controlsOverlay.style.display = 'flex';
           controlsOverlay.classList.remove('active');
+          initialPlayOverlay.classList.remove('hidden');
+          initialPlayOverlay.style.display = 'flex';
           actualLoad(rawUrl);
         }
       }
