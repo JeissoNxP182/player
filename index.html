@@ -27,7 +27,6 @@
       --text-main: #f3f4f6;
       --text-muted: #9ca3af;
       --border-purple: rgba(168, 85, 247, 0.25);
-      --gold-fav: #eab308;
     }
 
     * {
@@ -99,17 +98,8 @@
       font-weight: 600;
     }
 
-    /* CONTROLES DE NAVEGACIÓN Y FILTROS */
-    .controls-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-      width: 100%;
-      max-width: 800px;
-    }
-
-    .nav-select, .filter-select {
+    /* DESPLEGABLE */
+    .nav-select {
       background: rgba(19, 15, 30, 0.9);
       color: var(--text-main);
       border: 1px solid var(--border-purple);
@@ -122,13 +112,12 @@
       transition: all 0.3s ease;
     }
 
-    .nav-select:focus, .nav-select:hover,
-    .filter-select:focus, .filter-select:hover {
+    .nav-select:focus, .nav-select:hover {
       border-color: var(--accent-purple);
       box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
     }
 
-    .nav-select option, .filter-select option {
+    .nav-select option {
       background: #120d1f;
       color: #ffffff;
     }
@@ -170,7 +159,7 @@
       overflow: hidden;
     }
 
-    /* CABECERA ACORDEÓN DE SAGA */
+    /* CABECERA ACORDEÓN DE SAGA O GÉNERO */
     .saga-header {
       font-size: 1.3rem;
       font-weight: 700;
@@ -233,7 +222,6 @@
       display: flex;
       flex-direction: column;
       cursor: pointer;
-      position: relative;
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
@@ -242,36 +230,6 @@
       border-color: var(--accent-purple);
       box-shadow: 0 10px 25px rgba(126, 34, 206, 0.35);
       background: var(--card-hover);
-    }
-
-    /* BOTÓN FAVORITO EN LA TARJETA */
-    .card-fav-btn {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: rgba(9, 7, 15, 0.75);
-      border: 1px solid var(--border-purple);
-      color: #fff;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-      z-index: 5;
-      transition: all 0.2s ease;
-    }
-
-    .card-fav-btn:hover {
-      transform: scale(1.15);
-      background: rgba(168, 85, 247, 0.4);
-    }
-
-    .card-fav-btn.active {
-      color: var(--gold-fav);
-      border-color: var(--gold-fav);
-      text-shadow: 0 0 8px rgba(234, 179, 8, 0.6);
     }
 
     /* MARCO 16:9 HORIZONTAL */
@@ -283,6 +241,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
 
     .card img {
@@ -294,6 +253,42 @@
 
     .card:hover img {
       transform: scale(1.04);
+    }
+
+    /* BOTÓN ESTRELLA DE FAVORITOS */
+    .fav-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(9, 7, 15, 0.75);
+      border: 1px solid var(--border-purple);
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 10;
+      backdrop-filter: blur(4px);
+      line-height: 1;
+    }
+
+    .fav-btn:hover {
+      transform: scale(1.15);
+      background: rgba(19, 15, 30, 0.95);
+      border-color: var(--accent-purple);
+      color: #ffffff;
+    }
+
+    .fav-btn.active {
+      color: #fbbf24;
+      border-color: #fbbf24;
+      text-shadow: 0 0 8px rgba(251, 191, 36, 0.8);
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
     }
 
     .card-info {
@@ -428,14 +423,7 @@
       margin-bottom: 25px;
     }
 
-    /* BOTONES ACCIÓN MODAL */
-    .modal-actions {
-      display: flex;
-      gap: 12px;
-    }
-
     .btn-play {
-      flex: 1;
       background: linear-gradient(135deg, var(--accent-purple), var(--accent-glow));
       color: #ffffff;
       text-decoration: none;
@@ -456,55 +444,9 @@
       box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
     }
 
-    .btn-fav-modal {
-      background: rgba(28, 22, 46, 0.8);
-      border: 1px solid var(--border-purple);
-      color: #ffffff;
-      padding: 12px 18px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-fav-modal:hover {
-      border-color: var(--gold-fav);
-      background: rgba(234, 179, 8, 0.15);
-    }
-
-    .btn-fav-modal.active {
-      border-color: var(--gold-fav);
-      color: var(--gold-fav);
-      background: rgba(234, 179, 8, 0.2);
-    }
-
-    .clear-history-btn {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.4);
-      color: #f87171;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      margin-bottom: 20px;
-      transition: all 0.2s;
-    }
-
-    .clear-history-btn:hover {
-      background: rgba(239, 68, 68, 0.3);
-    }
-
     @media (max-width: 600px) {
       .grid-container {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      }
-      .modal-actions {
-        flex-direction: column;
       }
     }
   </style>
@@ -520,7 +462,7 @@
       <p>películas, series y vídeos</p>
     </div>
     
-    <div class="controls-row">
+    <div class="nav-dropdown-container">
       <select class="nav-select" id="sectionSelect" onchange="switchSection(this.value)">
         <option value="sagas" selected>📁 Sagas</option>
         <option value="peliculas">🎭 Películas</option>
@@ -528,17 +470,7 @@
         <option value="anime">🇯🇵 Anime</option>
         <option value="videos">📽️ Videos</option>
         <option value="tv">📺 TV Live</option>
-        <option value="favoritos">⭐ Mi Lista</option>
-        <option value="historial">🕒 Continuar Viendo</option>
-      </select>
-
-      <!-- OPCIÓN 4: SELECCIÓN DE ORDENAMIENTO Y FILTRO -->
-      <select class="filter-select" id="sortSelect" onchange="filterCatalog()">
-        <option value="default">🔀 Orden Predeterminado</option>
-        <option value="az">🔤 Título (A - Z)</option>
-        <option value="za">🔤 Título (Z - A)</option>
-        <option value="newest">📅 Más Recientes</option>
-        <option value="oldest">📅 Más Antiguos</option>
+        <option value="favoritos">⭐ Favoritos</option>
       </select>
     </div>
   
@@ -551,7 +483,7 @@
     <!-- Se cargan dinámicamente -->
   </main>
 
-  <!-- MODAL CINEMÁTICO -->
+  <!-- MODAL -->
   <div id="movieModal" class="modal" onclick="closeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -567,11 +499,7 @@
           <span id="modalTotalCap" class="tag" style="display:none;"></span>
         </div>
         <p id="modalSinopsis" class="modal-description"></p>
-        
-        <div class="modal-actions">
-          <button id="modalPlayBtn" class="btn-play" onclick="launchPlayer()">▶ REPRODUCIR AHORA</button>
-          <button id="modalFavBtn" class="btn-fav-modal" onclick="toggleFavoriteFromModal()">⭐ Mi Lista</button>
-        </div>
+        <button id="modalPlayBtn" class="btn-play" onclick="launchPlayer()">▶ REPRODUCIR AHORA</button>
       </div>
     </div>
   </div>
@@ -593,109 +521,59 @@
       anime: [],
       videos: [],
       tv: [],
-      favoritos: [],
-      historial: []
+      favoritos: []
     };
 
     let currentSectionKey = 'sagas';
     let targetHtmlUrl = '';
     let currentSerieData = null;
     let currentSeasonData = null;
-    let currentActiveItem = null; // Para control de favoritos e historial en modal
 
-    // --- OPCIÓN 3: GESTIÓN DE FAVORITOS EN LOCALSTORAGE ---
-    function getFavoritesStorage() {
-      return JSON.parse(localStorage.getItem('jeissonxp_favorites') || '[]');
+    // --- GESTIÓN DE FAVORITOS EN LOCALSTORAGE ---
+    function getFavorites() {
+      try {
+        return JSON.parse(localStorage.getItem('jxp_favorites')) || [];
+      } catch (e) {
+        return [];
+      }
     }
 
-    function isFavorite(id) {
-      if (!id) return false;
-      const favs = getFavoritesStorage();
-      return favs.some(item => item.id === id || item.idEpisodio === id);
+    function getItemId(item) {
+      return item.id || item.idEpisodio || item.titulo;
     }
 
-    function toggleFavorite(item, event) {
+    function isFavorite(item) {
+      const favs = getFavorites();
+      const id = getItemId(item);
+      return favs.some(f => getItemId(f) === id);
+    }
+
+    function toggleFavorite(event, item) {
       if (event) event.stopPropagation();
-      let favs = getFavoritesStorage();
-      const itemId = item.id || item.idEpisodio;
       
-      if (!itemId) return;
+      let favs = getFavorites();
+      const id = getItemId(item);
+      const index = favs.findIndex(f => getItemId(f) === id);
 
-      const index = favs.findIndex(i => (i.id === itemId || i.idEpisodio === itemId));
       if (index >= 0) {
         favs.splice(index, 1);
       } else {
         favs.push(item);
       }
 
-      localStorage.setItem('jeissonxp_favorites', JSON.stringify(favs));
+      localStorage.setItem('jxp_favorites', JSON.stringify(favs));
 
-      // Si estamos viendo la sección de favoritos, refrescar catálogo
       if (currentSectionKey === 'favoritos') {
-        loadSection('favoritos');
+        LOCAL_CATALOG['favoritos'] = favs;
+        renderCatalog(favs);
       } else {
-        filterCatalog();
-      }
-
-      // Actualizar modal si está abierto
-      if (currentActiveItem && (currentActiveItem.id === itemId || currentActiveItem.idEpisodio === itemId)) {
-        updateModalFavButton();
-      }
-    }
-
-    function toggleFavoriteFromModal() {
-      if (currentActiveItem) {
-        toggleFavorite(currentActiveItem);
-      }
-    }
-
-    function updateModalFavButton() {
-      const favBtn = document.getElementById('modalFavBtn');
-      if (!currentActiveItem) {
-        favBtn.style.display = 'none';
-        return;
-      }
-      favBtn.style.display = 'flex';
-      const active = isFavorite(currentActiveItem.id || currentActiveItem.idEpisodio);
-      if (active) {
-        favBtn.classList.add('active');
-        favBtn.innerHTML = '★ En Mi Lista';
-      } else {
-        favBtn.classList.remove('active');
-        favBtn.innerHTML = '☆ + Mi Lista';
-      }
-    }
-
-    // --- OPCIÓN 2: GESTIÓN DE HISTORIAL ("CONTINUAR VIENDO") ---
-    function getHistoryStorage() {
-      return JSON.parse(localStorage.getItem('jeissonxp_history') || '[]');
-    }
-
-    function saveToHistory(item) {
-      if (!item) return;
-      let history = getHistoryStorage();
-      const itemId = item.id || item.idEpisodio;
-
-      // Filtrar elemento previo duplicado
-      history = history.filter(i => (i.id !== itemId && i.idEpisodio !== itemId));
-
-      // Agregar al inicio con timestamp
-      const historyItem = {
-        ...item,
-        vistoEl: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
-      };
-
-      history.unshift(historyItem);
-      // Mantener máximo 30 elementos en historial
-      if (history.length > 30) history.pop();
-
-      localStorage.setItem('jeissonxp_history', JSON.stringify(history));
-    }
-
-    function clearHistory() {
-      if (confirm("¿Deseas borrar todo tu historial de reproducción?")) {
-        localStorage.removeItem('jeissonxp_history');
-        loadSection('historial');
+        const btn = event.currentTarget;
+        if (btn) {
+          const active = favs.some(f => getItemId(f) === id);
+          btn.classList.toggle('active', active);
+          btn.innerHTML = active ? '★' : '☆';
+          btn.title = active ? 'Quitar de Favoritos' : 'Añadir a Favoritos';
+        }
       }
     }
 
@@ -725,19 +603,12 @@
     async function cargarSeccionRemota(sectionKey) {
       const container = document.getElementById('catalogContainer');
       
-      // Manejo especial de Favoritos e Historial (LocalStorage)
       if (sectionKey === 'favoritos') {
-        const favs = getFavoritesStorage();
-        LOCAL_CATALOG.favoritos = favs;
+        const favs = getFavorites();
+        LOCAL_CATALOG['favoritos'] = favs;
         renderCatalog(favs);
+        updateSocialMeta(favs);
         return favs;
-      }
-
-      if (sectionKey === 'historial') {
-        const hist = getHistoryStorage();
-        LOCAL_CATALOG.historial = hist;
-        renderCatalog(hist);
-        return hist;
       }
 
       if (LOCAL_CATALOG[sectionKey] && LOCAL_CATALOG[sectionKey].length > 0) {
@@ -787,7 +658,6 @@
           let portada = logoMatch ? logoMatch[1] : '';
 
           currentChannel = {
-            id: 'tv_' + Math.random().toString(36).substring(2, 9),
             titulo: titulo,
             portada: portada,
             ano: "En Directo",
@@ -829,10 +699,10 @@
           const data = await loadSection(sec);
           if (!data) continue;
 
-          if (sec === 'sagas') {
-            for (const saga of data) {
-              if (saga.peliculas) {
-                const item = saga.peliculas.find(p => p.id === targetId);
+          if (sec === 'sagas' || (sec === 'peliculas' && data.some(g => g.peliculas))) {
+            for (const grupo of data) {
+              if (grupo.peliculas) {
+                const item = grupo.peliculas.find(p => p.id === targetId);
                 if (item) {
                   openModal(item);
                   encontrado = true;
@@ -888,37 +758,41 @@
       const card = document.createElement('div');
       card.className = 'card';
       
-      const itemId = item.id || item.idEpisodio;
-      const favActive = isFavorite(itemId);
+      const isSeries = (item.temporadas && item.temporadas.length > 0) || currentSectionKey === 'series' || currentSectionKey === 'anime';
 
-      if (currentSectionKey === 'series' || currentSectionKey === 'anime') {
-        card.onclick = () => openSeriesModal(item);
-      } else if (item.temporadas) { // Si viene desde Favoritos o Historial y es Serie
+      if (isSeries) {
         card.onclick = () => openSeriesModal(item);
       } else {
         card.onclick = () => openModal(item);
       }
 
-      card.innerHTML = `
-        <button class="card-fav-btn ${favActive ? 'active' : ''}" title="${favActive ? 'Quitar de Mi Lista' : 'Agregar a Mi Lista'}">
-          ${favActive ? '★' : '☆'}
-        </button>
-        <div class="poster-wrapper">
-          <img src="${item.miniatura || item.portada || item.poster || item.imagen || ''}" alt="${item.titulo}" loading="lazy">
-        </div>
-        <div class="card-info">
-          <div class="card-title">${item.titulo}</div>
-          <div class="card-meta">
-            ${item.ano ? item.ano : ''} 
-            ${formattedDur ? '• ' + formattedDur : ''}
-            ${item.vistoEl ? '<br><span style="color: var(--accent-purple); font-size:0.75rem;">🕒 Visto: ' + item.vistoEl + '</span>' : ''}
-          </div>
-        </div>
+      const posterWrapper = document.createElement('div');
+      posterWrapper.className = 'poster-wrapper';
+
+      const favActive = isFavorite(item);
+      const favBtn = document.createElement('button');
+      favBtn.className = `fav-btn ${favActive ? 'active' : ''}`;
+      favBtn.innerHTML = favActive ? '★' : '☆';
+      favBtn.title = favActive ? 'Quitar de Favoritos' : 'Añadir a Favoritos';
+      favBtn.onclick = (e) => toggleFavorite(e, item);
+
+      const img = document.createElement('img');
+      img.src = item.miniatura || item.portada || item.poster || item.imagen || '';
+      img.alt = item.titulo || 'Portada';
+      img.loading = 'lazy';
+
+      posterWrapper.appendChild(favBtn);
+      posterWrapper.appendChild(img);
+
+      const cardInfo = document.createElement('div');
+      cardInfo.className = 'card-info';
+      cardInfo.innerHTML = `
+        <div class="card-title">${item.titulo || 'Sin título'}</div>
+        <div class="card-meta">${item.ano || ''} ${formattedDur ? '• ' + formattedDur : ''}</div>
       `;
 
-      // Evento para el botón de favorito de la tarjeta
-      const favBtn = card.querySelector('.card-fav-btn');
-      favBtn.onclick = (e) => toggleFavorite(item, e);
+      card.appendChild(posterWrapper);
+      card.appendChild(cardInfo);
 
       return card;
     }
@@ -927,19 +801,9 @@
       const container = document.getElementById('catalogContainer');
       container.innerHTML = '';
 
-      if (currentSectionKey === 'historial' && items && items.length > 0) {
-        const clearBtn = document.createElement('button');
-        clearBtn.className = 'clear-history-btn';
-        clearBtn.innerHTML = '🗑️ Limpiar Historial de Reproducción';
-        clearBtn.onclick = clearHistory;
-        container.appendChild(clearBtn);
-      }
-
       if (!items || items.length === 0) {
         if (currentSectionKey === 'favoritos') {
-          container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Tu lista de favoritos está vacía. Guarda películas o series con la estrella ⭐.</p>';
-        } else if (currentSectionKey === 'historial') {
-          container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Aún no has reproducido contenido recientemente 🕒.</p>';
+          container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">No tienes favoritos guardados aún. Haz clic en la estrella ⭐ de cualquier contenido para agregarlo aquí.</p>';
         } else {
           container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Próximamente más contenido en esta sección 🚀</p>';
         }
@@ -953,19 +817,22 @@
       if (currentSectionKey === 'anime') folderIcon = '🇯🇵';
       if (currentSectionKey === 'tv') folderIcon = '📺';
       if (currentSectionKey === 'favoritos') folderIcon = '⭐';
-      if (currentSectionKey === 'historial') folderIcon = '🕒';
 
-      const esEstructuraSagas = items.some(item => item.peliculas && Array.isArray(item.peliculas));
+      const esEstructuraGrupos = items.some(item => item.peliculas && Array.isArray(item.peliculas));
 
-      if (esEstructuraSagas) {
-        items.forEach(saga => {
-          if (!saga.peliculas || saga.peliculas.length === 0) return;
+      if (esEstructuraGrupos) {
+        items.forEach(grupo => {
+          if (!grupo.peliculas || grupo.peliculas.length === 0) return;
 
           const sagaSection = document.createElement('div');
           sagaSection.className = 'saga-section';
-          if (!saga.abierta) {
+          if (!grupo.abierta) {
             sagaSection.classList.add('collapsed');
           }
+
+          // Soporte dinámico para icono y nombre de género/categoría o saga
+          const groupTitle = grupo.genero || grupo.categoria || grupo.saga || grupo.nombre || grupo.titulo || 'Categoría';
+          const groupIcon = grupo.icono || grupo.icon || folderIcon;
 
           const sagaHeader = document.createElement('div');
           sagaHeader.className = 'saga-header';
@@ -973,8 +840,8 @@
 
           sagaHeader.innerHTML = `
             <div class="saga-title-content">
-              <span class="folder-icon">${folderIcon}</span>
-              <span>${saga.saga}</span>
+              <span class="folder-icon">${groupIcon}</span>
+              <span>${groupTitle}</span>
             </div>
             <span class="arrow-icon">▼</span>
           `;
@@ -987,7 +854,7 @@
           const grid = document.createElement('div');
           grid.className = 'grid-container';
 
-          saga.peliculas.forEach(peli => {
+          grupo.peliculas.forEach(peli => {
             grid.appendChild(createCardElement(peli));
           });
 
@@ -1007,59 +874,44 @@
       }
     }
 
-    // --- OPCIÓN 4: FILTRADO AVANZADO Y ORDENAMIENTO EN TIEMPO REAL ---
-    function sortItems(itemsList, sortOption) {
-      if (!sortOption || sortOption === 'default') return itemsList;
-
-      return [...itemsList].sort((a, b) => {
-        const titleA = (a.titulo || '').toLowerCase();
-        const titleB = (b.titulo || '').toLowerCase();
-        const yearA = parseInt(a.ano) || 0;
-        const yearB = parseInt(b.ano) || 0;
-
-        if (sortOption === 'az') return titleA.localeCompare(titleB);
-        if (sortOption === 'za') return titleB.localeCompare(titleA);
-        if (sortOption === 'newest') return yearB - yearA;
-        if (sortOption === 'oldest') return yearA - yearB;
-        return 0;
-      });
-    }
-
     function filterCatalog() {
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
-      const sortOption = document.getElementById('sortSelect').value;
       const items = LOCAL_CATALOG[currentSectionKey] || [];
 
-      const esEstructuraSagas = items.some(item => item.peliculas && Array.isArray(item.peliculas));
+      if (!query) {
+        renderCatalog(items);
+        return;
+      }
 
-      if (esEstructuraSagas) {
-        const filtered = items.map(saga => {
-          const matchesSaga = saga.saga ? saga.saga.toLowerCase().includes(query) : false;
-          let filteredPelis = saga.peliculas.filter(peli => {
+      const esEstructuraGrupos = items.some(item => item.peliculas && Array.isArray(item.peliculas));
+
+      if (esEstructuraGrupos) {
+        const filtered = items.map(grupo => {
+          const groupTitle = grupo.genero || grupo.categoria || grupo.saga || grupo.nombre || '';
+          const matchesGroup = groupTitle ? groupTitle.toLowerCase().includes(query) : false;
+
+          const filteredPelis = grupo.peliculas.filter(peli => {
             const matchesTitle = peli.titulo ? peli.titulo.toLowerCase().includes(query) : false;
             const matchesYear = peli.ano ? peli.ano.toString().includes(query) : false;
-            return matchesTitle || matchesYear || matchesSaga;
+            return matchesTitle || matchesYear || matchesGroup;
           });
 
-          filteredPelis = sortItems(filteredPelis, sortOption);
-          return { ...saga, peliculas: filteredPelis };
-        }).filter(saga => saga.peliculas.length > 0);
+          return { ...grupo, peliculas: filteredPelis };
+        }).filter(grupo => grupo.peliculas.length > 0);
 
         renderCatalog(filtered);
       } else {
-        let filtered = items.filter(item => {
+        const filtered = items.filter(item => {
           const matchesTitle = item.titulo ? item.titulo.toLowerCase().includes(query) : false;
           const matchesYear = item.ano ? item.ano.toString().includes(query) : false;
           return matchesTitle || matchesYear;
         });
 
-        filtered = sortItems(filtered, sortOption);
         renderCatalog(filtered);
       }
     }
 
     function openModal(peli) {
-      currentActiveItem = peli;
       const formattedDur = formatDuration(peli.duracion);
 
       document.getElementById('modalImg').src = peli.miniatura || peli.portada || peli.poster || peli.imagen || '';
@@ -1082,8 +934,6 @@
       if (tempContainer) tempContainer.style.display = 'none';
       document.getElementById('modalPlayBtn').style.display = 'block';
 
-      updateModalFavButton();
-
       if (peli.id) {
         targetHtmlUrl = `reproductor.html?peli=${peli.id}`;
         history.replaceState(null, '', `?peli=${peli.id}`);
@@ -1099,7 +949,6 @@
 
     function openSeriesModal(serie) {
       currentSerieData = serie;
-      currentActiveItem = serie;
       currentSeasonData = null;
       const mainPoster = serie.miniatura || serie.poster || serie.portada || serie.imagen || '';
       const totalTemporadasCount = serie.temporadas ? serie.temporadas.length : 0;
@@ -1137,8 +986,6 @@
 
       document.getElementById('modalSinopsis').innerText = serie.sinopsis || 'Sin descripción disponible general.';
       document.getElementById('modalPlayBtn').style.display = 'none';
-
-      updateModalFavButton();
 
       let tempContainer = document.getElementById('modalTemporadasContainer');
       if (!tempContainer) {
@@ -1181,11 +1028,11 @@
 
     function openSeasonEpisodesView(temp) {
       currentSeasonData = temp;
-      const seasonPoster = temp.miniatura || temp.imagen || temp.portada || temp.poster || currentSerieData.miniatura || currentSerieData.portada || currentSerieData.poster || '';
+      const seasonPoster = temp.miniatura || temp.imagen || temp.portada || temp.poster || (currentSerieData && currentSerieData.miniatura) || (currentSerieData && currentSerieData.portada) || (currentSerieData && currentSerieData.poster) || '';
 
       document.getElementById('modalImg').src = seasonPoster;
-      document.getElementById('modalTitle').innerText = `${currentSerieData.titulo} - Temporada ${temp.numeroTemporada}`;
-      document.getElementById('modalYear').innerHTML = `📅 T${temp.numeroTemporada} (${temp.ano || currentSerieData.ano || 'S/A'})`;
+      document.getElementById('modalTitle').innerText = `${currentSerieData ? currentSerieData.titulo : ''} - Temporada ${temp.numeroTemporada}`;
+      document.getElementById('modalYear').innerHTML = `📅 T${temp.numeroTemporada} (${temp.ano || (currentSerieData ? currentSerieData.ano : 'S/A')})`;
       
       const numCaps = temp.episodios ? temp.episodios.length : 0;
       document.getElementById('modalDuration').innerHTML = `🎬 ${numCaps} episodio${numCaps === 1 ? '' : 's'}`;
@@ -1243,7 +1090,6 @@
     }
 
     function openEpisodeDetailsModal(ep, temp) {
-      currentActiveItem = ep;
       const epPoster = ep.miniatura || ep.imagen || ep.img || ep.portada || ep.poster || temp.miniatura || temp.imagen || temp.portada || temp.poster || (currentSerieData && currentSerieData.miniatura) || '';
       
       const formattedDur = formatDuration(ep.duracion);
@@ -1257,8 +1103,6 @@
       document.getElementById('modalDirector').style.display = 'none';
       document.getElementById('modalTotalCap').style.display = 'none';
       document.getElementById('modalSinopsis').innerText = ep.sinopsis || 'Sin descripción disponible para este episodio.';
-
-      updateModalFavButton();
 
       let tempContainer = document.getElementById('modalTemporadasContainer');
       tempContainer.innerHTML = '';
@@ -1287,7 +1131,6 @@
       }
 
       playEpBtn.onclick = () => {
-        saveToHistory(ep);
         if (epId) {
           targetHtmlUrl = `reproductor.html?episodio=${epId}`;
         } else {
@@ -1304,11 +1147,6 @@
 
     function launchPlayer() {
       if (!targetHtmlUrl) return;
-
-      // Guardar en historial al hacer clic en reproducir
-      if (currentActiveItem) {
-        saveToHistory(currentActiveItem);
-      }
 
       if (currentSectionKey === 'tv' && targetHtmlUrl.includes('http://') && !targetHtmlUrl.includes('https://')) {
         const abrirAfuera = confirm("Este canal utiliza un protocolo HTTP no cifrado. Los navegadores web suelen bloquearlo internamente por seguridad.\n\n¿Deseas abrirlo de todas formas en una pestaña independiente?");
@@ -1330,7 +1168,6 @@
       if (tempContainer) tempContainer.style.display = 'block';
       currentSerieData = null;
       currentSeasonData = null;
-      currentActiveItem = null;
       history.replaceState(null, '', window.location.pathname);
     }
   </script>
