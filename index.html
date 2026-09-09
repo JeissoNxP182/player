@@ -476,6 +476,8 @@
       tv: "https://iptv-org.github.io/iptv/index.m3u"
     };
 
+    const DEFAULT_PLACEHOLDER = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="169" viewBox="0 0 300 169"><rect width="100%" height="100%" fill="%23130f1e"/><text x="50%" y="50%" fill="%23a855f7" font-family="sans-serif" font-size="16" text-anchor="middle" dy=".3em">👽 JeissoNxP</text></svg>';
+
     let LOCAL_CATALOG = {
       sagas: [],
       peliculas: [],
@@ -495,19 +497,22 @@
       return dur.replace(/(\d+h):?(\d+m)/, '$1:$2');
     }
 
+    function getValidImage(item) {
+      if (!item) return DEFAULT_PLACEHOLDER;
+      return item.miniatura || item.portada || item.poster || item.imagen || item.img || DEFAULT_PLACEHOLDER;
+    }
+
     function updateSocialMeta(items) {
       let firstImage = '';
       if (items && items.length > 0) {
         const item = items[0];
-        if (item.portada) firstImage = item.portada;
-        else if (item.poster) firstImage = item.poster;
-        else if (item.miniatura) firstImage = item.miniatura;
-        else if (item.peliculas && item.peliculas.length > 0) {
-          firstImage = item.peliculas[0].portada || item.peliculas[0].poster || item.peliculas[0].miniatura || '';
+        firstImage = getValidImage(item);
+        if (firstImage === DEFAULT_PLACEHOLDER && item.peliculas && item.peliculas.length > 0) {
+          firstImage = getValidImage(item.peliculas[0]);
         }
       }
 
-      if (firstImage) {
+      if (firstImage && firstImage !== DEFAULT_PLACEHOLDER) {
         document.getElementById('ogImageMeta').setAttribute('content', firstImage);
         document.getElementById('twitterImageMeta').setAttribute('content', firstImage);
       }
@@ -517,12 +522,8 @@
       const container = document.getElementById('catalogContainer');
       
       if (LOCAL_CATALOG[sectionKey] && LOCAL_CATALOG[sectionKey].length > 0) {
-        renderCatalog(LOCAL_CATALOG[sectionKey]);
-        updateSocialMeta(LOCAL_CATALOG[sectionKey]);
         return LOCAL_CATALOG[sectionKey];
       }
-
-      container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Cargando contenido...</p>';
 
       try {
         const respuesta = await fetch(REPOSITORIOS_URLS[sectionKey]);
@@ -537,12 +538,9 @@
         }
 
         LOCAL_CATALOG[sectionKey] = data;
-        renderCatalog(data);
-        updateSocialMeta(data);
         return data;
       } catch (error) {
         console.error("Error al cargar la sección:", error);
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Próximamente más contenido en esta sección 🚀 (O error de conexión)</p>';
         return null;
       }
     }
@@ -580,10 +578,23 @@
       return canales;
     }
 
-    function loadSection(sectionKey) {
+    async function loadSection(sectionKey) {
       currentSectionKey = sectionKey;
       document.getElementById('sectionSelect').value = sectionKey;
-      return cargarSeccionRemota(sectionKey);
+      const container = document.getElementById('catalogContainer');
+
+      if (!LOCAL_CATALOG[sectionKey] || LOCAL_CATALOG[sectionKey].length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Cargando contenido...</p>';
+      }
+
+      const data = await cargarSeccionRemota(sectionKey);
+      if (data) {
+        renderCatalog(data);
+        updateSocialMeta(data);
+      } else {
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:50px; font-size:1.1rem;">Próximamente más contenido en esta sección 🚀 (O error de conexión)</p>';
+      }
+      return data;
     }
 
     function switchSection(sectionKey) {
@@ -591,26 +602,25 @@
       loadSection(sectionKey);
     }
 
-    // --- NUEVO: GESTIÓN DE ENLACES DIRECTOS DESDE LA URL ---
+    /* GESTIÓN DE ENLACES DIRECTOS DESDE LA URL (CORREGIDO SIN PARPADEO) */
     window.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const targetId = urlParams.get('peli') || urlParams.get('episodio') || urlParams.get('id');
 
       if (targetId) {
-        // Intentar buscar el contenido en las diferentes secciones
         const secciones = ['sagas', 'peliculas', 'series', 'anime', 'videos'];
         let encontrado = false;
 
         for (const sec of secciones) {
-          const data = await loadSection(sec);
+          const data = await cargarSeccionRemota(sec);
           if (!data) continue;
 
-          // Si la sección es de Sagas
           if (sec === 'sagas') {
             for (const saga of data) {
               if (saga.peliculas) {
                 const item = saga.peliculas.find(p => p.id === targetId);
                 if (item) {
+                  await loadSection(sec);
                   openModal(item);
                   encontrado = true;
                   break;
@@ -618,9 +628,9 @@
               }
             }
           } else if (sec === 'series' || sec === 'anime') {
-            // Buscar en Series / Episodios
             for (const serie of data) {
               if (serie.id === targetId) {
+                await loadSection(sec);
                 openSeriesModal(serie);
                 encontrado = true;
                 break;
@@ -630,6 +640,7 @@
                   if (temp.episodios) {
                     const ep = temp.episodios.find(e => e.idEpisodio === targetId || e.id === targetId);
                     if (ep) {
+                      await loadSection(sec);
                       currentSerieData = serie;
                       openEpisodeDetailsModal(ep, temp);
                       encontrado = true;
@@ -641,9 +652,9 @@
               if (encontrado) break;
             }
           } else {
-            // Películas o Videos simples
             const item = data.find(p => p.id === targetId);
             if (item) {
+              await loadSection(sec);
               openModal(item);
               encontrado = true;
               break;
@@ -673,12 +684,14 @@
         card.onclick = () => openModal(item);
       }
 
+      const imgSrc = getValidImage(item);
+
       card.innerHTML = `
         <div class="poster-wrapper">
-          <img src="${item.miniatura || item.portada || item.poster || item.imagen || ''}" alt="${item.titulo}" loading="lazy">
+          <img src="${imgSrc}" alt="${item.titulo || ''}" loading="lazy" onerror="this.src='${DEFAULT_PLACEHOLDER}'">
         </div>
         <div class="card-info">
-          <div class="card-title">${item.titulo}</div>
+          <div class="card-title">${item.titulo || 'Sin Título'}</div>
           <div class="card-meta">${item.ano || ''} ${formattedDur ? '• ' + formattedDur : ''}</div>
         </div>
       `;
@@ -792,7 +805,7 @@
     function openModal(peli) {
       const formattedDur = formatDuration(peli.duracion);
 
-      document.getElementById('modalImg').src = peli.miniatura || peli.portada || peli.poster || peli.imagen || '';
+      document.getElementById('modalImg').src = getValidImage(peli);
       document.getElementById('modalTitle').innerText = peli.titulo || 'Sin título';
       document.getElementById('modalYear').innerHTML = `📅 ${peli.ano || 'S/A'}`;
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
@@ -812,7 +825,6 @@
       if (tempContainer) tempContainer.style.display = 'none';
       document.getElementById('modalPlayBtn').style.display = 'block';
 
-      // Construye la URL hacia el reproductor (opción B: el player resuelve ?peli=id)
       if (peli.id) {
         targetHtmlUrl = `reproductor.html?peli=${peli.id}`;
         history.replaceState(null, '', `?peli=${peli.id}`);
@@ -829,7 +841,7 @@
     function openSeriesModal(serie) {
       currentSerieData = serie;
       currentSeasonData = null;
-      const mainPoster = serie.miniatura || serie.poster || serie.portada || serie.imagen || '';
+      const mainPoster = getValidImage(serie);
       const totalTemporadasCount = serie.temporadas ? serie.temporadas.length : 0;
       
       document.getElementById('modalImg').src = mainPoster;
@@ -907,11 +919,11 @@
 
     function openSeasonEpisodesView(temp) {
       currentSeasonData = temp;
-      const seasonPoster = temp.miniatura || temp.imagen || temp.portada || temp.poster || currentSerieData.miniatura || currentSerieData.portada || currentSerieData.poster || '';
+      const seasonPoster = getValidImage(temp) !== DEFAULT_PLACEHOLDER ? getValidImage(temp) : getValidImage(currentSerieData);
 
       document.getElementById('modalImg').src = seasonPoster;
-      document.getElementById('modalTitle').innerText = `${currentSerieData.titulo} - Temporada ${temp.numeroTemporada}`;
-      document.getElementById('modalYear').innerHTML = `📅 T${temp.numeroTemporada} (${temp.ano || currentSerieData.ano || 'S/A'})`;
+      document.getElementById('modalTitle').innerText = `${currentSerieData ? currentSerieData.titulo : ''} - Temporada ${temp.numeroTemporada}`;
+      document.getElementById('modalYear').innerHTML = `📅 T${temp.numeroTemporada} (${temp.ano || (currentSerieData ? currentSerieData.ano : 'S/A')})`;
       
       const numCaps = temp.episodios ? temp.episodios.length : 0;
       document.getElementById('modalDuration').innerHTML = `🎬 ${numCaps} episodio${numCaps === 1 ? '' : 's'}`;
@@ -919,6 +931,10 @@
       document.getElementById('modalTotalCap').style.display = 'none';
       document.getElementById('modalSinopsis').innerText = temp.sinopsis || `Selecciona un capítulo de la temporada ${temp.numeroTemporada} para ver sus detalles.`;
       document.getElementById('modalPlayBtn').style.display = 'none';
+
+      if (currentSerieData && currentSerieData.id) {
+        history.replaceState(null, '', `?id=${currentSerieData.id}`);
+      }
 
       let tempContainer = document.getElementById('modalTemporadasContainer');
       tempContainer.innerHTML = '';
@@ -969,7 +985,9 @@
     }
 
     function openEpisodeDetailsModal(ep, temp) {
-      const epPoster = ep.miniatura || ep.imagen || ep.img || ep.portada || ep.poster || temp.miniatura || temp.imagen || temp.portada || temp.poster || (currentSerieData && currentSerieData.miniatura) || '';
+      let epPoster = getValidImage(ep);
+      if (epPoster === DEFAULT_PLACEHOLDER) epPoster = getValidImage(temp);
+      if (epPoster === DEFAULT_PLACEHOLDER && currentSerieData) epPoster = getValidImage(currentSerieData);
       
       const formattedDur = formatDuration(ep.duracion);
       const numEpFormatted = String(ep.numeroEpisodio).padStart(2, '0');
@@ -1024,13 +1042,14 @@
       document.getElementById('movieModal').style.display = 'flex';
     }
 
+    /* FUNCIÓN CORREGIDA: Expresión regular para soportar 'url=' y 'video=' */
     function launchPlayer() {
       if (!targetHtmlUrl) return;
 
       if (currentSectionKey === 'tv' && targetHtmlUrl.includes('http://') && !targetHtmlUrl.includes('https://')) {
         const abrirAfuera = confirm("Este canal utiliza un protocolo HTTP no cifrado. Los navegadores web suelen bloquearlo internamente por seguridad.\n\n¿Deseas abrirlo de todas formas en una pestaña independiente?");
         if (abrirAfuera) {
-          const urlMatch = targetHtmlUrl.match(/video=([^&]+)/);
+          const urlMatch = targetHtmlUrl.match(/(?:url|video)=([^&]+)/);
           if (urlMatch && urlMatch[1]) {
             window.open(decodeURIComponent(urlMatch[1]), '_blank');
           }
@@ -1047,7 +1066,6 @@
       if (tempContainer) tempContainer.style.display = 'block';
       currentSerieData = null;
       currentSeasonData = null;
-      // Limpia la querystring de la barra de direcciones al cerrar el modal
       history.replaceState(null, '', window.location.pathname);
     }
   </script>
