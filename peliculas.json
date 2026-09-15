@@ -3,7 +3,7 @@
     "categoria": "Terror",
     "icono": "🧟‍♂️",
     "peliculas": [
-      {"id":"dnced","titulo":"De Noche con el Diablo","ano":2023,"duracion":"1h 33m","director":"Cameron Cairnes, Colin Cairnes","portada":"https://m.media-amazon.com/images/S/pv-target-images/53f56b497133d16bd300f122c61b2587b7595dfc54df6b43a1261c8faa3a3f36.jpg","sinopsis":"En la noche de Halloween de 1977, el presentador de un programa nocturno de televisión en decadencia intenta recuperar audiencia realizando un especial sobre el ocultismo, desencadenando fuerzas demoníacas en vivo.","url":"https://jeissonxp182.netlify.app/stream?id=3"},
+      {"id":"dnced","titulo":"De Noche con el Diablo","ano":2023,"duracion":"1h 33m","director":"Cameron Cairnes, Colin Cairnes","portada":"https://m.media-amazon.com/images/S/pv-target-images/53f56b497133d16bd300f122c61b2587b7595dfc54df6b43a1261c8faa3a3f36.jpg","sinopsis":"En la noche de Halloween de 1977, el presentador de un programa nocturno de televisión en decadencia intenta recuperar audiencia realizando un especial sobre el ocultismo, desencadenando fuerzas demoníacas en vivo.","url":"reproductor.html?url=https://jeissonxp182.netlify.app/stream?id=3"},
       {"id": "", "titulo": "", "ano": 2026, "duracion": "", "director": "", "portada": "", "sinopsis": "", "url": ""},
       {"id": "", "titulo": "", "ano": 2026, "duracion": "", "director": "", "portada": "", "sinopsis": "", "url": ""},
       {"id": "", "titulo": "", "ano": 2026, "duracion": "", "director": "", "portada": "", "sinopsis": "", "url": ""},
