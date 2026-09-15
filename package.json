@@ -1,0 +1,8 @@
+{
+  "name": "telegram-netlify-stream",
+  "version": "1.0.0",
+  "dependencies": {
+    "telegram": "^2.22.2",
+    "input": "^1.0.1"
+  }
+}
