@@ -1851,6 +1851,94 @@
       }
 
       async function resolveJsonItemById(id) {
+  const idBuscado = String(id || '').trim();
+
+  if (!idBuscado) {
+    return null;
+  }
+
+  try {
+    const respuestaIndex = await fetch(
+      CATALOGO_INDEX_URL,
+      {
+        cache: 'no-store'
+      }
+    );
+
+    if (respuestaIndex.ok) {
+      const indice = await respuestaIndex.json();
+      const referencia = indice?.ids?.[idBuscado];
+
+      if (referencia?.archivo) {
+        const respuestaJSON = await fetch(
+          referencia.archivo,
+          {
+            cache: 'no-store'
+          }
+        );
+
+        if (respuestaJSON.ok) {
+          const datos = await respuestaJSON.json();
+
+          const encontrado = findItemById(
+            datos,
+            idBuscado
+          );
+
+          if (encontrado) {
+            return encontrado;
+          }
+        }
+      }
+    }
+
+  } catch (error) {
+    console.warn(
+      'No se pudo utilizar catalogo-index.json:',
+      error
+    );
+  }
+
+  /*
+   * Respaldo:
+   * si el índice falla, seguimos buscando
+   * directamente en los JSON originales.
+   */
+  const resultados = await Promise.allSettled(
+    JSON_REPOSITORIES.map(async archivo => {
+      const respuesta = await fetch(
+        archivo,
+        {
+          cache: 'no-store'
+        }
+      );
+
+      if (!respuesta.ok) {
+        throw new Error(
+          `${archivo}: HTTP ${respuesta.status}`
+        );
+      }
+
+      const datos = await respuesta.json();
+
+      return findItemById(
+        datos,
+        idBuscado
+      );
+    })
+  );
+
+  for (const resultado of resultados) {
+    if (
+      resultado.status === 'fulfilled' &&
+      resultado.value
+    ) {
+      return resultado.value;
+    }
+  }
+
+  return null;
+}
         const wantedId = normalizeId(id);
         if (!wantedId) return null;
 
