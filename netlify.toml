@@ -1,0 +1,7 @@
+[build]
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/stream/*"
+  to = "/.netlify/functions/stream"
+  status = 200
