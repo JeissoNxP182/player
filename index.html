@@ -665,7 +665,7 @@
             sinopsis: "Transmisión de televisión en vivo."
           };
         } else if (linea && !linea.startsWith('#')) {
-          currentChannel.urlVideo = linea;
+          currentChannel.url = linea;
           if (currentChannel.titulo) {
             canales.push(currentChannel);
             currentChannel = {};
@@ -777,7 +777,7 @@
       favBtn.onclick = (e) => toggleFavorite(e, item);
 
       const img = document.createElement('img');
-      img.src = item.miniatura || item.portada || item.poster || item.imagen || '';
+      img.src = item.portada || item.miniatura || item.poster || item.imagen || '';
       img.alt = item.titulo || 'Portada';
       img.loading = 'lazy';
 
@@ -831,7 +831,7 @@
           }
 
           // Soporte dinámico para icono y nombre de género/categoría o saga
-          const groupTitle = grupo.genero || grupo.categoria || grupo.saga || grupo.nombre || grupo.titulo || 'Categoría';
+          const groupTitle = grupo.saga || grupo.genero || grupo.categoria || grupo.nombre || grupo.titulo || 'Categoría';
           const groupIcon = grupo.icono || grupo.icon || folderIcon;
 
           const sagaHeader = document.createElement('div');
@@ -887,7 +887,7 @@
 
       if (esEstructuraGrupos) {
         const filtered = items.map(grupo => {
-          const groupTitle = grupo.genero || grupo.categoria || grupo.saga || grupo.nombre || '';
+          const groupTitle = grupo.saga || grupo.genero || grupo.categoria || grupo.nombre || '';
           const matchesGroup = groupTitle ? groupTitle.toLowerCase().includes(query) : false;
 
           const filteredPelis = grupo.peliculas.filter(peli => {
@@ -914,7 +914,7 @@
     function openModal(peli) {
       const formattedDur = formatDuration(peli.duracion);
 
-      document.getElementById('modalImg').src = peli.miniatura || peli.portada || peli.poster || peli.imagen || '';
+      document.getElementById('modalImg').src = peli.portada || peli.miniatura || peli.poster || peli.imagen || '';
       document.getElementById('modalTitle').innerText = peli.titulo || 'Sin título';
       document.getElementById('modalYear').innerHTML = `📅 ${peli.ano || 'S/A'}`;
       document.getElementById('modalDuration').innerHTML = `🕕 ${formattedDur || 'N/A'}`;
@@ -940,7 +940,7 @@
       } else if (peli.url_html && peli.url_html.includes('reproductor.html')) {
         targetHtmlUrl = peli.url_html;
       } else {
-        const videoSrc = peli.urlVideo || peli.url_video || peli.video || peli.url || peli.enlace || peli.url_html || '';
+        const videoSrc = peli.url || peli.urlVideo || peli.url_video || peli.video || peli.enlace || peli.url_html || '';
         targetHtmlUrl = `reproductor.html?url=${encodeURIComponent(videoSrc)}&titulo=${encodeURIComponent(peli.titulo || 'Reproductor')}`;
       }
 
@@ -950,7 +950,7 @@
     function openSeriesModal(serie) {
       currentSerieData = serie;
       currentSeasonData = null;
-      const mainPoster = serie.miniatura || serie.poster || serie.portada || serie.imagen || '';
+      const mainPoster = serie.portada || serie.miniatura || serie.poster || serie.imagen || '';
       const totalTemporadasCount = serie.temporadas ? serie.temporadas.length : 0;
       
       document.getElementById('modalImg').src = mainPoster;
@@ -1028,7 +1028,7 @@
 
     function openSeasonEpisodesView(temp) {
       currentSeasonData = temp;
-      const seasonPoster = temp.miniatura || temp.imagen || temp.portada || temp.poster || (currentSerieData && currentSerieData.miniatura) || (currentSerieData && currentSerieData.portada) || (currentSerieData && currentSerieData.poster) || '';
+      const seasonPoster = temp.portada || temp.miniatura || temp.imagen || temp.poster || (currentSerieData && (currentSerieData.portada || currentSerieData.miniatura)) || '';
 
       document.getElementById('modalImg').src = seasonPoster;
       document.getElementById('modalTitle').innerText = `${currentSerieData ? currentSerieData.titulo : ''} - Temporada ${temp.numeroTemporada}`;
@@ -1090,7 +1090,7 @@
     }
 
     function openEpisodeDetailsModal(ep, temp) {
-      const epPoster = ep.miniatura || ep.imagen || ep.img || ep.portada || ep.poster || temp.miniatura || temp.imagen || temp.portada || temp.poster || (currentSerieData && currentSerieData.miniatura) || '';
+      const epPoster = ep.portada || ep.miniatura || ep.imagen || ep.img || ep.poster || temp.portada || temp.miniatura || temp.imagen || temp.poster || (currentSerieData && (currentSerieData.portada || currentSerieData.miniatura)) || '';
       
       const formattedDur = formatDuration(ep.duracion);
       const numEpFormatted = String(ep.numeroEpisodio).padStart(2, '0');
@@ -1134,7 +1134,7 @@
         if (epId) {
           targetHtmlUrl = `reproductor.html?episodio=${epId}`;
         } else {
-          const epVideoSrc = ep.urlVideo || ep.url_video || ep.video || ep.url || ep.enlace || '';
+          const epVideoSrc = ep.url || ep.urlVideo || ep.url_video || ep.video || ep.enlace || '';
           targetHtmlUrl = `reproductor.html?url=${encodeURIComponent(epVideoSrc)}&titulo=${encodeURIComponent((currentSerieData ? currentSerieData.titulo : '') + " - T" + temp.numeroTemporada + " Ep " + ep.numeroEpisodio)}`;
         }
         launchPlayer();
