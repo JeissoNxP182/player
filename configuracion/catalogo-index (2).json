@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "generado": "2026-09-15T12:10:52.594Z",
+  "total": 18,
+  "ids": {
+    "vhs-1": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[0].peliculas[0]"
+    },
+    "vhs-2": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[0].peliculas[1]"
+    },
+    "vhs-viral": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[0].peliculas[2]"
+    },
+    "vhs-94": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[0].peliculas[3]"
+    },
+    "vhs-99": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[0].peliculas[4]"
+    },
+    "vhs-85": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[0].peliculas[5]"
+    },
+    "vhs-beyond": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[0].peliculas[6]"
+    },
+    "vhs-halloween": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[0].peliculas[7]"
+    },
+    "vhs-siren": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[0].peliculas[8]"
+    },
+    "invicto-1": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[1].peliculas[0]"
+    },
+    "invicto-2": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[1].peliculas[1]"
+    },
+    "invicto-3": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[1].peliculas[2]"
+    },
+    "invicto-4": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[1].peliculas[3]"
+    },
+    "blade-1": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[2].peliculas[0]"
+    },
+    "blade-2": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[2].peliculas[1]"
+    },
+    "blade-3": {
+      "archivo": "sagas.json",
+      "ruta": "sagas[2].peliculas[2]"
+    },
+    "dnced": {
+      "archivo": "peliculas.json",
+      "ruta": "peliculas[0].peliculas[0]"
+    },
+    "ink-master": {
+      "archivo": "series.json",
+      "ruta": "series[0]"
+    }
+  }
+}
