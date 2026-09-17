@@ -9,7 +9,7 @@
 
 const DEFAULT_CONFIG = {
   siteName: "JeissoNxP",
-  catalogIndex: "catalogo-index.json",
+  catalogIndex: "configuracion/catalogo-index.json",
   favoritesKey: "jxp_favorites",
   historyKey: "jxp_historial",
   historyMax: 20,
