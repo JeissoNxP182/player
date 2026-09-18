@@ -9,17 +9,17 @@
 
 const DEFAULT_CONFIG = {
   siteName: "JeissoNxP",
-  catalogIndex: "catalogo-index.json",
+  catalogIndex: "configuracion/catalogo-index.json",
   favoritesKey: "jxp_favorites",
   historyKey: "jxp_historial",
   historyMax: 20,
   requestTimeout: 15000,
   repositories: {
-    sagas: "https://jeissonxp182.github.io/player/sagas.json",
-    peliculas: "https://jeissonxp182.github.io/player/peliculas.json",
-    series: "https://jeissonxp182.github.io/player/series.json",
-    anime: "https://jeissonxp182.github.io/player/anime.json",
-    videos: "https://jeissonxp182.github.io/player/videos.json",
+    sagas: "https://jeissonxp182.github.io/player/datos/sagas.json",
+    peliculas: "https://jeissonxp182.github.io/player/datos/peliculas.json",
+    series: "https://jeissonxp182.github.io/player/datos/series.json",
+    anime: "https://jeissonxp182.github.io/player/datos/anime.json",
+    videos: "https://jeissonxp182.github.io/player/datos/videos.json",
     tv: "https://iptv-org.github.io/iptv/index.m3u"
   }
 };
@@ -31,7 +31,7 @@ let APP_CONFIG = {
 
 async function cargarConfiguracion() {
   try {
-    const respuesta = await fetch('config.json?v=' + Date.now(), {
+    const respuesta = await fetch('configuracion/config.json?v=' + Date.now(), {
       cache: 'no-store'
     });
 
