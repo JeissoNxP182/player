@@ -31,7 +31,7 @@ let APP_CONFIG = {
 
 async function cargarConfiguracion() {
   try {
-    const respuesta = await fetch('config.json?v=' + Date.now(), {
+    const respuesta = await fetch('configuracion/config.json?v=' + Date.now(), {
       cache: 'no-store'
     });
 
