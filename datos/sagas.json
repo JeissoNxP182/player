@@ -29,15 +29,15 @@
       {"id": "blade-2", "titulo": "Blade II", "ano": "2002", "duracion": "01h:57m", "director": "Guillermo del Toro", "portada": "https://beam-images.warnermediacdn.com/BEAM_LWM_DELIVERABLES/482de592-6794-4428-a94d-332e37b96ca3/756ac45b6474f31a28d0cdc92639a5b40dd9f472.jpg?host=wbd-images.prod-vod.h264.io&partner=beamcom", "sinopsis": "Blade se ve obligado a aliarse con una unidad militar de élite vampírica para erradicar a los 'Reapers', una nueva especie de mutantes sedientos de sangre que amenazan con exterminar tanto a humanos como a vampiros.", "url": "https://archive.org/download/bcdv2/Blade%202.ia.mp4"},
       {"id": "blade-3", "titulo": "Blade: Trinity", "ano": "2004", "duracion": "01h:53m", "director": "David S. Goyer", "portada": "https://beam-images.warnermediacdn.com/BEAM_LWM_DELIVERABLES/34d875d0-936a-4515-a6c4-087c1a6cb04f/61deac5977671e607ba618edf540e01eb1be9a1e.jpg?host=wbd-images.prod-vod.h264.io&partner=beamcom", "sinopsis": "Inculpado injustamente por el FBI y perseguido por la ley, Blade une fuerzas con un grupo de cazadores humanos independientes llamados los 'Nightstalkers' para enfrentar a Drake, la fuente primordial de la especie vampírica.", "url": "https://archive.org/download/bcdv3/blade3.mp4"}
     ]
+  },
+  {
+    "saga": "Happy Gilmore (Saga)",
+    "peliculas": [
+      {"id": "hg-1", "titulo": "Happy Gilmore", "ano": "1996", "duracion": "01h:32m", "director": "Dennis Dugan", "portada": "https://shatpod.com/movies/wp-content/uploads/Happy-Gilmore-Poster-1996.jpg", "sinopsis": "Un fracasado jugador de hockey con un carácter explosivo descubre un talento natural para el golf. Con el fin de ganar dinero para salvar la casa de su abuela del embargo, ingresa al circuito profesional, revolucionando el deporte con su estilo extravagante y enfrentándose al arrogante Shooter McGavin.", "url": "https://archive.org/download/hgmre1/HappyGilmore1.mp4"},
+      {"id": "hg-2", "titulo": "Happy Gilmore 2", "ano": "2025", "duracion": "01h:58m", "director": "Kyle Newacheck", "portada": "https://i0.wp.com/primeraedicioncol.com/wp-content/uploads/2025/07/Happy-Gilmore-2-e1753827333516.webp?fit=1080%2C675&ssl=1&w=640", "sinopsis": "Casi tres décadas después de su época dorada, el icónico y temperamental Happy Gilmore regresa a las canchas de golf profesionales para financiar las clases de ballet de su hija en París, enfrentándose a nuevos rivales y a la extravagante organización MAXI-Golf.", "url": "https://archive.org/download/happy-gilmore-2-2025/Happy%20Gilmore%202.mp4"}
+    ]
   }
 ]
-
-
-
-
-
-
-
 
 
 
