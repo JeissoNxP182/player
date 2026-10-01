@@ -22,9 +22,13 @@ function indexCheck(data,file){
     return;
   }
   S.totals.indice=Object.keys(data.ids).length;
-  const allowedFiles=new Set([
-    FILES.peliculas,FILES.series,FILES.anime,FILES.videos,FILES.sagas
-  ]);
+  const allowedFiles = new Set([
+  'peliculas.json',
+  'series.json',
+  'anime.json',
+  'videos.json',
+  'sagas.json'
+]);
   for(const[id,r] of Object.entries(data.ids)){
     if(!r||typeof r!=='object'){
       problem('Referencia inválida',file,`"${id}" no tiene una referencia válida.`);
