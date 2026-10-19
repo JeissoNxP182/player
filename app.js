@@ -26,7 +26,8 @@ const DEFAULT_CONFIG = {
     series: "https://jeissonxp182.github.io/player/datos/series.json",
     anime: "https://jeissonxp182.github.io/player/datos/anime.json",
     videos: "https://jeissonxp182.github.io/player/datos/videos.json",
-    tv: "https://iptv-org.github.io/iptv/index.m3u"
+    tv: "https://iptv-org.github.io/iptv/index.m3u",
+    radio: "https://raw.githubusercontent.com/AlonDrilich/radio-playlists/main/countries/de.m3u"
   }
 };
 
