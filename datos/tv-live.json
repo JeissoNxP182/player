@@ -1,0 +1,173 @@
+{
+  "description": "Listas M3U de TV Live por país. Para cambiar una lista, modifica solo el campo playlist de ese país.",
+  "countries": [
+    {
+      "code": "ar",
+      "name": "Argentina",
+      "flag": "🇦🇷",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/ar.m3u"
+    },
+    {
+      "code": "bo",
+      "name": "Bolivia",
+      "flag": "🇧🇴",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/bo.m3u"
+    },
+    {
+      "code": "br",
+      "name": "Brasil",
+      "flag": "🇧🇷",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/br.m3u"
+    },
+    {
+      "code": "cl",
+      "name": "Chile",
+      "flag": "🇨🇱",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/cl.m3u"
+    },
+    {
+      "code": "co",
+      "name": "Colombia",
+      "flag": "🇨🇴",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/co.m3u"
+    },
+    {
+      "code": "cr",
+      "name": "Costa Rica",
+      "flag": "🇨🇷",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/cr.m3u"
+    },
+    {
+      "code": "cu",
+      "name": "Cuba",
+      "flag": "🇨🇺",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/cu.m3u"
+    },
+    {
+      "code": "do",
+      "name": "República Dominicana",
+      "flag": "🇩🇴",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/do.m3u"
+    },
+    {
+      "code": "ec",
+      "name": "Ecuador",
+      "flag": "🇪🇨",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/ec.m3u"
+    },
+    {
+      "code": "sv",
+      "name": "El Salvador",
+      "flag": "🇸🇻",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/sv.m3u"
+    },
+    {
+      "code": "gt",
+      "name": "Guatemala",
+      "flag": "🇬🇹",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/gt.m3u"
+    },
+    {
+      "code": "hn",
+      "name": "Honduras",
+      "flag": "🇭🇳",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/hn.m3u"
+    },
+    {
+      "code": "mx",
+      "name": "México",
+      "flag": "🇲🇽",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/mx.m3u"
+    },
+    {
+      "code": "ni",
+      "name": "Nicaragua",
+      "flag": "🇳🇮",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/ni.m3u"
+    },
+    {
+      "code": "pa",
+      "name": "Panamá",
+      "flag": "🇵🇦",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/pa.m3u"
+    },
+    {
+      "code": "py",
+      "name": "Paraguay",
+      "flag": "🇵🇾",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/py.m3u"
+    },
+    {
+      "code": "pe",
+      "name": "Perú",
+      "flag": "🇵🇪",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/pe.m3u"
+    },
+    {
+      "code": "pr",
+      "name": "Puerto Rico",
+      "flag": "🇵🇷",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/pr.m3u"
+    },
+    {
+      "code": "uy",
+      "name": "Uruguay",
+      "flag": "🇺🇾",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/uy.m3u"
+    },
+    {
+      "code": "ve",
+      "name": "Venezuela",
+      "flag": "🇻🇪",
+      "group": "Latinoamérica",
+      "playlist": "https://iptv-org.github.io/iptv/countries/ve.m3u"
+    },
+    {
+      "code": "es",
+      "name": "España",
+      "flag": "🇪🇸",
+      "group": "Países hispanohablantes",
+      "playlist": "https://iptv-org.github.io/iptv/countries/es.m3u"
+    },
+    {
+      "code": "ca",
+      "name": "Canadá",
+      "flag": "🇨🇦",
+      "group": "Norteamérica y Reino Unido",
+      "playlist": "https://iptv-org.github.io/iptv/countries/ca.m3u"
+    },
+    {
+      "code": "us",
+      "name": "Estados Unidos",
+      "flag": "🇺🇸",
+      "group": "Norteamérica y Reino Unido",
+      "playlist": "https://iptv-org.github.io/iptv/countries/us.m3u"
+    },
+    {
+      "code": "gb",
+      "name": "Inglaterra / Reino Unido",
+      "flag": "🇬🇧",
+      "group": "Norteamérica y Reino Unido",
+      "playlist": "https://iptv-org.github.io/iptv/countries/uk.m3u"
+    }
+  ]
+}
